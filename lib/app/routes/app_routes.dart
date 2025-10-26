@@ -1,0 +1,17 @@
+part of 'app_pages.dart';
+// DO NOT EDIT. This is code generated via package:get_cli/get_cli.dart
+
+abstract class Routes {
+  static const HOME = '/home';
+  static const PILIH_KURSI = '/pilih-kursi';
+  static const DETAIL_BOOKING_TIKET = '/detail-booking-tiket';
+  static const LOGIN_PAGE = _Paths.LOGIN_PAGE;
+}
+
+abstract class _Paths {
+  _Paths._();
+  static const HOME = '/home';
+  static const PILIH_KURSI = '/pilih-kursi';
+  static const DETAIL_BOOKING_TIKET = '/detail-booking-tiket';
+  static const LOGIN_PAGE = '/login-page';
+}

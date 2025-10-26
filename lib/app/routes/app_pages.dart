@@ -1,0 +1,41 @@
+import 'package:get/get.dart';
+
+import '../modules/detail_booking_tiket/bindings/detail_booking_tiket_binding.dart';
+import '../modules/detail_booking_tiket/views/detail_booking_tiket_view.dart';
+import '../modules/home/bindings/home_binding.dart';
+import '../modules/home/views/home_view.dart';
+import '../modules/login_page/bindings/login_page_binding.dart';
+import '../modules/login_page/views/login_page_view.dart';
+import '../modules/pilih_kursi/bindings/pilih_kursi_binding.dart';
+import '../modules/pilih_kursi/views/pilih_kursi_view.dart';
+
+part 'app_routes.dart';
+
+class AppPages {
+  AppPages._();
+
+  static const INITIAL = Routes.HOME;
+
+  static final routes = [
+    GetPage(
+      name: _Paths.HOME,
+      page: () => const HomeView(),
+      binding: HomeBinding(),
+    ),
+    GetPage(
+      name: _Paths.PILIH_KURSI,
+      page: () => const PilihKursiView(),
+      binding: PilihKursiBinding(),
+    ),
+    GetPage(
+      name: _Paths.DETAIL_BOOKING_TIKET,
+      page: () => const DetailBookingTiketView(),
+      binding: DetailBookingTiketBinding(),
+    ),
+    GetPage(
+      name: _Paths.LOGIN_PAGE,
+      page: () => const LoginPageView(),
+      binding: LoginPageBinding(),
+    ),
+  ];
+}
