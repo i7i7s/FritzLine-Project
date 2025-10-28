@@ -6,6 +6,7 @@ abstract class Routes {
   static const PILIH_KURSI = '/pilih-kursi';
   static const DETAIL_BOOKING_TIKET = '/detail-booking-tiket';
   static const LOGIN_PAGE = _Paths.LOGIN_PAGE;
+  static const SPLASH_SCREEN = _Paths.SPLASH_SCREEN;
 }
 
 abstract class _Paths {
@@ -14,4 +15,5 @@ abstract class _Paths {
   static const PILIH_KURSI = '/pilih-kursi';
   static const DETAIL_BOOKING_TIKET = '/detail-booking-tiket';
   static const LOGIN_PAGE = '/login-page';
+  static const SPLASH_SCREEN = '/splash-screen';
 }

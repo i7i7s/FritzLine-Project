@@ -8,6 +8,8 @@ import '../modules/login_page/bindings/login_page_binding.dart';
 import '../modules/login_page/views/login_page_view.dart';
 import '../modules/pilih_kursi/bindings/pilih_kursi_binding.dart';
 import '../modules/pilih_kursi/views/pilih_kursi_view.dart';
+import '../modules/splash_screen/bindings/splash_screen_binding.dart';
+import '../modules/splash_screen/views/splash_screen_view.dart';
 
 part 'app_routes.dart';
 
@@ -36,6 +38,11 @@ class AppPages {
       name: _Paths.LOGIN_PAGE,
       page: () => const LoginPageView(),
       binding: LoginPageBinding(),
+    ),
+    GetPage(
+      name: _Paths.SPLASH_SCREEN,
+      page: () => const SplashScreenView(),
+      binding: SplashScreenBinding(),
     ),
   ];
 }
