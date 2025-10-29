@@ -2,12 +2,18 @@ import 'package:get/get.dart';
 
 import '../modules/detail_booking_tiket/bindings/detail_booking_tiket_binding.dart';
 import '../modules/detail_booking_tiket/views/detail_booking_tiket_view.dart';
+import '../modules/detail_jadwal/bindings/detail_jadwal_binding.dart';
+import '../modules/detail_jadwal/views/detail_jadwal_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/login_page/bindings/login_page_binding.dart';
 import '../modules/login_page/views/login_page_view.dart';
 import '../modules/pilih_kursi/bindings/pilih_kursi_binding.dart';
 import '../modules/pilih_kursi/views/pilih_kursi_view.dart';
+import '../modules/register/bindings/register_binding.dart';
+import '../modules/register/views/register_view.dart';
+import '../modules/ringkasan_pemesanan/bindings/ringkasan_pemesanan_binding.dart';
+import '../modules/ringkasan_pemesanan/views/ringkasan_pemesanan_view.dart';
 import '../modules/splash_screen/bindings/splash_screen_binding.dart';
 import '../modules/splash_screen/views/splash_screen_view.dart';
 
@@ -43,6 +49,21 @@ class AppPages {
       name: _Paths.SPLASH_SCREEN,
       page: () => SplashScreenView(),
       binding: SplashScreenBinding(),
+    ),
+    GetPage(
+      name: _Paths.REGISTER,
+      page: () => const RegisterView(),
+      binding: RegisterBinding(),
+    ),
+    GetPage(
+      name: _Paths.DETAIL_JADWAL,
+      page: () => const DetailJadwalView(),
+      binding: DetailJadwalBinding(),
+    ),
+    GetPage(
+      name: _Paths.RINGKASAN_PEMESANAN,
+      page: () => const RingkasanPemesananView(),
+      binding: RingkasanPemesananBinding(),
     ),
   ];
 }

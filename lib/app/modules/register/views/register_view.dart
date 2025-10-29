@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import '../controllers/login_page_controller.dart';
 
-class LoginPageView extends GetView<LoginPageController> {
-  const LoginPageView({super.key});
+import 'package:get/get.dart';
+
+import '../controllers/register_controller.dart';
+
+class RegisterView extends GetView<RegisterController> {
+  const RegisterView({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('LoginPageView'),
+        title: const Text('RegisterView'),
         centerTitle: true,
       ),
       body: const Center(
         child: Text(
-          'LoginPageView is working',
+          'RegisterView is working',
           style: TextStyle(fontSize: 20),
         ),
       ),
