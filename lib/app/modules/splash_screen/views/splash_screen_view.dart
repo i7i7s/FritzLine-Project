@@ -28,10 +28,7 @@ class SplashScreenView extends GetView<SplashScreenController> {
                     builder: (context, value, child) {
                       return Transform.scale(
                         scale: value,
-                        child: Opacity(
-                          opacity: value,
-                          child: child,
-                        ),
+                        child: Opacity(opacity: value, child: child),
                       );
                     },
                     child: Container(
@@ -90,10 +87,7 @@ class SplashScreenView extends GetView<SplashScreenController> {
                 child: const Text(
                   "© 2025 FritzLine. All rights reserved.",
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.black54,
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: Colors.black54, fontSize: 12),
                 ),
               ),
             ),
