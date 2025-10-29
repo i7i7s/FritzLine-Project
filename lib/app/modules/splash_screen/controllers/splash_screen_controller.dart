@@ -1,23 +1,24 @@
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart'; 
+import '../../../routes/app_pages.dart';
 
 class SplashScreenController extends GetxController {
-  //TODO: Implement SplashScreenController
-
-  final count = 0.obs;
-  @override
-  void onInit() {
-    super.onInit();
-  }
+  final box = GetStorage();
 
   @override
   void onReady() {
     super.onReady();
+    _checkLoginStatus();
   }
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
+  void _checkLoginStatus() async {
+    await Future.delayed(const Duration(seconds: 2)); 
+    bool isLoggedIn = box.read('isLoggedIn') ?? false;
 
-  void increment() => count.value++;
+    if (isLoggedIn) {
+      Get.offAllNamed(Routes.HOME); 
+    } else {
+      Get.offAllNamed(Routes.LOGIN_PAGE); 
+    }
+  }
 }
