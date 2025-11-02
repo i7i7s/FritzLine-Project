@@ -1,23 +1,43 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:fritzlinee/app/services/auth_service.dart';
+import 'package:fritzlinee/app/routes/app_pages.dart';
 
 class LoginPageController extends GetxController {
-  //TODO: Implement LoginPageController
+  final authService = Get.find<AuthService>();
 
-  final count = 0.obs;
-  @override
-  void onInit() {
-    super.onInit();
-  }
+  final emailC = TextEditingController();
+  final passC = TextEditingController();
 
-  @override
-  void onReady() {
-    super.onReady();
-  }
+  final isLoading = false.obs;
 
   @override
   void onClose() {
+    emailC.dispose();
+    passC.dispose();
     super.onClose();
   }
 
-  void increment() => count.value++;
+  void goToRegister() {
+    Get.toNamed(Routes.REGISTER);
+  }
+
+  void login() async {
+    if (emailC.text.isEmpty || passC.text.isEmpty) {
+      Get.snackbar(
+        "Error",
+        "Email dan password tidak boleh kosong.",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    isLoading.value = true;
+    bool loginSuccess = await authService.login(emailC.text, passC.text);
+    isLoading.value = false;
+
+    if (loginSuccess) {
+      Get.offAllNamed(Routes.HOME);
+    }
+  }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -7,127 +8,61 @@ class HomeView extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Obx(() => Stack(
-        children: [
-          // Background konsisten
-          Container(
-            width: Get.width,
-            height: Get.height,
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/images/bg.png'),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          // IndexedStack untuk menyimpan state setiap halaman/tab
-          IndexedStack(
-            index: controller.tabIndex.value,
-            children: [
-              _buildBerandaPage(context), // Tab 0: Beranda
-              _buildTiketPage(), // Tab 1: Tiket
-              _buildProfilPage(), // Tab 2: Profil
-            ],
-          ),
-        ],
-      )),
-      bottomNavigationBar: Obx(() => BottomNavigationBar(
-        currentIndex: controller.tabIndex.value,
-        onTap: controller.changeTabIndex,
-        backgroundColor: Colors.white,
-        selectedItemColor: const Color(0xFF656CEE),
-        unselectedItemColor: Colors.grey,
-        elevation: 10,
-        type: BottomNavigationBarType.fixed, // Mencegah item bergeser
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_rounded),
-            label: 'Beranda',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.confirmation_number_rounded),
-            label: 'Tiket',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_rounded),
-            label: 'Profil',
-          ),
-        ],
-      )),
-    );
+    return _buildBerandaPage(context);
   }
 
-  // Halaman Tab 0: Beranda
   Widget _buildBerandaPage(BuildContext context) {
     return SafeArea(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 20),
-            // Header
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  "Mau pergi ke\nmana kali ini?",
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF333E63),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.menu, size: 30, color: Color(0xFF333E63)),
-                  onPressed: () {
-                    // Logika untuk membuka drawer (jika ada)
-                  },
-                ),
-              ],
-            ),
+            _buildBerandaHeader(),
             const SizedBox(height: 20),
-
-            // Kartu Booking
-            _buildBookingCard(context),
-
-            const SizedBox(height: 30),
-
-            // Section "Tiket saya"
-            const Text(
-              "Tiket saya",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF333E63),
-              ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: _buildBookingCard(context),
             ),
-            const SizedBox(height: 10),
-            _buildMyTicketsList(),
-
             const SizedBox(height: 30),
-
-            // Section "Berita"
-            const Text(
-              "Berita",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF333E63),
-              ),
-            ),
+            _buildBerandaSectionTitle("Berita"),
             const SizedBox(height: 10),
             _buildNewsList(),
-
-            const SizedBox(height: 20), // Padding di bawah
+            const SizedBox(height: 20),
           ],
         ),
       ),
     );
   }
 
-  // Widget untuk Kartu Booking (DENGAN NAVIGASI)
+  Widget _buildBerandaHeader() {
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20),
+      child: Text(
+        "Mau pergi ke\nmana kali ini?",
+        style: TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          color: Color(0xFF333E63),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBerandaSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: Color(0xFF333E63),
+        ),
+      ),
+    );
+  }
+
   Widget _buildBookingCard(BuildContext context) {
     return Card(
       elevation: 4,
@@ -136,131 +71,123 @@ class HomeView extends GetView<HomeController> {
         padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
-            // Row Keberangkatan & Tujuan
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => controller.showCitySelection(context, true),
-                    child: Obx(() => _buildStationInfo(
-                          "Keberangkatan",
-                          controller.selectedDeparture['code']!,
-                          "Stasiun ${controller.selectedDeparture['name']!}",
-                        )),
-                  ),
-                ),
-
-                // Tombol Swap
-                GestureDetector(
-                  onTap: () => controller.swapCities(),
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 25.0, left: 8, right: 8), 
-                    child: const Icon(Icons.swap_horiz, color: Color(0xFF656CEE), size: 28),
-                  ),
-                ),
-
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => controller.showCitySelection(context, false),
-                    child: Obx(() => _buildStationInfo(
-                          "Tujuan",
-                          controller.selectedArrival['code']!,
-                          "Stasiun ${controller.selectedArrival['name']!}",
-                          align: CrossAxisAlignment.end,
-                        )),
-                  ),
-                ),
-              ],
-            ),
+            _buildStationRow(context),
             const Divider(height: 25, thickness: 1),
-
-            // Row Tanggal & Tipe Pergi
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Tombol Tanggal
-                GestureDetector(
-                  onTap: () => controller.selectDate(context),
-                  child: Obx(() => _buildInfoColumn(
-                        "Tanggal keberangkatan",
-                        controller.getFormattedDate(controller.selectedDate.value),
-                      )),
-                ),
-                // Switch "Pulang pergi"
-                Row(
-                  children: [
-                    Obx(() => Switch(
-                      value: controller.isRoundTrip.value,
-                      onChanged: (val) => controller.toggleRoundTrip(val),
-                      activeColor: const Color(0xFF656CEE),
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    )),
-                    const Text("Pulang pergi", style: TextStyle(fontSize: 12)),
-                  ],
-                ),
-              ],
-            ),
+            _buildDateRow(context),
             const Divider(height: 25, thickness: 1),
-
-            // Row Penumpang & Cari Tiket
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text("Jumlah penumpang",
-                        style: TextStyle(color: Colors.grey, fontSize: 12)),
-                    const SizedBox(height: 5),
-                    Row(
-                      children: [
-                        _buildPassengerButton(Icons.remove, controller.decrementPassenger),
-                        Obx(() => Text(" ${controller.passengerCount.value} ",
-                            style: const TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold))),
-                        _buildPassengerButton(Icons.add, controller.incrementPassenger),
-                      ],
-                    )
-                  ],
-                ),
-                
-                // === INI BAGIAN YANG DIUPDATE ===
-                ElevatedButton(
-                  onPressed: () {
-                    // Navigasi ke halaman detail jadwal
-                    Get.toNamed(
-                      '/detail-jadwal', // Pastikan route ini ada di app_pages
-                      arguments: {
-                        "departure": controller.selectedDeparture,
-                        "arrival": controller.selectedArrival,
-                        "date": controller.selectedDate.value,
-                      },
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF656CEE),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  ),
-                  child: const Text("CARI TIKET",
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                ),
-                // === AKHIR BAGIAN YANG DIUPDATE ===
-              ],
-            ),
+            _buildPassengerRow(),
           ],
         ),
       ),
     );
   }
 
-  // Helper untuk info stasiun (Dengan fix layout)
+  Widget _buildStationRow(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: GestureDetector(
+            onTap: () => controller.showCitySelection(context, true),
+            child: Obx(() => _buildStationInfo(
+                  "Keberangkatan",
+                  controller.selectedDeparture.value['code'] ?? "",
+                  controller.selectedDeparture.value['name'] ?? '...',
+                )),
+          ),
+        ),
+        GestureDetector(
+          onTap: () => controller.swapCities(),
+          child: const Padding(
+            padding: EdgeInsets.only(top: 25.0, left: 8, right: 8),
+            child: Icon(Icons.swap_horiz, color: Color(0xFF656CEE), size: 28),
+          ),
+        ),
+        Expanded(
+          child: GestureDetector(
+            onTap: () => controller.showCitySelection(context, false),
+            child: Obx(() => _buildStationInfo(
+                  "Tujuan",
+                  controller.selectedArrival.value['code'] ?? "",
+                  controller.selectedArrival.value['name'] ?? '...',
+                  align: CrossAxisAlignment.end,
+                )),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDateRow(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(
+          child: GestureDetector(
+            onTap: () => controller.selectDate(context),
+            child: Obx(() => _buildInfoColumn(
+                  "Tanggal keberangkatan",
+                  controller.getFormattedDate(controller.selectedDate.value),
+                )),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Row(
+          children: [
+            Obx(() => Switch(
+                  value: controller.isRoundTrip.value,
+                  onChanged: (val) => controller.toggleRoundTrip(val),
+                  activeColor: const Color(0xFF656CEE),
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                )),
+            const Text("Pulang pergi", style: TextStyle(fontSize: 12)),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPassengerRow() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text("Jumlah penumpang",
+                style: TextStyle(color: Colors.grey, fontSize: 12)),
+            const SizedBox(height: 5),
+            Row(
+              children: [
+                _buildPassengerButton(
+                    Icons.remove, controller.decrementPassenger),
+                Obx(() => Text(" ${controller.passengerCount.value} ",
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold))),
+                _buildPassengerButton(Icons.add, controller.incrementPassenger),
+              ],
+            )
+          ],
+        ),
+        ElevatedButton(
+          onPressed: () => controller.cariTiket(),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF656CEE),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          ),
+          child: const Text("CARI TIKET",
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        ),
+      ],
+    );
+  }
+
   Widget _buildStationInfo(String title, String code, String station,
       {CrossAxisAlignment align = CrossAxisAlignment.start}) {
     return Column(
@@ -268,23 +195,22 @@ class HomeView extends GetView<HomeController> {
       children: [
         Text(title, style: const TextStyle(color: Colors.grey, fontSize: 12)),
         const SizedBox(height: 5),
-        Text(code,
+        Text(code.isEmpty ? "..." : code,
             style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF333E63))),
         const SizedBox(height: 5),
-        
-        // Membungkus Text dengan Row + Flexible untuk memaksa wrapping
         Row(
-          mainAxisAlignment: (align == CrossAxisAlignment.end) 
-              ? MainAxisAlignment.end 
+          mainAxisAlignment: (align == CrossAxisAlignment.end)
+              ? MainAxisAlignment.end
               : MainAxisAlignment.start,
           children: [
             Flexible(
               child: Text(
-                station,
+                "Stasiun $station",
                 style: const TextStyle(color: Colors.grey, fontSize: 12),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
@@ -293,7 +219,6 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  // Helper untuk info tanggal
   Widget _buildInfoColumn(String title, String subtitle) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -309,7 +234,6 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  // Helper untuk tombol +/- penumpang
   Widget _buildPassengerButton(IconData icon, VoidCallback onPressed) {
     return InkWell(
       onTap: onPressed,
@@ -324,95 +248,35 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  // Horizontal List untuk "Tiket saya" (Layout "Ceper")
-  Widget _buildMyTicketsList() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: controller.myTicketsList.map((ticket) {
-          return Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            child: InkWell(
-              onTap: () {},
-              borderRadius: BorderRadius.circular(10),
-              child: Container(
-                width: 160,
-                padding: const EdgeInsets.all(12),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: Colors.orange.shade100,
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            child: Text(
-                              ticket["status"]!,
-                              style: TextStyle(
-                                  color: Colors.orange.shade800,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 10),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            ticket["nama_kereta"]!,
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 15),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(ticket["rute"]!,
-                              style: const TextStyle(
-                                  color: Colors.grey, fontSize: 12)),
-                        ],
-                      ),
-                    ),
-                    const Icon(Icons.arrow_forward_rounded,
-                        color: Color(0xFF656CEE)),
-                  ],
-                ),
-              ),
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  // Horizontal List untuk "Berita"
   Widget _buildNewsList() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: controller.newsList.map((news) {
-          return Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            child: Container(
-              width: 180,
+    return SizedBox(
+      height: 190,
+      child: ListView.separated(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        scrollDirection: Axis.horizontal,
+        itemCount: controller.newsList.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        itemBuilder: (context, index) {
+          final news = controller.newsList[index];
+          return SizedBox(
+            width: Get.width * 0.8,
+            child: Card(
+              elevation: 3,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              clipBehavior: Clip.antiAlias,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    height: 100,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                      borderRadius:
-                          const BorderRadius.vertical(top: Radius.circular(10)),
-                      image: DecorationImage(
-                        // Ganti dengan Image.asset(news["image"]!) jika gambar ada
-                        image: NetworkImage(
-                            'https://via.placeholder.com/180x100.png?text=Berita'),
-                        fit: BoxFit.cover,
-                      ),
+                    height: 110,
+                    width: double.infinity,
+                    color: Colors.grey.shade300,
+                    alignment: Alignment.center,
+                    child: Text(
+                      "Gambar Berita ${index + 1}",
+                      style: TextStyle(color: Colors.grey.shade700),
                     ),
                   ),
                   Padding(
@@ -421,7 +285,7 @@ class HomeView extends GetView<HomeController> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          news["kategori"]!,
+                          news["kategori"] ?? "",
                           style: const TextStyle(
                               color: Color(0xFF656CEE),
                               fontWeight: FontWeight.bold,
@@ -429,7 +293,7 @@ class HomeView extends GetView<HomeController> {
                         ),
                         const SizedBox(height: 5),
                         Text(
-                          news["judul"]!,
+                          news["judul"] ?? "",
                           style: const TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 14),
                           maxLines: 2,
@@ -442,27 +306,7 @@ class HomeView extends GetView<HomeController> {
               ),
             ),
           );
-        }).toList(),
-      ),
-    );
-  }
-
-  // Halaman Tab 1: Tiket (Placeholder)
-  Widget _buildTiketPage() {
-    return const Center(
-      child: Text(
-        "Halaman Tiket Saya",
-        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-      ),
-    );
-  }
-
-  // Halaman Tab 2: Profil (Placeholder)
-  Widget _buildProfilPage() {
-    return const Center(
-      child: Text(
-        "Halaman Profil",
-        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        },
       ),
     );
   }

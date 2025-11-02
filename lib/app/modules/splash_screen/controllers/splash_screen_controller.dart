@@ -1,24 +1,41 @@
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart'; 
 import '../../../routes/app_pages.dart';
+import '../../../services/auth_service.dart';
+import '../../../services/hive_service.dart';
 
 class SplashScreenController extends GetxController {
-  final box = GetStorage();
+  final _authService = Get.find<AuthService>();
+  final _hiveService = Get.find<HiveService>();
 
   @override
-  void onReady() {
-    super.onReady();
-    _checkLoginStatus();
+  void onInit() {
+    super.onInit();
+    _initializeApp();
   }
 
-  void _checkLoginStatus() async {
-    await Future.delayed(const Duration(seconds: 2)); 
-    bool isLoggedIn = box.read('isLoggedIn') ?? false;
+  void _initializeApp() async {
+    try {
+      await Future.wait([
+        _seedDatabase(),
+        Future.delayed(const Duration(milliseconds: 2000)),
+      ]);
+    } catch (e) {
+      print("Error saat startup: $e");
+    } finally {
+      bool isLoggedIn = _authService.checkSession();
+      if (isLoggedIn) {
+        Get.offAllNamed(Routes.HOME);
+      } else {
+        Get.offAllNamed(Routes.LOGIN_PAGE);
+      }
+    }
+  }
 
-    if (isLoggedIn) {
-      Get.offAllNamed(Routes.HOME); 
-    } else {
-      Get.offAllNamed(Routes.LOGIN_PAGE); 
+  Future<void> _seedDatabase() async {
+    try {
+      await _hiveService.seedTrainDatabase();
+    } catch (e) {
+      print("Gagal seeding database: $e");
     }
   }
 }

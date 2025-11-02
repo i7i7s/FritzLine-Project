@@ -10,6 +10,9 @@ abstract class Routes {
   static const REGISTER = _Paths.REGISTER;
   static const DETAIL_JADWAL = _Paths.DETAIL_JADWAL;
   static const RINGKASAN_PEMESANAN = _Paths.RINGKASAN_PEMESANAN;
+  static const TIKET = _Paths.TIKET;
+  static const PROFIL = _Paths.PROFIL;
+  static const DASHBOARD = _Paths.DASHBOARD;
 }
 
 abstract class _Paths {
@@ -22,4 +25,7 @@ abstract class _Paths {
   static const REGISTER = '/register';
   static const DETAIL_JADWAL = '/detail-jadwal';
   static const RINGKASAN_PEMESANAN = '/ringkasan-pemesanan';
+  static const TIKET = '/tiket';
+  static const PROFIL = '/profil';
+  static const DASHBOARD = '/dashboard';
 }
