@@ -311,3 +311,94 @@ class HomeView extends GetView<HomeController> {
     );
   }
 }
+
+class StationSearchDialog extends StatefulWidget {
+  final HomeController controller;
+  final bool isDeparture;
+
+  const StationSearchDialog({
+    super.key,
+    required this.controller,
+    required this.isDeparture,
+  });
+
+  @override
+  State<StationSearchDialog> createState() => _StationSearchDialogState();
+}
+
+class _StationSearchDialogState extends State<StationSearchDialog> {
+  late TextEditingController _searchC;
+  final _filteredStations = <Map<String, dynamic>>[].obs;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchC = TextEditingController();
+    _filteredStations.value = widget.controller.allStations;
+    _searchC.addListener(_filterList);
+  }
+
+  @override
+  void dispose() {
+    _searchC.removeListener(_filterList);
+    _searchC.dispose();
+    super.dispose();
+  }
+
+  void _filterList() {
+    final query = _searchC.text;
+    if (query.isEmpty) {
+      _filteredStations.value = widget.controller.allStations;
+    } else {
+      _filteredStations.value =
+          widget.controller.allStations.where((station) {
+        final stationName = station['nama'].toString().toLowerCase();
+        final stationCode = station['id'].toString().toLowerCase();
+        final searchLower = query.toLowerCase();
+        return stationName.contains(searchLower) ||
+            stationCode.contains(searchLower);
+      }).toList();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: Get.width * 0.8,
+      height: Get.height * 0.5,
+      child: Column(
+        children: [
+          TextField(
+            controller: _searchC,
+            decoration: InputDecoration(
+              labelText: "Cari stasiun (cth: GMR atau Gambir)",
+              prefixIcon: const Icon(Icons.search),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Expanded(
+            child: Obx(() => ListView.builder(
+                  itemCount: _filteredStations.length,
+                  itemBuilder: (context, index) {
+                    final station = _filteredStations[index];
+                    return ListTile(
+                      title: Text("${station['nama']} (${station['id']})"),
+                      onTap: () {
+                        widget.controller.selectStation(
+                          station,
+                          widget.isDeparture,
+                        );
+                      },
+                    );
+                  },
+                )),
+          ),
+        ],
+      ),
+    );
+  }
+}

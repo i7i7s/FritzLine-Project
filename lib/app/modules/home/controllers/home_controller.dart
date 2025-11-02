@@ -7,6 +7,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 
 import '../../../services/booking_service.dart';
 import '../../../routes/app_pages.dart';
+import '../views/home_view.dart';
 
 class HomeController extends GetxController {
   final bookingService = Get.find<BookingService>();
@@ -14,8 +15,6 @@ class HomeController extends GetxController {
   final isLoadingStations = true.obs;
 
   final allStations = <Map<String, dynamic>>[].obs;
-  final filteredStations = <Map<String, dynamic>>[].obs;
-  late TextEditingController searchC;
 
   final selectedDeparture = {"code": "", "name": "Pilih Stasiun"}.obs;
   final selectedArrival = {"code": "", "name": "Pilih Stasiun"}.obs;
@@ -62,14 +61,7 @@ class HomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    searchC = TextEditingController();
     fetchStations();
-  }
-
-  @override
-  void onClose() {
-    searchC.dispose();
-    super.onClose();
   }
 
   Future<void> fetchStations() async {
@@ -86,9 +78,7 @@ class HomeController extends GetxController {
         for (var stationList in data.values) {
           tempStationList.addAll(List<Map<String, dynamic>>.from(stationList));
         }
-
         allStations.value = tempStationList;
-        filteredStations.value = tempStationList;
       } else {
         Get.snackbar("Error", "Gagal memuat data stasiun.");
       }
@@ -96,20 +86,6 @@ class HomeController extends GetxController {
       Get.snackbar("Error", "Gagal parsing data stasiun: ${e.toString()}");
     } finally {
       isLoadingStations.value = false;
-    }
-  }
-
-  void filterStations(String query) {
-    if (query.isEmpty) {
-      filteredStations.value = allStations;
-    } else {
-      filteredStations.value = allStations.where((station) {
-        final stationName = station['nama'].toString().toLowerCase();
-        final stationCode = station['id'].toString().toLowerCase();
-        final searchLower = query.toLowerCase();
-        return stationName.contains(searchLower) ||
-            stationCode.contains(searchLower);
-      }).toList();
     }
   }
 
@@ -167,81 +143,49 @@ class HomeController extends GetxController {
     }
   }
 
+  void selectStation(Map<String, dynamic> station, bool isDeparture) {
+    final stationMap = {
+      "code": station['id'] as String,
+      "name": station['nama'] as String
+    };
+
+    if (isDeparture) {
+      if (stationMap['code'] == selectedArrival.value['code']) {
+        Get.snackbar(
+          "Error",
+          "Stasiun keberangkatan tidak boleh sama.",
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        return;
+      }
+      selectedDeparture.value = stationMap;
+    } else {
+      if (stationMap['code'] == selectedDeparture.value['code']) {
+        Get.snackbar(
+          "Error",
+          "Stasiun tujuan tidak boleh sama.",
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        return;
+      }
+      selectedArrival.value = stationMap;
+    }
+    Get.back();
+  }
+
   void showCitySelection(BuildContext context, bool isDeparture) {
     if (isLoadingStations.value) {
       Get.snackbar("Loading", "Sedang memuat data stasiun...");
       return;
     }
 
-    searchC.clear();
-    filteredStations.value = allStations;
-
     Get.defaultDialog(
       title: "Pilih Stasiun",
       titleStyle:
           const TextStyle(color: Color(0xFF333E63), fontWeight: FontWeight.bold),
-      content: Container(
-        width: Get.width * 0.8,
-        height: Get.height * 0.5,
-        child: Column(
-          children: [
-            TextField(
-              controller: searchC,
-              onChanged: (value) => filterStations(value),
-              decoration: InputDecoration(
-                labelText: "Cari stasiun (cth: GMR atau Gambir)",
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                contentPadding: EdgeInsets.symmetric(horizontal: 10),
-              ),
-            ),
-            const SizedBox(height: 10),
-            Expanded(
-              child: Obx(() => ListView.builder(
-                    itemCount: filteredStations.length,
-                    itemBuilder: (context, index) {
-                      final station = filteredStations[index];
-                      return ListTile(
-                        title: Text("${station['nama']} (${station['id']})"),
-                        onTap: () {
-                          final stationMap = {
-                            "code": station['id'] as String,
-                            "name": station['nama'] as String
-                          };
-
-                          if (isDeparture) {
-                            if (stationMap['code'] ==
-                                selectedArrival.value['code']) {
-                              Get.snackbar(
-                                "Error",
-                                "Stasiun keberangkatan tidak boleh sama.",
-                                snackPosition: SnackPosition.BOTTOM,
-                              );
-                              return;
-                            }
-                            selectedDeparture.value = stationMap;
-                          } else {
-                            if (stationMap['code'] ==
-                                selectedDeparture.value['code']) {
-                              Get.snackbar(
-                                "Error",
-                                "Stasiun tujuan tidak boleh sama.",
-                                snackPosition: SnackPosition.BOTTOM,
-                              );
-                              return;
-                            }
-                            selectedArrival.value = stationMap;
-                          }
-                          Get.back();
-                        },
-                      );
-                    },
-                  )),
-            ),
-          ],
-        ),
+      content: StationSearchDialog(
+        controller: this,
+        isDeparture: isDeparture,
       ),
       radius: 10,
     );

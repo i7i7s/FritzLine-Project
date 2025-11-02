@@ -10,12 +10,11 @@ import 'package:timezone/timezone.dart' as tz;
 import 'dart:math';
 import 'package:fritzlinee/app/services/notification_service.dart';
 
-
 class DetailBookingTiketController extends GetxController {
   final bookingService = Get.find<BookingService>();
   final ticketService = Get.find<TicketService>();
 
-  final trainData = {}.obs;
+  final trainData = <String, dynamic>{}.obs;
   final passengerData = <Map<String, String>>[].obs;
   final selectedSeats = <String>[].obs;
 
@@ -33,7 +32,7 @@ class DetailBookingTiketController extends GetxController {
   }
 
   void _loadDataFromServices() {
-    trainData.value = bookingService.selectedTrain.value;
+    trainData.value = bookingService.selectedTrain;
     passengerData.value = bookingService.passengerData;
     selectedSeats.value = bookingService.selectedSeats;
 
@@ -94,17 +93,19 @@ class DetailBookingTiketController extends GetxController {
                 return const Center(
                     child: Text("Gagal memuat data kurs."));
               }
-              
-              final double usdRate = (exchangeRates['USD'] as num? ?? 0.0).toDouble();
-              final double eurRate = (exchangeRates['EUR'] as num? ?? 0.0).toDouble();
-              final double jpyRate = (exchangeRates['JPY'] as num? ?? 0.0).toDouble();
+
+              final double usdRate =
+                  (exchangeRates['USD'] as num? ?? 0.0).toDouble();
+              final double eurRate =
+                  (exchangeRates['EUR'] as num? ?? 0.0).toDouble();
+              final double jpyRate =
+                  (exchangeRates['JPY'] as num? ?? 0.0).toDouble();
 
               return Column(
                 children: [
                   _buildCurrencyRow(
                       "USD (Dolar AS)", totalHarga.value * usdRate),
-                  _buildCurrencyRow(
-                      "EUR (Euro)", totalHarga.value * eurRate),
+                  _buildCurrencyRow("EUR (Euro)", totalHarga.value * eurRate),
                   _buildCurrencyRow(
                       "JPY (Yen Jepang)", totalHarga.value * jpyRate),
                 ],
@@ -191,14 +192,10 @@ class DetailBookingTiketController extends GetxController {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            _buildTimezoneRow(
-                "WIB (Asia/Jakarta)", wibBerangkat, wibTiba),
-            _buildTimezoneRow(
-                "WITA (Asia/Makassar)", witaBerangkat, witaTiba),
-            _buildTimezoneRow(
-                "WIT (Asia/Jayapura)", witBerangkat, witTiba),
-            _buildTimezoneRow(
-                "LON (Europe/London)", lonBerangkat, lonTiba),
+            _buildTimezoneRow("WIB (Asia/Jakarta)", wibBerangkat, wibTiba),
+            _buildTimezoneRow("WITA (Asia/Makassar)", witaBerangkat, witaTiba),
+            _buildTimezoneRow("WIT (Asia/Jayapura)", witBerangkat, witTiba),
+            _buildTimezoneRow("LON (Europe/London)", lonBerangkat, lonTiba),
           ],
         ),
       ),
@@ -222,33 +219,32 @@ class DetailBookingTiketController extends GetxController {
     );
   }
 
-void konfirmasiPembayaran() {
-  String generateBookingCode() {
-    var random = Random();
-    return List.generate(6, (index) => random.nextInt(10).toString()).join();
+  void konfirmasiPembayaran() {
+    String generateBookingCode() {
+      var random = Random();
+      return List.generate(6, (index) => random.nextInt(10).toString()).join();
+    }
+
+    final ticketData = {
+      "bookingCode": "FRTZ-${generateBookingCode()}",
+      "trainData": {...trainData},
+      "passengerData": passengerData.toList(),
+      "selectedSeats": selectedSeats.toList(),
+      "totalPrice": totalHarga.value,
+      "paymentDate": DateTime.now().toIso8601String(),
+    };
+
+    ticketService.saveNewTicket(ticketData);
+    bookingService.resetBooking();
+
+    Get.find<NotificationService>().showPaymentSuccess();
+
+    Get.snackbar(
+      "Pembayaran Berhasil",
+      "Tiket Anda telah berhasil diterbitkan.",
+      snackPosition: SnackPosition.BOTTOM,
+    );
+
+    Get.offAllNamed(Routes.HOME);
   }
-
-  final ticketData = {
-    "bookingCode": "FRTZ-${generateBookingCode()}",
-    "trainData": trainData.value,
-    "passengerData": passengerData.toList(),
-    "selectedSeats": selectedSeats.toList(),
-    "totalPrice": totalHarga.value,
-    "paymentDate": DateTime.now().toIso8601String(),
-  };
-
-  ticketService.saveNewTicket(ticketData);
-  bookingService.resetBooking();
-
-  Get.find<NotificationService>().showPaymentSuccess();
-
-  Get.snackbar(
-    "Pembayaran Berhasil",
-    "Tiket Anda telah berhasil diterbitkan.",
-    snackPosition: SnackPosition.BOTTOM,
-  );
-
-  Get.offAllNamed(Routes.HOME);
-}
-
 }

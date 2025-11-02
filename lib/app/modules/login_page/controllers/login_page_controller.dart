@@ -2,28 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fritzlinee/app/services/auth_service.dart';
 import 'package:fritzlinee/app/routes/app_pages.dart';
+import 'dart:async';
 
 class LoginPageController extends GetxController {
   final authService = Get.find<AuthService>();
-
-  final emailC = TextEditingController();
-  final passC = TextEditingController();
-
   final isLoading = false.obs;
-
-  @override
-  void onClose() {
-    emailC.dispose();
-    passC.dispose();
-    super.onClose();
-  }
-
   void goToRegister() {
     Get.toNamed(Routes.REGISTER);
   }
 
-  void login() async {
-    if (emailC.text.isEmpty || passC.text.isEmpty) {
+  void login(String email, String password) async {
+    if (email.isEmpty || password.isEmpty) {
       Get.snackbar(
         "Error",
         "Email dan password tidak boleh kosong.",
@@ -33,11 +22,20 @@ class LoginPageController extends GetxController {
     }
 
     isLoading.value = true;
-    bool loginSuccess = await authService.login(emailC.text, passC.text);
-    isLoading.value = false;
+    try {
+      await Future.delayed(Duration(milliseconds: 100));
+      bool loginSuccess = await authService.login(email, password);
 
-    if (loginSuccess) {
-      Get.offAllNamed(Routes.HOME);
+      if (loginSuccess) {
+        Get.offAllNamed(Routes.HOME);
+      }
+    } catch (e) {
+      Get.snackbar("Error Login", "Terjadi kesalahan: ${e.toString()}");
+    } finally {
+      // Pastikan loading berhenti apa pun yang terjadi
+      if (isLoading.value) {
+        isLoading.value = false;
+      }
     }
   }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import '../controllers/detail_booking_tiket_controller.dart';
 
 class DetailBookingTiketView extends GetView<DetailBookingTiketController> {

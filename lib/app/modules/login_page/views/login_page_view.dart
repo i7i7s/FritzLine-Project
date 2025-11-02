@@ -2,8 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/login_page_controller.dart';
 
-class LoginPageView extends GetView<LoginPageController> {
+class LoginPageView extends StatefulWidget {
   const LoginPageView({super.key});
+
+  @override
+  State<LoginPageView> createState() => _LoginPageViewState();
+}
+
+class _LoginPageViewState extends State<LoginPageView> {
+  final controller = Get.find<LoginPageController>();
+
+  late TextEditingController _emailC;
+  late TextEditingController _passC;
+
+  @override
+  void initState() {
+    super.initState();
+    _emailC = TextEditingController();
+    _passC = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _emailC.dispose();
+    _passC.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,13 +108,13 @@ class LoginPageView extends GetView<LoginPageController> {
     return Column(
       children: [
         TextField(
-          controller: controller.emailC,
+          controller: _emailC,
           decoration: _buildInputDecoration("Email", Icons.email_outlined),
           keyboardType: TextInputType.emailAddress,
         ),
         const SizedBox(height: 20),
         TextField(
-          controller: controller.passC,
+          controller: _passC,
           decoration: _buildInputDecoration("Password", Icons.lock_outline),
           obscureText: true,
         ),
@@ -119,8 +143,9 @@ class LoginPageView extends GetView<LoginPageController> {
     return Obx(() => SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed:
-                controller.isLoading.value ? null : () => controller.login(),
+            onPressed: controller.isLoading.value
+                ? null
+                : () => controller.login(_emailC.text, _passC.text),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF656CEE),
               padding: const EdgeInsets.symmetric(vertical: 16),

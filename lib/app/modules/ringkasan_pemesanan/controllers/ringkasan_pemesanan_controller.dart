@@ -12,11 +12,11 @@ class PassengerFormControllers {
   final RxBool savePassenger;
 
   PassengerFormControllers()
-      : fullNameController = TextEditingController(),
-        idNumberController = TextEditingController(),
-        selectedIdType = 'KTP'.obs,
-        isExpanded = true.obs,
-        savePassenger = false.obs;
+    : fullNameController = TextEditingController(),
+      idNumberController = TextEditingController(),
+      selectedIdType = 'KTP'.obs,
+      isExpanded = true.obs,
+      savePassenger = false.obs;
 
   void dispose() {
     fullNameController.dispose();
@@ -40,7 +40,7 @@ class RingkasanPemesananController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    trainData.value = bookingService.selectedTrain.value;
+    trainData.value = bookingService.selectedTrain;
     passengerCount.value = bookingService.passengerCount.value;
     savedPassengers.value = authService.savedPassengers;
 
@@ -87,7 +87,8 @@ class RingkasanPemesananController extends GetxController {
     }
 
     if (emptyFormIndex != -1) {
-      formList[emptyFormIndex].fullNameController.text = passenger['nama'] ?? '';
+      formList[emptyFormIndex].fullNameController.text =
+          passenger['nama'] ?? '';
       formList[emptyFormIndex].idNumberController.text =
           passenger['id_number'] ?? '';
       formList[emptyFormIndex].selectedIdType.value =
@@ -117,7 +118,7 @@ class RingkasanPemesananController extends GetxController {
       passengersToBook.add(passenger);
 
       if (form.savePassenger.value) {
-        await authService.addSavedPassenger(passenger); 
+        await authService.addSavedPassenger(passenger);
       }
     }
 

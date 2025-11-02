@@ -30,12 +30,12 @@ class DetailJadwalController extends GetxController {
     try {
       isLoading.value = true;
 
-      departure.value = bookingService.selectedDeparture.value;
-      arrival.value = bookingService.selectedArrival.value;
+      departure.value = bookingService.selectedDeparture;
+      arrival.value = bookingService.selectedArrival;
       selectedDate.value = bookingService.selectedDate.value;
 
-      String? stasiunAsal = departure.value['code'];
-      String? stasiunTiba = arrival.value['code'];
+      String? stasiunAsal = departure['code'];
+      String? stasiunTiba = arrival['code'];
 
       if (stasiunAsal == null ||
           stasiunTiba == null ||

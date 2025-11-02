@@ -43,14 +43,15 @@ class AuthService extends GetxService {
   }
 
   void _loadSavedPassengers() {
-    String userEmail = currentUser.value['email'] ?? '';
+    String userEmail = currentUser['email'] ?? '';
     if (userEmail.isEmpty) return;
-    
+
     final userData = _userBox.get(userEmail);
     if (userData != null && userData is Map) {
       final user = _convertMap(userData);
       List<dynamic> passengersDynamic = user['saved_passengers'] ?? [];
-      savedPassengers.value = List<Map<String, dynamic>>.from(passengersDynamic.map((passenger) {
+      savedPassengers.value =
+          List<Map<String, dynamic>>.from(passengersDynamic.map((passenger) {
         if (passenger is Map) {
           return _convertMap(passenger);
         }
@@ -60,19 +61,22 @@ class AuthService extends GetxService {
   }
 
   Future<void> addSavedPassenger(Map<String, String> passenger) async {
-    String userEmail = currentUser.value['email'] ?? '';
+    String userEmail = currentUser['email'] ?? '';
     if (userEmail.isEmpty) return;
-    
+
     final userData = _userBox.get(userEmail);
     if (userData != null && userData is Map) {
       final user = _convertMap(userData);
       List<dynamic> passengersDynamic = user['saved_passengers'] ?? [];
-      List<Map<String, dynamic>> currentPassengers = List<Map<String, dynamic>>.from(passengersDynamic.map((p) {
+      List<Map<String, dynamic>> currentPassengers =
+          List<Map<String, dynamic>>.from(passengersDynamic.map((p) {
         if (p is Map) return _convertMap(p);
         return <String, dynamic>{};
       }));
-      
-      bool alreadyExists = currentPassengers.any((p) => p['nama'] == passenger['nama'] && p['id_number'] == passenger['id_number']);
+
+      bool alreadyExists = currentPassengers.any((p) =>
+          p['nama'] == passenger['nama'] &&
+          p['id_number'] == passenger['id_number']);
       if (!alreadyExists) {
         currentPassengers.add(passenger);
         user['saved_passengers'] = currentPassengers;
@@ -82,13 +86,14 @@ class AuthService extends GetxService {
     }
   }
 
-  Future<bool> register(String email, String password) async {
+  Future<bool> register(String name, String email, String password) async {
     if (_userBox.containsKey(email)) {
       Get.snackbar("Error", "Email sudah terdaftar.");
       return false;
     }
     String hashedPassword = _hashPassword(password);
-    _userBox.put(email, {
+    await _userBox.put(email, {
+      "name": name,
       "email": email,
       "password": hashedPassword,
       "saved_passengers": [],
@@ -101,7 +106,7 @@ class AuthService extends GetxService {
       Get.snackbar("Error", "Email tidak ditemukan.");
       return false;
     }
-    
+
     final userData = _userBox.get(email);
     if (userData != null && userData is Map) {
       final user = _convertMap(userData);

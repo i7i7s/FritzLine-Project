@@ -10,6 +10,7 @@ import 'app/services/hive_service.dart';
 import 'app/services/auth_service.dart';
 import 'app/services/notification_service.dart';
 import 'app/services/location_service.dart';
+import 'app/services/settings_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,16 +24,17 @@ void main() async {
   await Get.putAsync(() => HiveService().init());
   await Get.putAsync(() => NotificationService().init());
   await Get.putAsync(() => AuthService().init());
-  
+  await Get.putAsync(() => TicketService().init());
+  await Get.putAsync(() => SettingsService().init());
+
   Get.put(BookingService());
-  Get.put(TicketService());
   Get.put(LocationService());
 
   runApp(
     GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: "FritzLine",
-      initialRoute: Routes.LOGIN_PAGE,
+      initialRoute: AppPages.INITIAL,
       getPages: AppPages.routes,
       locale: Locale('id', 'ID'),
     ),

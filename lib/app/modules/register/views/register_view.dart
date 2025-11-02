@@ -2,8 +2,35 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/register_controller.dart';
 
-class RegisterView extends GetView<RegisterController> {
-  const RegisterView({super.key});
+class RegisterView extends StatefulWidget {
+  const RegisterView({Key? key}) : super(key: key);
+
+  @override
+  State<RegisterView> createState() => _RegisterViewState();
+}
+
+class _RegisterViewState extends State<RegisterView> {
+  final controller = Get.find<RegisterController>();
+
+  late TextEditingController _nameController;
+  late TextEditingController _emailController;
+  late TextEditingController _passwordController;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController();
+    _emailController = TextEditingController();
+    _passwordController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +97,7 @@ class RegisterView extends GetView<RegisterController> {
         ),
         const SizedBox(height: 8),
         Text(
-          "Mulai perjalanan Anda bersama kami",
+          "Silakan isi data diri Anda",
           style: TextStyle(
             fontSize: 16,
             color: Colors.grey.shade600,
@@ -84,21 +111,21 @@ class RegisterView extends GetView<RegisterController> {
     return Column(
       children: [
         TextField(
-          controller: controller.emailC,
+          controller: _nameController,
+          decoration:
+              _buildInputDecoration("Nama Lengkap", Icons.person_outline),
+          keyboardType: TextInputType.name,
+        ),
+        const SizedBox(height: 20),
+        TextField(
+          controller: _emailController,
           decoration: _buildInputDecoration("Email", Icons.email_outlined),
           keyboardType: TextInputType.emailAddress,
         ),
         const SizedBox(height: 20),
         TextField(
-          controller: controller.passC,
+          controller: _passwordController,
           decoration: _buildInputDecoration("Password", Icons.lock_outline),
-          obscureText: true,
-        ),
-        const SizedBox(height: 20),
-        TextField(
-          controller: controller.confirmPassC,
-          decoration:
-              _buildInputDecoration("Konfirmasi Password", Icons.lock_reset_outlined),
           obscureText: true,
         ),
       ],
@@ -126,8 +153,13 @@ class RegisterView extends GetView<RegisterController> {
     return Obx(() => SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed:
-                controller.isLoading.value ? null : () => controller.register(),
+            onPressed: controller.isLoading.value
+                ? null
+                : () => controller.processRegister(
+                      _nameController.text,
+                      _emailController.text,
+                      _passwordController.text,
+                    ),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF656CEE),
               padding: const EdgeInsets.symmetric(vertical: 16),
@@ -145,7 +177,7 @@ class RegisterView extends GetView<RegisterController> {
                     ),
                   )
                 : const Text(
-                    "REGISTER",
+                    "DAFTAR",
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,

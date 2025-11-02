@@ -6,13 +6,13 @@ import '../modules/detail_booking_tiket/bindings/detail_booking_tiket_binding.da
 import '../modules/detail_booking_tiket/views/detail_booking_tiket_view.dart';
 import '../modules/detail_jadwal/bindings/detail_jadwal_binding.dart';
 import '../modules/detail_jadwal/views/detail_jadwal_view.dart';
-import '../modules/login_page/bindings/login_page_binding.dart';
+import '../modules/login_page/controllers/login_page_controller.dart';
 import '../modules/login_page/views/login_page_view.dart';
 import '../modules/pilih_kursi/bindings/pilih_kursi_binding.dart';
 import '../modules/pilih_kursi/views/pilih_kursi_view.dart';
 import '../modules/profil/bindings/profil_binding.dart';
 import '../modules/profil/views/profil_view.dart';
-import '../modules/register/bindings/register_binding.dart';
+import '../modules/register/controllers/register_controller.dart';
 import '../modules/register/views/register_view.dart';
 import '../modules/ringkasan_pemesanan/bindings/ringkasan_pemesanan_binding.dart';
 import '../modules/ringkasan_pemesanan/views/ringkasan_pemesanan_view.dart';
@@ -47,7 +47,12 @@ class AppPages {
     GetPage(
       name: _Paths.LOGIN_PAGE,
       page: () => const LoginPageView(),
-      binding: LoginPageBinding(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut<LoginPageController>(
+          () => LoginPageController(),
+          fenix: true,
+        );
+      }),
     ),
     GetPage(
       name: _Paths.SPLASH_SCREEN,
@@ -57,7 +62,12 @@ class AppPages {
     GetPage(
       name: _Paths.REGISTER,
       page: () => const RegisterView(),
-      binding: RegisterBinding(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut<RegisterController>(
+          () => RegisterController(),
+          fenix: true,
+        );
+      }),
     ),
     GetPage(
       name: _Paths.DETAIL_JADWAL,
