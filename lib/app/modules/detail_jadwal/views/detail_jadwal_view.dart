@@ -61,14 +61,18 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
               onPressed: () => Get.back(),
             ),
             const SizedBox(width: 10),
-            Obx(() => Text(
-                  "${controller.departure['name']} - ${controller.arrival['name']}",
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF333E63),
-                  ),
-                )),
+            Expanded(
+              child: Obx(() => Text(
+                    "${controller.departure['name']} - ${controller.arrival['name']}",
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF333E63),
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  )),
+            ),
           ],
         ),
       ),
@@ -132,112 +136,173 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
 
   Widget _buildTrainCard(
       Map<String, dynamic> train, NumberFormat currencyFormatter) {
-    return Card(
-      elevation: 3,
-      shadowColor: Colors.black.withOpacity(0.1),
-      margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
+    String kelas = train["kelas"] ?? "Ekonomi";
+    Color tagColor = Colors.pink;
+    if (kelas.toLowerCase().contains("eksekutif")) {
+      tagColor = Colors.deepPurple;
+      kelas = "Executive";
+    } else if (kelas.toLowerCase().contains("campuran")) {
+      tagColor = Colors.orange;
+      kelas = "Campuran";
+    } else {
+      tagColor = Colors.pink;
+      kelas = "Economy";
+    }
+
+    int sisaTiket = train["sisaTiket"] as int? ?? 0;
+    bool isSoldOut = sisaTiket <= 0;
+    String statusText = "Available";
+    Color statusColor = Colors.green;
+
+    if (isSoldOut) {
+      statusText = "Habis";
+      statusColor = Colors.grey;
+    } else if (sisaTiket <= 20) {
+      statusText = "$sisaTiket Seat${sisaTiket == 1 ? '' : 's'} Remaining";
+      statusColor = Colors.red;
+    }
+
+    return Opacity(
+      opacity: isSoldOut ? 0.6 : 1.0,
+      child: Card(
+        elevation: 3,
+        shadowColor: Colors.black.withOpacity(0.1),
+        margin: const EdgeInsets.only(bottom: 16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: InkWell(
+          onTap: isSoldOut ? null : () => controller.selectTrain(train),
+          borderRadius: BorderRadius.circular(15),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildClassTag(kelas, tagColor),
+                    _buildStatusTag(statusText, statusColor),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  train["namaKereta"],
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF333E63),
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    _buildTimeColumn(
+                      train["jadwalBerangkat"],
+                      train["stasiunBerangkat"],
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Text(
+                            train["durasi"],
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          const DottedLine(),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    _buildTimeColumn(
+                      train["jadwalTiba"],
+                      train["stasiunTiba"],
+                      align: CrossAxisAlignment.end,
+                    ),
+                  ],
+                ),
+                const Divider(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Prices Starting From:",
+                          style: TextStyle(color: Colors.grey, fontSize: 12),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          "${currencyFormatter.format(train["harga"])} / Pax",
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF656CEE),
+                          ),
+                        ),
+                      ],
+                    ),
+                    OutlinedButton(
+                      onPressed: isSoldOut ? null : () {},
+                      child: const Text("Train Details"),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF656CEE),
+                        side: const BorderSide(color: Color(0xFF656CEE)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ),
+        ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildTrainCardHeader(train, currencyFormatter),
-            const SizedBox(height: 16),
-            _buildTrainCardRoute(train),
-            const SizedBox(height: 16),
-            _buildTrainCardFooter(train),
-          ],
+    );
+  }
+
+  Widget _buildClassTag(String text, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: color,
+          fontWeight: FontWeight.bold,
+          fontSize: 12,
         ),
       ),
     );
   }
 
-  Widget _buildTrainCardHeader(
-      Map<String, dynamic> train, NumberFormat currencyFormatter) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Expanded(
-          child: Text(
-            train["namaKereta"],
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-            overflow: TextOverflow.ellipsis,
-          ),
+  Widget _buildStatusTag(String text, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: color,
+          fontWeight: FontWeight.bold,
+          fontSize: 12,
         ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              currencyFormatter.format(train["harga"]),
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF656CEE),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTrainCardRoute(Map<String, dynamic> train) {
-    return Row(
-      children: [
-        _buildTimeColumn(
-          train["stasiunBerangkat"],
-          train["jadwalBerangkat"],
-        ),
-        const SizedBox(width: 10),
-        const Expanded(child: DottedLine()),
-        const SizedBox(width: 10),
-        _buildTimeColumn(
-          train["stasiunTiba"],
-          train["jadwalTiba"],
-          align: CrossAxisAlignment.end,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTrainCardFooter(Map<String, dynamic> train) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildTag(train["kelas"]),
-            const SizedBox(height: 5),
-            Text(
-              train["durasi"],
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
-              ),
-            ),
-          ],
-        ),
-        Container(
-          decoration: BoxDecoration(
-            color: const Color(0xFF0D63C6).withOpacity(0.1),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: IconButton(
-            icon: const Icon(
-              Icons.arrow_forward,
-              color: Color(0xFF0D63C6),
-            ),
-            onPressed: () => controller.selectTrain(train),
-          ),
-        ),
-      ],
+      ),
     );
   }
 
@@ -266,38 +331,23 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
     );
   }
 
-  Widget _buildTag(String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: Colors.orange.shade100,
-        borderRadius: BorderRadius.circular(5),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: Colors.orange.shade800,
-          fontWeight: FontWeight.bold,
-          fontSize: 12,
-        ),
-      ),
-    );
-  }
-
   Widget _buildTimeColumn(
-    String code,
-    String time, {
+    String time,
+    String code, {
     CrossAxisAlignment align = CrossAxisAlignment.start,
   }) {
     return Column(
       crossAxisAlignment: align,
       children: [
         Text(
-          code,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          time,
+          style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF333E63)),
         ),
         const SizedBox(height: 4),
-        Text(time, style: const TextStyle(fontSize: 14, color: Colors.grey)),
+        Text(code, style: const TextStyle(fontSize: 14, color: Colors.grey)),
       ],
     );
   }

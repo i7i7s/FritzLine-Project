@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-
 import '../../../services/booking_service.dart';
 import '../../../services/hive_service.dart';
 import '../../../routes/app_pages.dart';
@@ -61,7 +60,7 @@ class DetailJadwalController extends GetxController {
 
   void selectTrain(Map<String, dynamic> train) {
     bookingService.selectedTrain.value = train;
-    Get.toNamed(Routes.RINGKASAN_PEMESANAN);
+    Get.toNamed(Routes.RINGKASAN_PEMESANAN, arguments: train);
   }
 
   void toggleClassFilter(String className) {
@@ -78,19 +77,21 @@ class DetailJadwalController extends GetxController {
     } else {
       trainList.value = originalTrainList.where((train) {
         String kelas = train['kelas'].toString().toLowerCase();
-        
+
         bool match = false;
-        if (selectedClasses.contains("Ekonomi") && (kelas.contains("ekonomi") || kelas.contains("campuran"))) {
+        if (selectedClasses.contains("Ekonomi") &&
+            (kelas.contains("ekonomi") || kelas.contains("campuran"))) {
           match = true;
         }
-        if (selectedClasses.contains("Eksekutif") && (kelas.contains("eksekutif") || kelas.contains("campuran"))) {
+        if (selectedClasses.contains("Eksekutif") &&
+            (kelas.contains("eksekutif") || kelas.contains("campuran"))) {
           match = true;
         }
         return match;
       }).toList();
     }
-    
-    if(Get.isBottomSheetOpen == true) {
+
+    if (Get.isBottomSheetOpen == true) {
       Get.back();
     }
   }

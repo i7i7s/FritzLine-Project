@@ -54,7 +54,12 @@ class DashboardView extends GetView<DashboardController> {
     return Container(
       width: Get.width,
       height: Get.height,
-      color: const Color(0xFFF0F2F5),
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage('assets/images/bg.png'),
+          fit: BoxFit.cover,
+        ),
+      ),
     );
   }
 }

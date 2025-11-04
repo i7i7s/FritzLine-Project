@@ -12,11 +12,12 @@ class LocationService extends GetxService {
       }
 
       Position userPosition = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.medium);
+        desiredAccuracy: LocationAccuracy.medium,
+        timeLimit: const Duration(seconds: 10),
+      );
 
       List<Map<String, dynamic>> stationsWithDistance = [];
       for (var station in allStations) {
-        
         double stationLat = station['lat'] as double;
         double stationLon = station['lon'] as double;
 
@@ -33,9 +34,8 @@ class LocationService extends GetxService {
         stationsWithDistance.add(stationCopy);
       }
 
-      stationsWithDistance.sort((a, b) => 
-        a['distance_m'].compareTo(b['distance_m'])
-      );
+      stationsWithDistance
+          .sort((a, b) => a['distance_m'].compareTo(b['distance_m']));
 
       return stationsWithDistance.take(count).toList();
     } catch (e) {

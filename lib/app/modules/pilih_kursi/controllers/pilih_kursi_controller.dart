@@ -6,34 +6,56 @@ import 'package:fritzlinee/app/routes/app_pages.dart';
 class PilihKursiController extends GetxController {
   final bookingService = Get.find<BookingService>();
 
-  final trainData = {}.obs;
+  final trainData = <String, dynamic>{}.obs;
   final passengerCount = 0.obs;
   final indexGerbong = 0.obs;
 
   final selectedSeats = <Map<String, dynamic>>[].obs;
 
-  final List<String> namaGerbong = [
-    "Eksekutif 1",
-    "Eksekutif 2",
-    "Eksekutif 3",
-    "Ekonomi 1",
-    "Ekonomi 2",
-  ];
+  final namaGerbong = <String>[].obs;
 
   late RxList<List<Map<String, dynamic>>> gerbong;
 
   @override
   void onInit() {
     super.onInit();
-    trainData.value = bookingService.selectedTrain.value;
-    passengerCount.value = bookingService.passengerCount.value;
+    
+    final Map<String, dynamic>? data = Get.arguments as Map<String, dynamic>?;
 
+    if (data != null) {
+      trainData.value = data;
+      bookingService.selectedTrain.value = data;
+    } else {
+      trainData.value = bookingService.selectedTrain.value;
+    }
+
+    passengerCount.value = bookingService.passengerCount.value;
     if (passengerCount.value == 0) passengerCount.value = 1;
 
     gerbong = _generateAllGerbong();
   }
 
   RxList<List<Map<String, dynamic>>> _generateAllGerbong() {
+    String kelas = trainData.value['kelas']?.toString().toLowerCase() ?? 'ekonomi';
+    int jumlahGerbong = 5;
+    String namaKelas = "Gerbong";
+
+    if (kelas.contains("eksekutif")) {
+      namaKelas = "Eksekutif";
+      jumlahGerbong = 4;
+    } else if (kelas.contains("ekonomi")) {
+      namaKelas = "Ekonomi";
+      jumlahGerbong = 6;
+    } else if (kelas.contains("campuran")) {
+      namaKelas = "Campuran";
+      jumlahGerbong = 5;
+    }
+
+    namaGerbong.clear();
+    for (int i = 1; i <= jumlahGerbong; i++) {
+      namaGerbong.add("$namaKelas $i");
+    }
+
     return List.generate(namaGerbong.length, (indexGerbong) {
       return _generateSingleGerbongLayout();
     }).obs;
@@ -142,6 +164,6 @@ class PilihKursiController extends GetxController {
 
     bookingService.selectedSeats.value = seatIds;
 
-    Get.toNamed(Routes.DETAIL_BOOKING_TIKET);
+    Get.toNamed(Routes.RINGKASAN_PEMESANAN);
   }
 }

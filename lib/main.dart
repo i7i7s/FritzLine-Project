@@ -19,7 +19,9 @@ void main() async {
   tz_data.initializeTimeZones();
 
   await Hive.initFlutter();
-  await Hive.deleteBoxFromDisk('trains');
+  
+  // HAPUS DATABASE KERETA LAMA (KOTOR)
+  await Hive.deleteBoxFromDisk('trains'); 
 
   await Get.putAsync(() => HiveService().init());
   await Get.putAsync(() => NotificationService().init());

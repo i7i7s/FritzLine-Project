@@ -6,14 +6,23 @@ import '../controllers/tiket_controller.dart';
 class TiketView extends GetView<TiketController> {
   const TiketView({super.key});
 
+  String _formatSavedPrice(double price, String currency) {
+    if (currency == "IDR") {
+      return NumberFormat.currency(
+        locale: 'id_ID',
+        symbol: 'Rp',
+        decimalDigits: 0,
+      ).format(price);
+    }
+    return NumberFormat.currency(
+      locale: 'en_US',
+      symbol: "$currency ",
+      decimalDigits: 2,
+    ).format(price);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final currencyFormatter = NumberFormat.currency(
-      locale: 'id_ID',
-      symbol: 'Rp',
-      decimalDigits: 0,
-    );
-
     return SafeArea(
       child: Obx(() {
         if (controller.ticketService.allMyTickets.isEmpty) {
@@ -48,6 +57,29 @@ class TiketView extends GetView<TiketController> {
             final train = ticket['trainData'] as Map<String, dynamic>;
             final passengers = ticket['passengerData'] as List<dynamic>;
 
+            final int totalPriceIDR = (ticket['totalPrice'] is num)
+                ? (ticket['totalPrice'] as num).toInt()
+                : 0;
+            final double paymentPrice = (ticket['paymentPrice'] is num)
+                ? (ticket['paymentPrice'] as num).toDouble()
+                : (totalPriceIDR.toDouble());
+            final String paymentCurrency = ticket['paymentCurrency'] ?? 'IDR';
+
+            final String jadwalBerangkat = train['jadwalBerangkat'] ?? '??:??';
+            final String jadwalTiba = train['jadwalTiba'] ?? '??:??';
+            final String selectedDateStr = ticket['selectedDate'] ?? '';
+            String displayDate = '';
+            if (selectedDateStr.isNotEmpty) {
+              try {
+                displayDate = DateFormat(
+                  'EEEE, d MMMM yyyy',
+                  'id_ID',
+                ).format(DateTime.parse(selectedDateStr));
+              } catch (e) {
+                displayDate = 'Tanggal tidak valid';
+              }
+            }
+
             return InkWell(
               onTap: () => controller.showTicketDetail(ticket),
               borderRadius: BorderRadius.circular(10),
@@ -71,7 +103,7 @@ class TiketView extends GetView<TiketController> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        currencyFormatter.format(ticket['totalPrice']),
+                        _formatSavedPrice(paymentPrice, paymentCurrency),
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -80,10 +112,17 @@ class TiketView extends GetView<TiketController> {
                       ),
                       const Divider(height: 20),
                       Text(
+                        displayDate,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF333E63),
+                        ),
+                      ),
+                      Text(
                         "${train['stasiunBerangkat']} -> ${train['stasiunTiba']}",
                       ),
                       Text(
-                        "${train['jadwalBerangkat']} - ${train['jadwalTiba']} (${train['durasi']})",
+                        "$jadwalBerangkat - $jadwalTiba (${train['durasi']})",
                       ),
                       const SizedBox(height: 8),
                       Text("Penumpang: ${passengers.length} orang"),

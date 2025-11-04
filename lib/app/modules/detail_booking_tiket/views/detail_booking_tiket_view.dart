@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/detail_booking_tiket_controller.dart';
+import '../../../services/settings_service.dart';
 
 class DetailBookingTiketView extends GetView<DetailBookingTiketController> {
   const DetailBookingTiketView({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final settingsService = Get.find<SettingsService>();
+
     return Scaffold(
       body: Stack(
         children: [
@@ -16,8 +19,10 @@ class DetailBookingTiketView extends GetView<DetailBookingTiketController> {
               _buildCustomAppBar(),
               Expanded(
                 child: SingleChildScrollView(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 10,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -33,7 +38,7 @@ class DetailBookingTiketView extends GetView<DetailBookingTiketController> {
               ),
             ],
           ),
-          _buildBottomButton(context),
+          _buildBottomButton(context, settingsService),
         ],
       ),
     );
@@ -93,27 +98,35 @@ class DetailBookingTiketView extends GetView<DetailBookingTiketController> {
             children: [
               Text(
                 train["namaKereta"],
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 4),
               Text(
                 controller.currencyFormatter.format(train["harga"]),
                 style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF656CEE)),
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF656CEE),
+                ),
               ),
               const Divider(height: 20),
               Row(
                 children: [
                   _buildTimeColumn(
-                      train["stasiunBerangkat"], train["jadwalBerangkat"]),
+                    train["stasiunBerangkat"],
+                    train["jadwalBerangkat"],
+                  ),
                   const SizedBox(width: 10),
                   const Expanded(child: DottedLine()),
                   const SizedBox(width: 10),
-                  _buildTimeColumn(train["stasiunTiba"], train["jadwalTiba"],
-                      align: CrossAxisAlignment.end),
+                  _buildTimeColumn(
+                    train["stasiunTiba"],
+                    train["jadwalTiba"],
+                    align: CrossAxisAlignment.end,
+                  ),
                 ],
               ),
               const SizedBox(height: 16),
@@ -123,15 +136,22 @@ class DetailBookingTiketView extends GetView<DetailBookingTiketController> {
                   _buildTag(train["kelas"]),
                   Row(
                     children: [
-                      Text(train["durasi"],
-                          style: const TextStyle(
-                              fontSize: 12, color: Colors.grey)),
+                      Text(
+                        train["durasi"],
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                        ),
+                      ),
                       const SizedBox(width: 8),
                       GestureDetector(
                         onTap: () => controller.showTimezoneBottomSheet(),
-                        child: const Icon(Icons.access_time_rounded,
-                            size: 18, color: Color(0xFF656CEE)),
-                      )
+                        child: const Icon(
+                          Icons.access_time_rounded,
+                          size: 18,
+                          color: Color(0xFF656CEE),
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -155,26 +175,28 @@ class DetailBookingTiketView extends GetView<DetailBookingTiketController> {
             const Text(
               "Detail Penumpang",
               style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF333E63)),
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF333E63),
+              ),
             ),
             const Divider(height: 20),
-            Obx(() => Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children:
-                      controller.passengerData.asMap().entries.map((entry) {
-                    int idx = entry.key + 1;
-                    Map<String, String> passenger = entry.value;
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
-                      child: Text(
-                        "$idx. ${passenger['nama']} (${passenger['id_number']})",
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                    );
-                  }).toList(),
-                )),
+            Obx(
+              () => Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: controller.passengerData.asMap().entries.map((entry) {
+                  int idx = entry.key + 1;
+                  Map<String, String> passenger = entry.value;
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Text(
+                      "$idx. ${passenger['nama']} (${passenger['id_number']})",
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
           ],
         ),
       ),
@@ -193,44 +215,59 @@ class DetailBookingTiketView extends GetView<DetailBookingTiketController> {
             const Text(
               "Detail Kursi",
               style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF333E63)),
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF333E63),
+              ),
             ),
             const Divider(height: 20),
-            Obx(() => Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: controller.selectedSeats.map((seat) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
-                      child: Text(
-                        "• $seat",
-                        style: const TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.bold),
+            Obx(
+              () => Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: controller.selectedSeats.map((seat) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Text(
+                      "• $seat",
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
                       ),
-                    );
-                  }).toList(),
-                )),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildBottomButton(BuildContext context) {
+  Widget _buildBottomButton(
+    BuildContext context,
+    SettingsService settingsService,
+  ) {
     return Positioned(
       bottom: 0,
       left: 0,
       right: 0,
       child: Container(
         padding: EdgeInsets.fromLTRB(
-            20, 20, 20, MediaQuery.of(context).padding.bottom + 20),
+          20,
+          20,
+          20,
+          MediaQuery.of(context).padding.bottom + 20,
+        ),
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           boxShadow: [
             BoxShadow(
-                color: Colors.black12, blurRadius: 10, offset: Offset(0, -2))
+              color: Colors.black12,
+              blurRadius: 10,
+              offset: Offset(0, -2),
+            ),
           ],
         ),
         child: Row(
@@ -240,24 +277,35 @@ class DetailBookingTiketView extends GetView<DetailBookingTiketController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Total Harga",
-                      style: TextStyle(color: Colors.grey)),
+                  Obx(
+                    () => Text(
+                      "Total Harga (${settingsService.preferredCurrency.value})",
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  ),
                   Row(
                     children: [
-                      Obx(() => Text(
-                            controller.getFormattedTotalPrice(),
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF656CEE),
-                            ),
-                          )),
+                      Obx(
+                        () => Text(
+                          settingsService.formatPrice(
+                            controller.totalHarga.value,
+                          ),
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF656CEE),
+                          ),
+                        ),
+                      ),
                       const SizedBox(width: 8),
                       GestureDetector(
                         onTap: () => controller.showCurrencyBottomSheet(),
-                        child: const Icon(Icons.calculate_outlined,
-                            size: 20, color: Color(0xFF656CEE)),
-                      )
+                        child: const Icon(
+                          Icons.calculate_outlined,
+                          size: 20,
+                          color: Color(0xFF656CEE),
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -266,16 +314,21 @@ class DetailBookingTiketView extends GetView<DetailBookingTiketController> {
             ElevatedButton(
               onPressed: () => controller.konfirmasiPembayaran(),
               style: ElevatedButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 14,
+                  horizontal: 24,
+                ),
                 backgroundColor: Colors.orange.shade700,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
               child: const Text(
                 "BAYAR",
-                style:
-                    TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ],
@@ -289,11 +342,12 @@ class DottedLine extends StatelessWidget {
   final double height;
   final Color color;
   final double dashWidth;
-  const DottedLine(
-      {super.key,
-      this.height = 1,
-      this.color = Colors.grey,
-      this.dashWidth = 4.0});
+  const DottedLine({
+    super.key,
+    this.height = 1,
+    this.color = Colors.grey,
+    this.dashWidth = 4.0,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -308,9 +362,7 @@ class DottedLine extends StatelessWidget {
             return SizedBox(
               width: dashWidth,
               height: height,
-              child: DecoratedBox(
-                decoration: BoxDecoration(color: color),
-              ),
+              child: DecoratedBox(decoration: BoxDecoration(color: color)),
             );
           }),
         );
@@ -319,8 +371,11 @@ class DottedLine extends StatelessWidget {
   }
 }
 
-Widget _buildTimeColumn(String code, String time,
-    {CrossAxisAlignment align = CrossAxisAlignment.start}) {
+Widget _buildTimeColumn(
+  String code,
+  String time, {
+  CrossAxisAlignment align = CrossAxisAlignment.start,
+}) {
   return Column(
     crossAxisAlignment: align,
     children: [
@@ -329,10 +384,7 @@ Widget _buildTimeColumn(String code, String time,
         style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
       ),
       const SizedBox(height: 4),
-      Text(
-        time,
-        style: const TextStyle(fontSize: 14, color: Colors.grey),
-      ),
+      Text(time, style: const TextStyle(fontSize: 14, color: Colors.grey)),
     ],
   );
 }

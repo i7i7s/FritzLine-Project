@@ -3,27 +3,34 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:fritzlinee/app/services/booking_service.dart';
 import 'package:fritzlinee/app/services/ticket_service.dart';
+import 'package:fritzlinee/app/services/hive_service.dart';
 import 'package:fritzlinee/app/routes/app_pages.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:timezone/timezone.dart' as tz;
 import 'dart:math';
 import 'package:fritzlinee/app/services/notification_service.dart';
+import 'package:fritzlinee/app/services/settings_service.dart';
 
 class DetailBookingTiketController extends GetxController {
   final bookingService = Get.find<BookingService>();
   final ticketService = Get.find<TicketService>();
+  final settingsService = Get.find<SettingsService>();
+  final hiveService = Get.find<HiveService>();
 
   final trainData = <String, dynamic>{}.obs;
   final passengerData = <Map<String, String>>[].obs;
   final selectedSeats = <String>[].obs;
 
   final totalHarga = 0.obs;
-  final exchangeRates = {}.obs;
-  final isCurrencyLoading = false.obs;
 
   final currencyFormatter =
       NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0);
+
+  final availableCurrencies = {
+    "IDR": "Rupiah (IDR)",
+    "USD": "Dolar AS (USD)",
+    "EUR": "Euro (EUR)",
+    "JPY": "Yen Jepang (JPY)",
+  };
 
   @override
   void onInit() {
@@ -41,31 +48,7 @@ class DetailBookingTiketController extends GetxController {
     totalHarga.value = hargaPerTiket * jumlahPenumpang;
   }
 
-  String getFormattedTotalPrice() {
-    return currencyFormatter.format(totalHarga.value);
-  }
-
-  Future<void> _fetchExchangeRates() async {
-    isCurrencyLoading.value = true;
-    try {
-      final response = await http.get(Uri.parse(
-          "https://v6.exchangerate-api.com/v6/574116bcb3be786574b56e56/latest/IDR"));
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        exchangeRates.value = data['conversion_rates'];
-      } else {
-        Get.snackbar("Error", "Gagal mengambil data kurs mata uang.");
-      }
-    } catch (e) {
-      Get.snackbar("Error", "Gagal terhubung ke server kurs mata uang.");
-    } finally {
-      isCurrencyLoading.value = false;
-    }
-  }
-
   void showCurrencyBottomSheet() {
-    _fetchExchangeRates();
     Get.bottomSheet(
       Container(
         padding: const EdgeInsets.all(24),
@@ -78,64 +61,37 @@ class DetailBookingTiketController extends GetxController {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              "Konversi Mata Uang",
+              "Pilih Mata Uang",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            _buildCurrencyRow("IDR (Rupiah)", totalHarga.value.toDouble(),
-                isBase: true),
-            const Divider(height: 20),
             Obx(() {
-              if (isCurrencyLoading.value) {
+              if (settingsService.isRatesLoading.value) {
                 return const Center(child: CircularProgressIndicator());
               }
-              if (exchangeRates.isEmpty) {
-                return const Center(
-                    child: Text("Gagal memuat data kurs."));
-              }
-
-              final double usdRate =
-                  (exchangeRates['USD'] as num? ?? 0.0).toDouble();
-              final double eurRate =
-                  (exchangeRates['EUR'] as num? ?? 0.0).toDouble();
-              final double jpyRate =
-                  (exchangeRates['JPY'] as num? ?? 0.0).toDouble();
-
               return Column(
-                children: [
-                  _buildCurrencyRow(
-                      "USD (Dolar AS)", totalHarga.value * usdRate),
-                  _buildCurrencyRow("EUR (Euro)", totalHarga.value * eurRate),
-                  _buildCurrencyRow(
-                      "JPY (Yen Jepang)", totalHarga.value * jpyRate),
-                ],
+                children: availableCurrencies.entries.map((entry) {
+                  bool isSelected =
+                      settingsService.preferredCurrency.value == entry.key;
+                  return ListTile(
+                    title: Text(entry.value),
+                    subtitle: Text(settingsService
+                        .formatPrice(totalHarga.value)
+                        .replaceAll(entry.key, "")
+                        .trim()),
+                    trailing: isSelected
+                        ? Icon(Icons.check_circle, color: Color(0xFF656CEE))
+                        : null,
+                    onTap: () {
+                      settingsService.updateCurrency(entry.key);
+                      Get.back();
+                    },
+                  );
+                }).toList(),
               );
             }),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildCurrencyRow(String currency, double amount,
-      {bool isBase = false}) {
-    final format = NumberFormat.currency(
-      locale: isBase ? 'id_ID' : 'en_US',
-      symbol: isBase ? 'Rp' : '',
-      decimalDigits: isBase ? 0 : 2,
-    );
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(currency, style: const TextStyle(fontSize: 16)),
-          Text(
-            "${isBase ? '' : currency.split(' ')[0]} ${format.format(amount)}",
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-        ],
       ),
     );
   }
@@ -219,11 +175,16 @@ class DetailBookingTiketController extends GetxController {
     );
   }
 
-  void konfirmasiPembayaran() {
+  Future<void> konfirmasiPembayaran() async {
     String generateBookingCode() {
       var random = Random();
       return List.generate(6, (index) => random.nextInt(10).toString()).join();
     }
+
+    String currencyCode = settingsService.preferredCurrency.value;
+    double rate = (settingsService.exchangeRates[currencyCode] as num? ?? 1.0)
+        .toDouble();
+    double finalConvertedPrice = totalHarga.value * rate;
 
     final ticketData = {
       "bookingCode": "FRTZ-${generateBookingCode()}",
@@ -231,10 +192,16 @@ class DetailBookingTiketController extends GetxController {
       "passengerData": passengerData.toList(),
       "selectedSeats": selectedSeats.toList(),
       "totalPrice": totalHarga.value,
+      "paymentPrice": finalConvertedPrice,
+      "paymentCurrency": currencyCode,
       "paymentDate": DateTime.now().toIso8601String(),
+      "selectedDate": bookingService.selectedDate.value.toIso8601String(),
     };
 
-    ticketService.saveNewTicket(ticketData);
+    await hiveService.kurangiStokTiket(
+        trainData['id'], passengerData.length);
+    
+    await ticketService.saveNewTicket(ticketData);
     bookingService.resetBooking();
 
     Get.find<NotificationService>().showPaymentSuccess();

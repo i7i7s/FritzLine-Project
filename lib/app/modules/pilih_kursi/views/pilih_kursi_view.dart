@@ -64,7 +64,9 @@ class PilihKursiView extends GetView<PilihKursiController> {
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    controller.namaGerbong[controller.indexGerbong.value],
+                    controller.namaGerbong.isEmpty
+                        ? "..."
+                        : controller.namaGerbong[controller.indexGerbong.value],
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -97,11 +99,11 @@ class PilihKursiView extends GetView<PilihKursiController> {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 25),
-        child: Row(
+        child: Column(
           children: [
-            _buildGerbongList(),
-            const SizedBox(width: 15),
             _buildSeatGrid(),
+            const SizedBox(height: 15),
+            _buildGerbongList(),
           ],
         ),
       ),
@@ -110,44 +112,41 @@ class PilihKursiView extends GetView<PilihKursiController> {
 
   Widget _buildGerbongList() {
     return SizedBox(
-      width: 60,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Obx(() => Column(
-              children: List.generate(
-                controller.gerbong.length,
-                (index) => GestureDetector(
-                  onTap: () => controller.gantiGerbong(index),
-                  child: Container(
-                    margin: const EdgeInsets.all(10),
-                    height: 100,
-                    width: 50,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.black38),
-                      borderRadius: BorderRadius.circular(10),
-                      color: controller.indexGerbong.value == index
-                          ? Colors.deepPurpleAccent
-                          : Colors.white,
-                    ),
-                    child: Center(
-                      child: Text(
-                        controller.namaGerbong[index]
-                            .replaceAll(" ", "\n"),
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: controller.indexGerbong.value == index
-                              ? Colors.white
-                              : Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
+      height: 60,
+      child: Obx(() => ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: controller.namaGerbong.length,
+            itemBuilder: (context, index) {
+              return GestureDetector(
+                onTap: () => controller.gantiGerbong(index),
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 8),
+                  height: 60,
+                  width: 100,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black38),
+                    borderRadius: BorderRadius.circular(10),
+                    color: controller.indexGerbong.value == index
+                        ? Colors.deepPurpleAccent
+                        : Colors.white,
+                  ),
+                  child: Center(
+                    child: Text(
+                      controller.namaGerbong[index],
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: controller.indexGerbong.value == index
+                            ? Colors.white
+                            : Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
                       ),
                     ),
                   ),
                 ),
-              ),
-            )),
-      ),
+              );
+            },
+          )),
     );
   }
 
@@ -159,23 +158,27 @@ class PilihKursiView extends GetView<PilihKursiController> {
           const SizedBox(height: 10),
           Expanded(
             child: Container(
-              child: Obx(() => GridView.builder(
-                    padding: const EdgeInsets.all(0),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      mainAxisSpacing: 8,
-                      crossAxisSpacing: 8,
-                      crossAxisCount: 5,
-                    ),
-                    itemCount:
-                        controller.gerbong[controller.indexGerbong.value].length,
-                    itemBuilder: (context, index) {
-                      final seat =
-                          controller.gerbong[controller.indexGerbong.value]
-                              [index];
-                      return _buildSeatItem(seat, index);
-                    },
-                  )),
+              child: Obx(() {
+                if (controller.gerbong.isEmpty ||
+                    controller.indexGerbong.value >= controller.gerbong.length) {
+                  return const Center(child: Text("Loading gerbong..."));
+                }
+                return GridView.builder(
+                  padding: const EdgeInsets.all(0),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    mainAxisSpacing: 8,
+                    crossAxisSpacing: 8,
+                    crossAxisCount: 5,
+                  ),
+                  itemCount:
+                      controller.gerbong[controller.indexGerbong.value].length,
+                  itemBuilder: (context, index) {
+                    final seat =
+                        controller.gerbong[controller.indexGerbong.value][index];
+                    return _buildSeatItem(seat, index);
+                  },
+                );
+              }),
             ),
           ),
         ],
