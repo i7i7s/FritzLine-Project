@@ -204,7 +204,7 @@ class RingkasanPemesananView extends GetView<RingkasanPemesananController> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          passenger["nama"]!,
+                          passenger.nama,
                           style: const TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 14),
                           maxLines: 1,
@@ -212,7 +212,7 @@ class RingkasanPemesananView extends GetView<RingkasanPemesananController> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          "ID: ${passenger["id_number"]!}",
+                          "ID: ${passenger.idNumber}",
                           style: const TextStyle(
                               color: Colors.grey, fontSize: 12),
                           maxLines: 1,
@@ -378,7 +378,8 @@ class RingkasanPemesananView extends GetView<RingkasanPemesananController> {
           ],
         ),
         child: Obx(() {
-          final bool hasSeats = controller.bookingService.selectedSeats.isNotEmpty;
+          final bool hasSeats =
+              controller.bookingService.selectedSeats.isNotEmpty;
           return Row(
             children: [
               Expanded(
@@ -401,7 +402,8 @@ class RingkasanPemesananView extends GetView<RingkasanPemesananController> {
               const SizedBox(width: 10),
               Expanded(
                 child: ElevatedButton(
-                  onPressed: hasSeats ? () => controller.goToDetailBooking() : null,
+                  onPressed:
+                      hasSeats ? () => controller.goToDetailBooking() : null,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     backgroundColor: Colors.orange.shade700,

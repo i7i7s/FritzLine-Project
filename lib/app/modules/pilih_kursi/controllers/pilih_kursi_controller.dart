@@ -90,6 +90,7 @@ class PilihKursiController extends GetxController {
 
   void gantiGerbong(int index) {
     indexGerbong.value = index;
+    update();
   }
 
   void selectKursi(int indexKursi) {
@@ -122,6 +123,7 @@ class PilihKursiController extends GetxController {
     }
 
     gerbong.refresh();
+    update();
   }
 
   void _showSeatSnackbar(

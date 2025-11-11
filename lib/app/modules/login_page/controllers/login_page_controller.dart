@@ -32,7 +32,6 @@ class LoginPageController extends GetxController {
     } catch (e) {
       Get.snackbar("Error Login", "Terjadi kesalahan: ${e.toString()}");
     } finally {
-      // Pastikan loading berhenti apa pun yang terjadi
       if (isLoading.value) {
         isLoading.value = false;
       }

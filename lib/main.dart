@@ -11,6 +11,8 @@ import 'app/services/auth_service.dart';
 import 'app/services/notification_service.dart';
 import 'app/services/location_service.dart';
 import 'app/services/settings_service.dart';
+import 'app/models/passenger.dart';
+import 'app/models/user.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,9 +21,9 @@ void main() async {
   tz_data.initializeTimeZones();
 
   await Hive.initFlutter();
-  
-  // HAPUS DATABASE KERETA LAMA (KOTOR)
-  await Hive.deleteBoxFromDisk('trains'); 
+
+  Hive.registerAdapter(PassengerAdapter());
+  Hive.registerAdapter(UserAdapter());
 
   await Get.putAsync(() => HiveService().init());
   await Get.putAsync(() => NotificationService().init());

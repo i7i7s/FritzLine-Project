@@ -11,15 +11,19 @@ class PilihKursiView extends GetView<PilihKursiController> {
       body: Stack(
         children: [
           _buildBackground(),
-          Column(
-            children: [
-              SizedBox(height: context.mediaQueryPadding.top),
-              _buildHeader(),
-              _buildLegend(),
-              const SizedBox(height: 10),
-              _buildSeatMap(),
-              _buildSubmitButton(),
-            ],
+          GetBuilder<PilihKursiController>(
+            builder: (controller) {
+              return Column(
+                children: [
+                  SizedBox(height: context.mediaQueryPadding.top),
+                  _buildHeader(),
+                  _buildLegend(),
+                  const SizedBox(height: 10),
+                  _buildSeatMap(),
+                  _buildSubmitButton(),
+                ],
+              );
+            },
           ),
         ],
       ),
@@ -55,26 +59,26 @@ class PilihKursiView extends GetView<PilihKursiController> {
               color: Color(0xFF333E63),
             ),
           ),
-          Obx(() => Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    controller.trainData.value['namaKereta'] ?? 'Nama Kereta',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    controller.namaGerbong.isEmpty
-                        ? "..."
-                        : controller.namaGerbong[controller.indexGerbong.value],
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF656CEE),
-                    ),
-                  ),
-                ],
-              )),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                controller.trainData.value['namaKereta'] ?? 'Nama Kereta',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Text(
+                controller.namaGerbong.isEmpty
+                    ? "..."
+                    : controller.namaGerbong[controller.indexGerbong.value],
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF656CEE),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -113,40 +117,40 @@ class PilihKursiView extends GetView<PilihKursiController> {
   Widget _buildGerbongList() {
     return SizedBox(
       height: 60,
-      child: Obx(() => ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: controller.namaGerbong.length,
-            itemBuilder: (context, index) {
-              return GestureDetector(
-                onTap: () => controller.gantiGerbong(index),
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 8),
-                  height: 60,
-                  width: 100,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black38),
-                    borderRadius: BorderRadius.circular(10),
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: controller.namaGerbong.length,
+        itemBuilder: (context, index) {
+          return GestureDetector(
+            onTap: () => controller.gantiGerbong(index),
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 8),
+              height: 60,
+              width: 100,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.black38),
+                borderRadius: BorderRadius.circular(10),
+                color: controller.indexGerbong.value == index
+                    ? Colors.deepPurpleAccent
+                    : Colors.white,
+              ),
+              child: Center(
+                child: Text(
+                  controller.namaGerbong[index],
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
                     color: controller.indexGerbong.value == index
-                        ? Colors.deepPurpleAccent
-                        : Colors.white,
-                  ),
-                  child: Center(
-                    child: Text(
-                      controller.namaGerbong[index],
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: controller.indexGerbong.value == index
-                            ? Colors.white
-                            : Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
-                    ),
+                        ? Colors.white
+                        : Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
                   ),
                 ),
-              );
-            },
-          )),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -158,27 +162,26 @@ class PilihKursiView extends GetView<PilihKursiController> {
           const SizedBox(height: 10),
           Expanded(
             child: Container(
-              child: Obx(() {
-                if (controller.gerbong.isEmpty ||
-                    controller.indexGerbong.value >= controller.gerbong.length) {
-                  return const Center(child: Text("Loading gerbong..."));
-                }
-                return GridView.builder(
-                  padding: const EdgeInsets.all(0),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    mainAxisSpacing: 8,
-                    crossAxisSpacing: 8,
-                    crossAxisCount: 5,
-                  ),
-                  itemCount:
-                      controller.gerbong[controller.indexGerbong.value].length,
-                  itemBuilder: (context, index) {
-                    final seat =
-                        controller.gerbong[controller.indexGerbong.value][index];
-                    return _buildSeatItem(seat, index);
-                  },
-                );
-              }),
+              child: (controller.gerbong.isEmpty ||
+                      controller.indexGerbong.value >=
+                          controller.gerbong.length)
+                  ? const Center(child: Text("Loading gerbong..."))
+                  : GridView.builder(
+                      padding: const EdgeInsets.all(0),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        mainAxisSpacing: 8,
+                        crossAxisSpacing: 8,
+                        crossAxisCount: 5,
+                      ),
+                      itemCount: controller
+                          .gerbong[controller.indexGerbong.value].length,
+                      itemBuilder: (context, index) {
+                        final seat = controller
+                            .gerbong[controller.indexGerbong.value][index];
+                        return _buildSeatItem(seat, index);
+                      },
+                    ),
             ),
           ),
         ],
@@ -191,13 +194,17 @@ class PilihKursiView extends GetView<PilihKursiController> {
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         SizedBox(width: 10),
-        Expanded(child: Center(child: Text("A", style: TextStyle(fontSize: 18)))),
-        Expanded(child: Center(child: Text("B", style: TextStyle(fontSize: 18)))),
+        Expanded(
+            child: Center(child: Text("A", style: TextStyle(fontSize: 18)))),
+        Expanded(
+            child: Center(child: Text("B", style: TextStyle(fontSize: 18)))),
         Expanded(
             child:
                 Center(child: Icon(Icons.arrow_downward, color: Colors.grey))),
-        Expanded(child: Center(child: Text("C", style: TextStyle(fontSize: 18)))),
-        Expanded(child: Center(child: Text("D", style: TextStyle(fontSize: 18)))),
+        Expanded(
+            child: Center(child: Text("C", style: TextStyle(fontSize: 18)))),
+        Expanded(
+            child: Center(child: Text("D", style: TextStyle(fontSize: 18)))),
       ],
     );
   }
@@ -210,8 +217,8 @@ class PilihKursiView extends GetView<PilihKursiController> {
       int baris = (index ~/ 5) + 1;
       return Center(
           child: Text("$baris",
-              style:
-                  const TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)));
+              style: const TextStyle(
+                  color: Colors.grey, fontWeight: FontWeight.bold)));
     }
 
     if (status == "empty") {

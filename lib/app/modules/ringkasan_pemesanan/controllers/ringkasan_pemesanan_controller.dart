@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:fritzlinee/app/services/booking_service.dart';
 import 'package:fritzlinee/app/services/auth_service.dart';
 import 'package:fritzlinee/app/routes/app_pages.dart';
+import '../../../models/passenger.dart'; 
 
 class PassengerFormControllers {
   final TextEditingController fullNameController;
@@ -31,7 +32,7 @@ class RingkasanPemesananController extends GetxController {
   final trainData = {}.obs;
   final passengerCount = 0.obs;
 
-  final savedPassengers = <Map<String, dynamic>>[].obs;
+  final savedPassengers = <Passenger>[].obs;
 
   final List<String> idTypes = ['KTP', 'Paspor', 'SIM'];
 
@@ -40,7 +41,7 @@ class RingkasanPemesananController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    
+
     final Map<String, dynamic>? data = Get.arguments as Map<String, dynamic>?;
     if (data != null) {
       trainData.value = data;
@@ -50,12 +51,12 @@ class RingkasanPemesananController extends GetxController {
     }
 
     passengerCount.value = bookingService.passengerCount.value;
-    savedPassengers.value = authService.savedPassengers;
+    savedPassengers.assignAll(authService.savedPassengers);
 
     if (passengerCount.value <= 0) {
       passengerCount.value = 1;
     }
-    
+
     bookingService.selectedSeats.clear();
 
     for (int i = 0; i < passengerCount.value; i++) {
@@ -87,7 +88,7 @@ class RingkasanPemesananController extends GetxController {
     }
   }
 
-  void applySavedPassenger(Map<String, dynamic> passenger) {
+  void applySavedPassenger(Passenger passenger) {
     int emptyFormIndex = -1;
     for (int i = 0; i < formList.length; i++) {
       if (formList[i].fullNameController.text.isEmpty) {
@@ -97,12 +98,9 @@ class RingkasanPemesananController extends GetxController {
     }
 
     if (emptyFormIndex != -1) {
-      formList[emptyFormIndex].fullNameController.text =
-          passenger['nama'] ?? '';
-      formList[emptyFormIndex].idNumberController.text =
-          passenger['id_number'] ?? '';
-      formList[emptyFormIndex].selectedIdType.value =
-          passenger['id_type'] ?? 'KTP';
+      formList[emptyFormIndex].fullNameController.text = passenger.nama;
+      formList[emptyFormIndex].idNumberController.text = passenger.idNumber;
+      formList[emptyFormIndex].selectedIdType.value = passenger.idType;
     } else {
       Get.snackbar("Penuh", "Semua form penumpang sudah terisi.");
     }

@@ -48,6 +48,17 @@ class DetailBookingTiketController extends GetxController {
     totalHarga.value = hargaPerTiket * jumlahPenumpang;
   }
 
+  String _formatPriceByCode(double price, String code) {
+    if (code == "IDR") {
+      return NumberFormat.currency(
+              locale: 'id_ID', symbol: 'Rp', decimalDigits: 0)
+          .format(price);
+    }
+    return NumberFormat.currency(
+            locale: 'en_US', symbol: "$code ", decimalDigits: 2)
+        .format(price);
+  }
+
   void showCurrencyBottomSheet() {
     Get.bottomSheet(
       Container(
@@ -73,12 +84,19 @@ class DetailBookingTiketController extends GetxController {
                 children: availableCurrencies.entries.map((entry) {
                   bool isSelected =
                       settingsService.preferredCurrency.value == entry.key;
+
+                  String currencyCode = entry.key;
+                  double rate =
+                      (settingsService.exchangeRates[currencyCode] as num? ??
+                              1.0)
+                          .toDouble();
+                  double convertedPrice = totalHarga.value * rate;
+                  String formattedPrice =
+                      _formatPriceByCode(convertedPrice, currencyCode);
+
                   return ListTile(
                     title: Text(entry.value),
-                    subtitle: Text(settingsService
-                        .formatPrice(totalHarga.value)
-                        .replaceAll(entry.key, "")
-                        .trim()),
+                    subtitle: Text(formattedPrice),
                     trailing: isSelected
                         ? Icon(Icons.check_circle, color: Color(0xFF656CEE))
                         : null,
@@ -200,7 +218,7 @@ class DetailBookingTiketController extends GetxController {
 
     await hiveService.kurangiStokTiket(
         trainData['id'], passengerData.length);
-    
+
     await ticketService.saveNewTicket(ticketData);
     bookingService.resetBooking();
 

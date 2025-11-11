@@ -3,18 +3,22 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
 import 'dart:async';
+import '../models/passenger.dart';
+import '../models/user.dart';
 
 class AuthService extends GetxService {
-  late Box _userBox;
+  late Box<User> _userBox;
   late Box _sessionBox;
+  late Box<Passenger> _passengerBox;
 
   final isLoggedIn = false.obs;
-  final currentUser = <String, dynamic>{}.obs;
-  final savedPassengers = <Map<String, dynamic>>[].obs;
+  final currentUser = Rxn<User>();
+  final savedPassengers = <Passenger>[].obs;
 
   Future<AuthService> init() async {
-    _userBox = Hive.box('users');
-    _sessionBox = Hive.box('auth_session');
+    _passengerBox = await Hive.openBox<Passenger>('passengers');
+    _userBox = await Hive.openBox<User>('users');
+    _sessionBox = await Hive.openBox('auth_session');
     checkSession();
     return this;
   }
@@ -25,65 +29,79 @@ class AuthService extends GetxService {
     return digest.toString();
   }
 
-  Map<String, dynamic> _convertMap(Map<dynamic, dynamic> originalMap) {
-    return originalMap.map((key, value) => MapEntry(key.toString(), value));
-  }
-
   bool checkSession() {
-    final sessionData = _sessionBox.get('currentUser');
-    if (sessionData != null && sessionData is Map) {
-      currentUser.value = _convertMap(sessionData);
-      _loadSavedPassengers();
-      isLoggedIn.value = true;
-      return true;
-    } else {
-      isLoggedIn.value = false;
-      return false;
+    final userKey = _sessionBox.get('currentUserKey');
+    if (userKey != null) {
+      final user = _userBox.get(userKey);
+      if (user != null) {
+        currentUser.value = user;
+        _loadSavedPassengers();
+        isLoggedIn.value = true;
+        return true;
+      }
     }
+    isLoggedIn.value = false;
+    return false;
   }
 
   void _loadSavedPassengers() {
-    String userEmail = currentUser['email'] ?? '';
-    if (userEmail.isEmpty) return;
-
-    final userData = _userBox.get(userEmail);
-    if (userData != null && userData is Map) {
-      final user = _convertMap(userData);
-      List<dynamic> passengersDynamic = user['saved_passengers'] ?? [];
-      savedPassengers.value =
-          List<Map<String, dynamic>>.from(passengersDynamic.map((passenger) {
-        if (passenger is Map) {
-          return _convertMap(passenger);
-        }
-        return <String, dynamic>{};
-      }));
+    if (currentUser.value != null) {
+      savedPassengers.assignAll(currentUser.value!.savedPassengers.toList());
+    } else {
+      savedPassengers.clear();
     }
   }
 
-  Future<void> addSavedPassenger(Map<String, String> passenger) async {
-    String userEmail = currentUser['email'] ?? '';
-    if (userEmail.isEmpty) return;
+  Future<void> addSavedPassenger(Map<String, String> passengerData) async {
+    if (currentUser.value == null) return;
 
-    final userData = _userBox.get(userEmail);
-    if (userData != null && userData is Map) {
-      final user = _convertMap(userData);
-      List<dynamic> passengersDynamic = user['saved_passengers'] ?? [];
-      List<Map<String, dynamic>> currentPassengers =
-          List<Map<String, dynamic>>.from(passengersDynamic.map((p) {
-        if (p is Map) return _convertMap(p);
-        return <String, dynamic>{};
-      }));
+    final newPassenger = Passenger(
+      nama: passengerData['nama']!,
+      idType: passengerData['id_type']!,
+      idNumber: passengerData['id_number']!,
+    );
 
-      bool alreadyExists = currentPassengers.any((p) =>
-          p['nama'] == passenger['nama'] &&
-          p['id_number'] == passenger['id_number']);
-      if (!alreadyExists) {
-        currentPassengers.add(passenger);
-        user['saved_passengers'] = currentPassengers;
-        await _userBox.put(userEmail, user);
-        _loadSavedPassengers();
-      }
+    bool alreadyExists = currentUser.value!.savedPassengers.any((p) =>
+        p.nama == newPassenger.nama && p.idNumber == newPassenger.idNumber);
+
+    if (!alreadyExists) {
+      await _passengerBox.add(newPassenger);
+
+      currentUser.value!.savedPassengers.add(newPassenger);
+      await currentUser.value!.save();
+      
+      _loadSavedPassengers();
     }
+  }
+
+  Future<void> updateSavedPassenger(
+      int index, Map<String, dynamic> updatedPassenger) async {
+    if (currentUser.value == null ||
+        index < 0 ||
+        index >= currentUser.value!.savedPassengers.length) return;
+
+    final passengerToUpdate = currentUser.value!.savedPassengers[index];
+    passengerToUpdate.nama = updatedPassenger['nama'];
+    passengerToUpdate.idType = updatedPassenger['id_type'];
+    passengerToUpdate.idNumber = updatedPassenger['id_number'];
+
+    await passengerToUpdate.save();
+    _loadSavedPassengers();
+  }
+
+  Future<void> deleteSavedPassenger(int index) async {
+    if (currentUser.value == null ||
+        index < 0 ||
+        index >= currentUser.value!.savedPassengers.length) return;
+
+    final passengerToDelete = currentUser.value!.savedPassengers[index];
+
+    currentUser.value!.savedPassengers.removeAt(index);
+    await currentUser.value!.save();
+
+    await passengerToDelete.delete();
+    
+    _loadSavedPassengers();
   }
 
   Future<bool> register(String name, String email, String password) async {
@@ -91,43 +109,46 @@ class AuthService extends GetxService {
       Get.snackbar("Error", "Email sudah terdaftar.");
       return false;
     }
+
     String hashedPassword = _hashPassword(password);
-    await _userBox.put(email, {
-      "name": name,
-      "email": email,
-      "password": hashedPassword,
-      "saved_passengers": [],
-    });
+    
+    final user = User(
+      name: name,
+      email: email,
+      password: hashedPassword,
+      savedPassengers: HiveList(_passengerBox),
+    );
+
+    await _userBox.put(email, user);
     return true;
   }
 
   Future<bool> login(String email, String password) async {
-    if (!_userBox.containsKey(email)) {
+    final user = _userBox.get(email);
+
+    if (user == null) {
       Get.snackbar("Error", "Email tidak ditemukan.");
       return false;
     }
 
-    final userData = _userBox.get(email);
-    if (userData != null && userData is Map) {
-      final user = _convertMap(userData);
-      String storedHash = user['password'] ?? '';
-      String inputHash = _hashPassword(password);
-      if (storedHash != inputHash) {
-        Get.snackbar("Error", "Password salah.");
-        return false;
-      }
-      await _sessionBox.put('currentUser', user);
-      currentUser.value = user;
-      _loadSavedPassengers();
-      isLoggedIn.value = true;
-      return true;
+    String storedHash = user.password;
+    String inputHash = _hashPassword(password);
+
+    if (storedHash != inputHash) {
+      Get.snackbar("Error", "Password salah.");
+      return false;
     }
-    return false;
+
+    await _sessionBox.put('currentUserKey', user.email);
+    currentUser.value = user;
+    _loadSavedPassengers();
+    isLoggedIn.value = true;
+    return true;
   }
 
   Future<void> logout() async {
-    await _sessionBox.clear();
-    currentUser.value = <String, dynamic>{};
+    await _sessionBox.delete('currentUserKey');
+    currentUser.value = null;
     savedPassengers.clear();
     isLoggedIn.value = false;
   }

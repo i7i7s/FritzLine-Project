@@ -97,7 +97,7 @@ class _LoginPageViewState extends State<LoginPageView> {
           "Silakan login ke akun Anda",
           style: TextStyle(
             fontSize: 16,
-            color: Colors.grey.shade600,
+            color: Colors.grey,
           ),
         ),
       ],
@@ -109,69 +109,89 @@ class _LoginPageViewState extends State<LoginPageView> {
       children: [
         TextField(
           controller: _emailC,
-          decoration: _buildInputDecoration("Email", Icons.email_outlined),
+          decoration: _buildInputDecoration(
+            "Email",
+            Icons.email_outlined,
+            fillColor: const Color(0xFFEFF3FF),
+            focusColor: const Color(0xFF656CEE),
+          ),
           keyboardType: TextInputType.emailAddress,
         ),
         const SizedBox(height: 20),
         TextField(
           controller: _passC,
-          decoration: _buildInputDecoration("Password", Icons.lock_outline),
+          decoration: _buildInputDecoration(
+            "Password",
+            Icons.lock_outline,
+            fillColor: const Color(0xFFFFF1F1),
+            focusColor: const Color(0xFF656CEE),
+          ),
           obscureText: true,
         ),
       ],
     );
   }
 
-  InputDecoration _buildInputDecoration(String label, IconData icon) {
+  InputDecoration _buildInputDecoration(
+    String label,
+    IconData icon, {
+    Color? fillColor,
+    Color? focusColor,
+  }) {
+    final Color effectiveFill = fillColor ?? Colors.white70;
+    final Color effectiveFocus = focusColor ?? const Color(0xFF656CEE);
+
     return InputDecoration(
       labelText: label,
-      prefixIcon: Icon(icon, color: const Color(0xFF656CEE)),
+      prefixIcon: Icon(icon, color: effectiveFocus),
       filled: true,
-      fillColor: Colors.white.withOpacity(0.9),
+      fillColor: effectiveFill,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide.none,
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFF656CEE), width: 2),
+        borderSide: BorderSide(color: effectiveFocus, width: 2),
       ),
     );
   }
 
   Widget _buildLoginButton() {
-    return Obx(() => SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: controller.isLoading.value
-                ? null
-                : () => controller.login(_emailC.text, _passC.text),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF656CEE),
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+    return Obx(
+      () => SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          onPressed: controller.isLoading.value
+              ? null
+              : () => controller.login(_emailC.text, _passC.text),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF656CEE),
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-            child: controller.isLoading.value
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
-                      strokeWidth: 2,
-                    ),
-                  )
-                : const Text(
-                    "LOGIN",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
           ),
-        ));
+          child: controller.isLoading.value
+              ? const SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2,
+                  ),
+                )
+              : const Text(
+                  "LOGIN",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+        ),
+      ),
+    );
   }
 
   Widget _buildRegisterButton() {

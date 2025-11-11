@@ -8,40 +8,40 @@ class HomeView extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
-    return _buildBerandaPage(context);
-  }
-
-  Widget _buildBerandaPage(BuildContext context) {
-    return SafeArea(
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 20),
-            _buildBerandaHeader(),
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: _buildBookingCard(context),
-            ),
-            const SizedBox(height: 30),
-            _buildBerandaSectionTitle("Berita"),
-            const SizedBox(height: 10),
-            _buildNewsList(),
-            const SizedBox(height: 20),
-          ],
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: SafeArea(
+        bottom: false,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHomeHeader(context),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                child: _buildBookingCard(context),
+              ),
+              _buildBerandaSectionTitle("Berita"),
+              const SizedBox(height: 16),
+              _buildNewsList(),
+              const SizedBox(height: 24),
+              _buildBerandaSectionTitle("Stasiun Terdekat Anda"),
+              _buildNearestStationsCard(),
+              const SizedBox(height: 20),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildBerandaHeader() {
+  Widget _buildHomeHeader(BuildContext context) {
     return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.fromLTRB(20, 24, 20, 0),
       child: Text(
         "Mau pergi ke\nmana kali ini?",
         style: TextStyle(
-          fontSize: 24,
+          fontSize: 28,
           fontWeight: FontWeight.bold,
           color: Color(0xFF333E63),
         ),
@@ -57,24 +57,35 @@ class HomeView extends GetView<HomeController> {
         style: const TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.bold,
-          color: Color(0xFF333E63),
+          color: Color(0xFF1B1B1F),
         ),
       ),
     );
   }
 
   Widget _buildBookingCard(BuildContext context) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.8),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withOpacity(0.5)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF656CEE).withOpacity(0.1),
+            blurRadius: 20,
+            spreadRadius: 2,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
             _buildStationRow(context),
-            const Divider(height: 25, thickness: 1),
+            const Divider(height: 25, thickness: 1, color: Color(0xFFE0E0FF)),
             _buildDateRow(context),
-            const Divider(height: 25, thickness: 1),
+            const Divider(height: 25, thickness: 1, color: Color(0xFFE0E0FF)),
             _buildPassengerRow(),
           ],
         ),
@@ -92,16 +103,18 @@ class HomeView extends GetView<HomeController> {
             onTap: () => controller.showCitySelection(context, true),
             child: Obx(() => _buildStationInfo(
                   "Keberangkatan",
-                  controller.selectedDeparture.value['code'] ?? "",
-                  controller.selectedDeparture.value['name'] ?? '...',
+                  controller.selectedDeparture.value['code'] ?? "...",
+                  controller.selectedDeparture.value['name'] ?? 'Pilih Stasiun',
                 )),
           ),
         ),
         GestureDetector(
           onTap: () => controller.swapCities(),
-          child: const Padding(
-            padding: EdgeInsets.only(top: 25.0, left: 8, right: 8),
-            child: Icon(Icons.swap_horiz, color: Color(0xFF656CEE), size: 28),
+          child: Container(
+            margin: const EdgeInsets.only(top: 16.0, left: 8, right: 8),
+            padding: const EdgeInsets.all(4),
+            child:
+                const Icon(Icons.swap_horiz, color: Color(0xFF656CEE), size: 28),
           ),
         ),
         Expanded(
@@ -109,8 +122,8 @@ class HomeView extends GetView<HomeController> {
             onTap: () => controller.showCitySelection(context, false),
             child: Obx(() => _buildStationInfo(
                   "Tujuan",
-                  controller.selectedArrival.value['code'] ?? "",
-                  controller.selectedArrival.value['name'] ?? '...',
+                  controller.selectedArrival.value['code'] ?? "...",
+                  controller.selectedArrival.value['name'] ?? 'Pilih Stasiun',
                   align: CrossAxisAlignment.end,
                 )),
           ),
@@ -142,7 +155,8 @@ class HomeView extends GetView<HomeController> {
                   activeColor: const Color(0xFF656CEE),
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 )),
-            const Text("Pulang pergi", style: TextStyle(fontSize: 12)),
+            const Text("Pulang pergi",
+                style: TextStyle(fontSize: 12, color: Color(0xFF49454F))),
           ],
         ),
       ],
@@ -152,37 +166,56 @@ class HomeView extends GetView<HomeController> {
   Widget _buildPassengerRow() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text("Jumlah penumpang",
-                style: TextStyle(color: Colors.grey, fontSize: 12)),
-            const SizedBox(height: 5),
+                style: TextStyle(color: Color(0xFF49454F), fontSize: 12)),
+            const SizedBox(height: 8),
             Row(
               children: [
                 _buildPassengerButton(
                     Icons.remove, controller.decrementPassenger),
-                Obx(() => Text(" ${controller.passengerCount.value} ",
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold))),
+                Obx(() => Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text("${controller.passengerCount.value}",
+                          style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF1B1B1F))),
+                    )),
                 _buildPassengerButton(Icons.add, controller.incrementPassenger),
               ],
             )
           ],
         ),
-        ElevatedButton(
-          onPressed: () => controller.cariTiket(),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF656CEE),
-            shape: RoundedRectangleBorder(
+        GestureDetector(
+          onTap: () => controller.cariTiket(),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF656CEE), Color(0xFF4147D5)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
               borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF656CEE).withOpacity(0.3),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          ),
-          child: const Text("CARI TIKET",
+            child: const Text(
+              "CARI",
               style:
-                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+          ),
         ),
       ],
     );
@@ -193,27 +226,21 @@ class HomeView extends GetView<HomeController> {
     return Column(
       crossAxisAlignment: align,
       children: [
-        Text(title, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+        Text(title,
+            style: const TextStyle(color: Color(0xFF49454F), fontSize: 12)),
         const SizedBox(height: 5),
-        Text(code.isEmpty ? "..." : code,
+        Text(code,
             style: const TextStyle(
-                fontSize: 24,
+                fontSize: 26,
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF333E63))),
         const SizedBox(height: 5),
-        Row(
-          mainAxisAlignment: (align == CrossAxisAlignment.end)
-              ? MainAxisAlignment.end
-              : MainAxisAlignment.start,
-          children: [
-            Flexible(
-              child: Text(
-                "Stasiun $station",
-                style: const TextStyle(color: Colors.grey, fontSize: 12),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
+        Text(
+          station,
+          style: const TextStyle(color: Color(0xFF49454F), fontSize: 12),
+          overflow: TextOverflow.ellipsis,
+          textAlign:
+              (align == CrossAxisAlignment.end) ? TextAlign.end : TextAlign.start,
         ),
       ],
     );
@@ -223,13 +250,14 @@ class HomeView extends GetView<HomeController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: const TextStyle(color: Colors.grey, fontSize: 12)),
-        const SizedBox(height: 5),
+        Text(title,
+            style: const TextStyle(color: Color(0xFF49454F), fontSize: 12)),
+        const SizedBox(height: 8),
         Text(subtitle,
             style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF333E63))),
+                color: Color(0xFF1B1B1F))),
       ],
     );
   }
@@ -237,20 +265,22 @@ class HomeView extends GetView<HomeController> {
   Widget _buildPassengerButton(IconData icon, VoidCallback onPressed) {
     return InkWell(
       onTap: onPressed,
+      borderRadius: BorderRadius.circular(20),
       child: Container(
-        padding: const EdgeInsets.all(2),
+        padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-          color: Colors.grey.shade200,
-          borderRadius: BorderRadius.circular(5),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFFDCDCDC)),
         ),
-        child: Icon(icon, size: 16, color: Colors.black54),
+        child: Icon(icon, size: 16, color: const Color(0xFF333E63)),
       ),
     );
   }
 
   Widget _buildNewsList() {
     return SizedBox(
-      height: 190,
+      height: 210,
       child: ListView.separated(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         scrollDirection: Axis.horizontal,
@@ -259,47 +289,50 @@ class HomeView extends GetView<HomeController> {
         itemBuilder: (context, index) {
           final news = controller.newsList[index];
           return SizedBox(
-            width: Get.width * 0.8,
+            width: Get.width * 0.7,
             child: Card(
-              elevation: 3,
+              elevation: 2,
+              shadowColor: Colors.black.withOpacity(0.05),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(15),
               ),
               clipBehavior: Clip.antiAlias,
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Container(
                     height: 110,
                     width: double.infinity,
-                    color: Colors.grey.shade300,
+                    color: Colors.grey.shade200,
                     alignment: Alignment.center,
                     child: Text(
                       "Gambar Berita ${index + 1}",
                       style: TextStyle(color: Colors.grey.shade700),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          news["kategori"] ?? "",
-                          style: const TextStyle(
-                              color: Color(0xFF656CEE),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12),
-                        ),
-                        const SizedBox(height: 5),
-                        Text(
-                          news["judul"] ?? "",
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 14),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            news["kategori"] ?? "",
+                            style: const TextStyle(
+                                color: Color(0xFF656CEE),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12),
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            news["judul"] ?? "",
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 14),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -307,6 +340,101 @@ class HomeView extends GetView<HomeController> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildNearestStationsCard() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      child: Card(
+        elevation: 2,
+        color: Colors.white,
+        shadowColor: Colors.black.withOpacity(0.05),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    "Stasiun Terdekat",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1B1B1F),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => controller.fetchNearestStationsLBS(),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.refresh,
+                            size: 18, color: Color(0xFF656CEE)),
+                        SizedBox(width: 4),
+                        Text(
+                          "Refresh",
+                          style: TextStyle(
+                              color: Color(0xFF656CEE),
+                              fontWeight: FontWeight.w500),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Obx(() {
+                if (controller.isLoadingStasiunLBS.isTrue) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          CircularProgressIndicator(
+                            strokeWidth: 3,
+                          ),
+                          SizedBox(height: 10),
+                          Text("Mencari stasiun..."),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                if (controller.stasiunTerdekat.isEmpty) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                      child: Text(
+                        "Gagal. Pastikan izin lokasi (GPS) Anda aktif.",
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  );
+                }
+
+                return Column(
+                  children: controller.stasiunTerdekat.map((stasiun) {
+                    return ListTile(
+                      leading:
+                          const Icon(Icons.train, color: Color(0xFF656CEE)),
+                      title: Text("${stasiun['nama']} (${stasiun['id']})",
+                          style: const TextStyle(fontWeight: FontWeight.w500)),
+                      subtitle:
+                          Text("${stasiun['distance_km']} km dari lokasi Anda"),
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                    );
+                  }).toList(),
+                );
+              }),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -371,10 +499,15 @@ class _StationSearchDialogState extends State<StationSearchDialog> {
           TextField(
             controller: _searchC,
             decoration: InputDecoration(
-              labelText: "Cari stasiun (cth: GMR atau Gambir)",
+              hintText: "Cari stasiun (cth: GMR atau Gambir)",
               prefixIcon: const Icon(Icons.search),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: Color(0xFFDCDCDC)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: Color(0xFF333E63)),
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 10),
             ),

@@ -7,54 +7,127 @@ class ProfilView extends GetView<ProfilController> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildProfilePicture(),
-              const SizedBox(height: 16),
-              Obx(() => Text(
-                    controller.authService.currentUser.value['name'] ??
-                        'Muhammad Daffa Alwafi',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                        fontSize: 22, fontWeight: FontWeight.bold),
-                  )),
-              const SizedBox(height: 8),
-              const Text(
-                "Member FritzLine",
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16, color: Colors.grey),
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: Column(
+        children: [
+          _buildProfileHeader(),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+              child: Column(
+                children: [
+                  _buildMenuGroup(
+                    children: [
+                      _buildSavedPassengersList(context),
+                      _buildMenuItem(
+                        icon: Icons.help_outline,
+                        title: "Help Center",
+                        onTap: () => controller.goToHelpCenter(),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  _buildMenuGroup(
+                    children: [
+                      _buildMenuItem(
+                        icon: Icons.logout,
+                        title: "Logout",
+                        color: Colors.red.shade600,
+                        onTap: () => controller.logout(),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  _buildSarkasCard(),
+                ],
               ),
-              _buildSarkasExpansionTile(),
-              const SizedBox(height: 30),
-              const Text(
-                "Stasiun Terdekat Anda",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF333E63),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProfileHeader() {
+    final user = controller.authService.currentUser.value;
+    final userInitial = user?.name.substring(0, 2).toUpperCase() ?? '..';
+
+    return Container(
+      padding: const EdgeInsets.only(bottom: 20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF333E63),
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(30)),
+        gradient: LinearGradient(
+          colors: [const Color(0xFF656CEE).withValues(alpha: 0.8), const Color(0xFF333E63)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.15),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          )
+        ],
+      ),
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 24, left: 24, right: 24),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 30,
+                backgroundColor: Colors.orange.shade700,
+                child: Text(
+                  userInitial,
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold),
                 ),
               ),
-              const SizedBox(height: 10),
-              _buildNearestStationsCard(),
-              const SizedBox(height: 40),
-              ElevatedButton.icon(
-                icon: const Icon(Icons.logout, color: Colors.white),
-                label:
-                    const Text("LOGOUT", style: TextStyle(color: Colors.white)),
-                onPressed: () => controller.logout(),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red.shade600,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      user?.name ?? 'Nama Pengguna',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.star, color: Colors.yellow, size: 14),
+                          SizedBox(width: 4),
+                          Text(
+                            "Premium Member",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -64,33 +137,156 @@ class ProfilView extends GetView<ProfilController> {
     );
   }
 
-  Widget _buildProfilePicture() {
-    return Center(
-      child: Container(
-        width: 100,
-        height: 100,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          image: const DecorationImage(
-            image: AssetImage('assets/images/profile.jpg'),
-            fit: BoxFit.cover,
+  Widget _buildMenuGroup({required List<Widget> children}) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
           ),
-          border: Border.all(color: const Color(0xFF656CEE), width: 3),
-        ),
+        ],
+      ),
+      child: Column(
+        children: children,
       ),
     );
   }
 
-  Widget _buildSarkasExpansionTile() {
+  Widget _buildMenuItem({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+    Color? color,
+  }) {
+    final itemColor = color ?? const Color(0xFF1B1B1F);
+    return ListTile(
+      leading: Icon(icon, color: itemColor),
+      title: Text(
+        title,
+        style: TextStyle(
+            fontWeight: FontWeight.w500, color: itemColor, fontSize: 16),
+      ),
+      trailing:
+          Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey.shade400),
+      onTap: onTap,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    );
+  }
+
+  Widget _buildSavedPassengersList(BuildContext context) {
+    return Theme(
+      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+      child: ExpansionTile(
+        leading: const Icon(Icons.people_alt_outlined, color: Color(0xFF1B1B1F)),
+        title: const Text(
+          "Passenger List",
+          style: TextStyle(
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF1B1B1F),
+              fontSize: 16),
+        ),
+        trailing: Icon(
+          Icons.arrow_forward_ios,
+          size: 16,
+          color: Colors.grey.shade400,
+        ),
+        children: [
+          Container(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(12),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Divider(),
+                Obx(() {
+                  final passengers = controller.authService.savedPassengers;
+                  if (passengers.isEmpty) {
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 20.0),
+                        child: Text("Anda belum memiliki penumpang tersimpan."),
+                      ),
+                    );
+                  }
+
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: passengers.length,
+                    itemBuilder: (context, index) {
+                      final passenger = passengers[index];
+                      return Container(
+                        margin: const EdgeInsets.only(top: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.grey.shade200),
+                        ),
+                        child: ListTile(
+                          title: Text(
+                            passenger.nama,
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w500),
+                          ),
+                          subtitle: Text(
+                            "${passenger.idType} (${passenger.idNumber})",
+                            style: TextStyle(
+                                color: Colors.grey.shade600, fontSize: 13),
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.edit_note,
+                                    color: Colors.orange),
+                                onPressed: () {
+                                  controller.showEditPassengerDialog(
+                                      index, passenger);
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete_outline,
+                                    color: Colors.red),
+                                onPressed: () {
+                                  controller
+                                      .showDeleteConfirmationDialog(index);
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                }),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSarkasCard() {
     return Card(
-      margin: const EdgeInsets.only(top: 20),
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      elevation: 2,
+      color: Colors.white,
+      shadowColor: Colors.black.withValues(alpha: 0.05),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       clipBehavior: Clip.antiAlias,
       child: ExpansionTile(
         leading: const Icon(Icons.school_outlined, color: Color(0xFF656CEE)),
         title: const Text(
-          "Saran & Kesan Mata Kuliah PAM",
+          "Saran & Kesan",
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
@@ -128,64 +324,6 @@ class ProfilView extends GetView<ProfilController> {
           ),
           const SizedBox(height: 10),
         ],
-      ),
-    );
-  }
-
-  Widget _buildNearestStationsCard() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Obx(() {
-          if (controller.isLoadingStasiun.isTrue) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    CircularProgressIndicator(),
-                    SizedBox(height: 10),
-                    Text("Mencari stasiun terdekat..."),
-                  ],
-                ),
-              ),
-            );
-          }
-
-          if (controller.stasiunTerdekat.isEmpty) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Flexible(
-                    child: Text(
-                      "Gagal. Pastikan GPS aktif.",
-                      style: TextStyle(color: Colors.grey.shade700),
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.refresh, color: Color(0xFF656CEE)),
-                    onPressed: () => controller.fetchNearestStations(),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          return Column(
-            children: controller.stasiunTerdekat.map((stasiun) {
-              return ListTile(
-                leading: const Icon(Icons.train, color: Color(0xFF656CEE)),
-                title: Text("${stasiun['nama']} (${stasiun['id']})"),
-                subtitle: Text("${stasiun['distance_km']} km dari lokasi Anda"),
-                dense: true,
-              );
-            }).toList(),
-          );
-        }),
       ),
     );
   }
