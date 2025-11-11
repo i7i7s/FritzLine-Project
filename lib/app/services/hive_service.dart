@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -51,7 +52,186 @@ class HiveService extends GetxService {
     }
   }
 
+  Future<Map<String, dynamic>?> getAvailableSeats(String idKereta) async {
+    final uri = Uri.parse('$_apiBaseUrl/seats/$idKereta');
+
+    try {
+      final response = await http.get(uri).timeout(const Duration(seconds: 15));
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        throw Exception('Gagal memuat data kursi (${response.statusCode})');
+      }
+    } catch (e) {
+      Get.snackbar(
+        "Error",
+        "Gagal memuat kursi: ${e.toString()}",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return null;
+    }
+  }
+
+  Future<bool> bookSeats(String idKereta, List<int> seatIds) async {
+    final uri = Uri.parse('$_apiBaseUrl/seats/book');
+
+    try {
+      final response = await http
+          .post(
+            uri,
+            headers: {'Content-Type': 'application/json'},
+            body: json.encode({'id_kereta': idKereta, 'seat_ids': seatIds}),
+          )
+          .timeout(const Duration(seconds: 15));
+
+      if (response.statusCode == 200) {
+        final result = json.decode(response.body);
+        Get.snackbar(
+          "Sukses",
+          result['message'] ?? "Kursi berhasil di-reserve",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color(0xFF00C853),
+          colorText: Colors.white,
+        );
+        return true;
+      } else if (response.statusCode == 409) {
+        // Conflict - kursi sudah di-book orang lain
+        final error = json.decode(response.body);
+        Get.snackbar(
+          "Kursi Tidak Tersedia",
+          error['error'] ?? "Kursi sudah dibooking penumpang lain",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.orange,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 4),
+        );
+        return false;
+      } else {
+        throw Exception('Booking gagal (${response.statusCode})');
+      }
+    } catch (e) {
+      Get.snackbar(
+        "Error Booking",
+        "Gagal mem-booking kursi: ${e.toString()}",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return false;
+    }
+  }
+
+  Future<bool> releaseSeats(List<int> seatIds) async {
+    final uri = Uri.parse('$_apiBaseUrl/seats/release');
+
+    try {
+      final response = await http
+          .post(
+            uri,
+            headers: {'Content-Type': 'application/json'},
+            body: json.encode({'seat_ids': seatIds}),
+          )
+          .timeout(const Duration(seconds: 15));
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        throw Exception('Release gagal (${response.statusCode})');
+      }
+    } catch (e) {
+      print("Error releasing seats: $e");
+      return false;
+    }
+  }
+
+  Future<String?> confirmBooking({
+    required String idKereta,
+    required List<int> seatIds,
+    required List<Map<String, String>> passengerData,
+    required double totalPrice,
+    String? kodeBooking,
+  }) async {
+    final uri = Uri.parse('$_apiBaseUrl/bookings/confirm');
+
+    print('🚀 [API] Confirm Booking Request:');
+    print('   Train ID: $idKereta');
+    print('   Seat IDs: $seatIds');
+    print('   Passengers: ${passengerData.length}');
+    print('   Total: $totalPrice');
+
+    try {
+      final requestBody = {
+        'id_kereta': idKereta,
+        'seat_ids': seatIds,
+        'passenger_data': passengerData,
+        'total_price': totalPrice,
+        'kode_booking': kodeBooking,
+      };
+
+      final response = await http
+          .post(
+            uri,
+            headers: {'Content-Type': 'application/json'},
+            body: json.encode(requestBody),
+          )
+          .timeout(const Duration(seconds: 20));
+
+      print('📥 [API] Confirm Response: ${response.statusCode}');
+      print('📥 [API] Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final result = json.decode(response.body);
+        print('✅ [API] Booking Confirmed! Code: ${result['kode_booking']}');
+        return result['kode_booking'];
+      } else {
+        print('❌ [API] Confirm Failed: ${response.statusCode}');
+        throw Exception('Konfirmasi booking gagal (${response.statusCode})');
+      }
+    } catch (e) {
+      Get.snackbar(
+        "Error Konfirmasi",
+        "Gagal mengkonfirmasi booking: ${e.toString()}",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getBookingHistory(String kodeBooking) async {
+    final uri = Uri.parse('$_apiBaseUrl/bookings/history/$kodeBooking');
+
+    try {
+      final response = await http.get(uri).timeout(const Duration(seconds: 15));
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else if (response.statusCode == 404) {
+        Get.snackbar(
+          "Tidak Ditemukan",
+          "Booking dengan kode $kodeBooking tidak ditemukan",
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        return null;
+      } else {
+        throw Exception('Gagal memuat history (${response.statusCode})');
+      }
+    } catch (e) {
+      Get.snackbar(
+        "Error",
+        "Gagal memuat history: ${e.toString()}",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return null;
+    }
+  }
+
+  @deprecated
   Future<void> kurangiStokTiket(String trainId, int jumlahBeli) async {
-    print("LOG: Aksi 'kurangiStokTiket' dipanggil (belum terhubung ke API).");
+    print(
+      "DEPRECATED: Method ini sudah tidak digunakan. Gunakan bookSeats() dan confirmBooking().",
+    );
   }
 }

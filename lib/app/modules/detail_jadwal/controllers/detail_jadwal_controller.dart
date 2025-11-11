@@ -73,6 +73,50 @@ class DetailJadwalController extends GetxController {
   }
 
   void selectTrain(Map<String, dynamic> train) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final selectedDay = DateTime(
+      selectedDate.value.year,
+      selectedDate.value.month,
+      selectedDate.value.day,
+    );
+
+    if (selectedDay.isAtSameMomentAs(today)) {
+      try {
+        String? jadwalBerangkat = train['jadwalBerangkat'];
+        if (jadwalBerangkat != null && jadwalBerangkat.isNotEmpty) {
+          final timeParts = jadwalBerangkat.split(':');
+          if (timeParts.length >= 2) {
+            final hour = int.parse(timeParts[0]);
+            final minute = int.parse(timeParts[1]);
+            final departureTime = DateTime(
+              now.year,
+              now.month,
+              now.day,
+              hour,
+              minute,
+            );
+
+            final cutoffTime = now.add(const Duration(minutes: 30));
+            
+            if (departureTime.isBefore(cutoffTime) || departureTime.isAtSameMomentAs(cutoffTime)) {
+              Get.snackbar(
+                "Tidak Dapat Memesan",
+                "Kereta ${train['namaKereta']} berangkat pada $jadwalBerangkat. Pemesanan harus dilakukan minimal 30 menit sebelum keberangkatan.",
+                snackPosition: SnackPosition.BOTTOM,
+                backgroundColor: Colors.red,
+                colorText: Colors.white,
+                duration: const Duration(seconds: 4),
+              );
+              return;
+            }
+          }
+        }
+      } catch (e) {
+        print('Error validating departure time: $e');
+      }
+    }
+
     bookingService.selectedTrain.value = train;
     Get.toNamed(Routes.RINGKASAN_PEMESANAN, arguments: train);
   }
@@ -89,7 +133,23 @@ class DetailJadwalController extends GetxController {
     if (selectedClasses.isEmpty) {
       trainList.value = [];
     } else {
-      trainList.value = originalTrainList.where((train) {
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      final selectedDay = DateTime(
+        selectedDate.value.year,
+        selectedDate.value.month,
+        selectedDate.value.day,
+      );
+
+      if (selectedDay.isBefore(today)) {
+        trainList.value = [];
+        if (Get.isBottomSheetOpen == true) {
+          Get.back();
+        }
+        return;
+      }
+
+      var filteredTrains = originalTrainList.where((train) {
         String kelas = train['kelas'].toString().toLowerCase();
 
         bool match = false;
@@ -101,8 +161,66 @@ class DetailJadwalController extends GetxController {
             (kelas.contains("eksekutif") || kelas.contains("campuran"))) {
           match = true;
         }
-        return match;
+
+        if (!match) return false;
+
+        if (selectedDay.isAtSameMomentAs(today)) {
+          try {
+            String? jadwalBerangkat = train['jadwalBerangkat'];
+            if (jadwalBerangkat != null && jadwalBerangkat.isNotEmpty) {
+              final timeParts = jadwalBerangkat.split(':');
+              if (timeParts.length >= 2) {
+                final hour = int.parse(timeParts[0]);
+                final minute = int.parse(timeParts[1]);
+                final departureTime = DateTime(
+                  now.year,
+                  now.month,
+                  now.day,
+                  hour,
+                  minute,
+                );
+
+                final cutoffTime = now.add(const Duration(minutes: 30));
+                
+                print('🚂 [FILTER] ${train['namaKereta']}: Jam=${jadwalBerangkat}, Cutoff=${cutoffTime.hour}:${cutoffTime.minute.toString().padLeft(2, '0')}, Pass=${departureTime.isAfter(cutoffTime)}');
+                
+                return departureTime.isAfter(cutoffTime);
+              }
+            }
+          } catch (e) {
+            print('❌ Error parsing time for train: $e');
+            return false;
+          }
+        }
+        return true;
       }).toList();
+
+      filteredTrains.sort((a, b) {
+        try {
+          String timeA = a['jadwalBerangkat'] ?? '00:00';
+          String timeB = b['jadwalBerangkat'] ?? '00:00';
+                    var partsA = timeA.split(':');
+          var partsB = timeB.split(':');
+          
+          if (partsA.length >= 2 && partsB.length >= 2) {
+            int hourA = int.parse(partsA[0]);
+            int minuteA = int.parse(partsA[1]);
+            int hourB = int.parse(partsB[0]);
+            int minuteB = int.parse(partsB[1]);
+                        if (hourA != hourB) {
+              return hourA.compareTo(hourB);
+            }
+            return minuteA.compareTo(minuteB);
+          }
+          
+          return timeA.compareTo(timeB);
+        } catch (e) {
+          print('Error sorting trains: $e');
+          return 0;
+        }
+      });
+      
+      trainList.value = filteredTrains;
     }
 
     if (Get.isBottomSheetOpen == true) {

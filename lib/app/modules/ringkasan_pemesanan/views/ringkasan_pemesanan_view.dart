@@ -14,34 +14,43 @@ class RingkasanPemesananView extends GetView<RingkasanPemesananController> {
       decimalDigits: 0,
     );
 
-    return Scaffold(
-      body: Stack(
-        children: [
-          _buildBackground(),
-          Column(
-            children: [
-              _buildCustomAppBar(),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildTrainCard(currencyFormatter),
-                      const SizedBox(height: 24),
-                      _buildSavedPassengers(),
-                      const SizedBox(height: 24),
-                      _buildPassengerDetailsTitle(),
-                      _buildPassengerFormsList(),
-                      const SizedBox(height: 120),
-                    ],
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          // Prevent back to Pilih Kursi - go to Detail Jadwal instead
+          controller.cancelBookingAndGoBack();
+        }
+      },
+      child: Scaffold(
+        body: Stack(
+          children: [
+            _buildBackground(),
+            Column(
+              children: [
+                _buildCustomAppBar(),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildTrainCard(currencyFormatter),
+                        const SizedBox(height: 24),
+                        _buildSavedPassengers(),
+                        const SizedBox(height: 24),
+                        _buildPassengerDetailsTitle(),
+                        _buildPassengerFormsList(),
+                        const SizedBox(height: 120),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          _buildBottomButtons(context),
-        ],
+              ],
+            ),
+            _buildBottomButtons(context),
+          ],
+        ),
       ),
     );
   }
@@ -89,7 +98,7 @@ class RingkasanPemesananView extends GetView<RingkasanPemesananController> {
                 ),
                 child: IconButton(
                   icon: const Icon(Icons.arrow_back, color: Colors.white),
-                  onPressed: () => Get.back(),
+                  onPressed: () => controller.cancelBookingAndGoBack(),
                 ),
               ),
               const Expanded(
@@ -261,10 +270,7 @@ class RingkasanPemesananView extends GetView<RingkasanPemesananController> {
                   children: [
                     const Text(
                       "Total Harga",
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey,
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                     const SizedBox(height: 2),
                     Text(
@@ -341,7 +347,11 @@ class RingkasanPemesananView extends GetView<RingkasanPemesananController> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.info_outline, color: Colors.grey.shade400, size: 20),
+                  Icon(
+                    Icons.info_outline,
+                    color: Colors.grey.shade400,
+                    size: 20,
+                  ),
                   const SizedBox(width: 12),
                   const Expanded(
                     child: Text(
@@ -627,7 +637,9 @@ class RingkasanPemesananView extends GetView<RingkasanPemesananController> {
                           ),
                         ),
                         controlAffinity: ListTileControlAffinity.leading,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                        ),
                         activeColor: const Color(0xFF656CEE),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
@@ -750,7 +762,9 @@ class RingkasanPemesananView extends GetView<RingkasanPemesananController> {
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      onTap: hasSeats ? () => controller.goToDetailBooking() : null,
+                      onTap: hasSeats
+                          ? () => controller.goToDetailBooking()
+                          : null,
                       borderRadius: BorderRadius.circular(14),
                       child: Center(
                         child: Row(
@@ -759,7 +773,9 @@ class RingkasanPemesananView extends GetView<RingkasanPemesananController> {
                             Text(
                               "LANJUTKAN",
                               style: TextStyle(
-                                color: hasSeats ? Colors.white : Colors.grey.shade500,
+                                color: hasSeats
+                                    ? Colors.white
+                                    : Colors.grey.shade500,
                                 fontWeight: FontWeight.w700,
                                 fontSize: 15,
                                 letterSpacing: 0.5,
@@ -768,7 +784,9 @@ class RingkasanPemesananView extends GetView<RingkasanPemesananController> {
                             const SizedBox(width: 6),
                             Icon(
                               Icons.arrow_forward_rounded,
-                              color: hasSeats ? Colors.white : Colors.grey.shade500,
+                              color: hasSeats
+                                  ? Colors.white
+                                  : Colors.grey.shade500,
                               size: 20,
                             ),
                           ],
@@ -817,17 +835,11 @@ class RingkasanPemesananView extends GetView<RingkasanPemesananController> {
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: Colors.grey.shade200,
-                width: 1,
-              ),
+              borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: Color(0xFF656CEE),
-                width: 2,
-              ),
+              borderSide: const BorderSide(color: Color(0xFF656CEE), width: 2),
             ),
           ),
         ),
@@ -878,10 +890,7 @@ class RingkasanPemesananView extends GetView<RingkasanPemesananController> {
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                  color: Colors.grey.shade200,
-                  width: 1,
-                ),
+                borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),

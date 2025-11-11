@@ -22,6 +22,18 @@ import '../modules/tiket/bindings/tiket_binding.dart';
 import '../modules/tiket/views/tiket_view.dart';
 import '../modules/help_center/bindings/help_center_binding.dart';
 import '../modules/help_center/views/help_center_view.dart';
+import '../modules/freya_chat/bindings/freya_chat_binding.dart';
+import '../modules/freya_chat/views/freya_chat_view.dart';
+import '../modules/ticket_detail/bindings/ticket_detail_binding.dart';
+import '../modules/ticket_detail/views/ticket_detail_view.dart';
+import '../modules/loyalty/bindings/loyalty_binding.dart';
+import '../modules/loyalty/views/loyalty_view.dart';
+import '../modules/submit_review/bindings/submit_review_binding.dart';
+import '../modules/submit_review/views/submit_review_view.dart';
+import '../modules/request_refund/bindings/request_refund_binding.dart';
+import '../modules/request_refund/views/request_refund_view.dart';
+import '../modules/request_reschedule/bindings/request_reschedule_binding.dart';
+import '../modules/request_reschedule/views/request_reschedule_view.dart';
 
 part 'app_routes.dart';
 
@@ -100,6 +112,36 @@ class AppPages {
       name: _Paths.HELP_CENTER,
       page: () => const HelpCenterView(),
       binding: HelpCenterBinding(),
+    ),
+    GetPage(
+      name: _Paths.FREYA_CHAT,
+      page: () => const FreyaChatView(),
+      binding: FreyaChatBinding(),
+    ),
+    GetPage(
+      name: _Paths.TICKET_DETAIL,
+      page: () => const TicketDetailView(),
+      binding: TicketDetailBinding(),
+    ),
+    GetPage(
+      name: _Paths.LOYALTY,
+      page: () => const LoyaltyView(),
+      binding: LoyaltyBinding(),
+    ),
+    GetPage(
+      name: _Paths.SUBMIT_REVIEW,
+      page: () => const SubmitReviewView(),
+      binding: SubmitReviewBinding(),
+    ),
+    GetPage(
+      name: _Paths.REQUEST_REFUND,
+      page: () => const RequestRefundView(),
+      binding: RequestRefundBinding(),
+    ),
+    GetPage(
+      name: _Paths.REQUEST_RESCHEDULE,
+      page: () => const RequestRescheduleView(),
+      binding: RequestRescheduleBinding(),
     ),
   ];
 }

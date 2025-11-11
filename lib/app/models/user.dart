@@ -17,10 +17,18 @@ class User extends HiveObject {
   @HiveField(3)
   HiveList<Passenger> savedPassengers;
 
+  @HiveField(4)
+  int? loyaltyPoints;
+
+  @HiveField(5)
+  String? memberTier;
+
   User({
     required this.name,
     required this.email,
     required this.password,
     required this.savedPassengers,
+    this.loyaltyPoints = 0,
+    this.memberTier = 'Bronze',
   });
 }

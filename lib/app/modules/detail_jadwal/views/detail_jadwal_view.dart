@@ -299,21 +299,70 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
       kelas = "Economy";
     }
 
-    int sisaTiket = train["sisaTiket"] as int? ?? 0;
+    int sisaTiket = 0;
+    if (train["sisaTiket"] is int) {
+      sisaTiket = train["sisaTiket"] as int;
+    } else if (train["sisaTiket"] is String) {
+      sisaTiket = int.tryParse(train["sisaTiket"]) ?? 0;
+    }
+    
+    // Check if train has departed or too close to departure time
+    bool isDeparted = false;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final selectedDay = DateTime(
+      controller.selectedDate.value.year,
+      controller.selectedDate.value.month,
+      controller.selectedDate.value.day,
+    );
+
+    if (selectedDay.isAtSameMomentAs(today)) {
+      try {
+        String? jadwalBerangkat = train['jadwalBerangkat'];
+        if (jadwalBerangkat != null && jadwalBerangkat.isNotEmpty) {
+          final timeParts = jadwalBerangkat.split(':');
+          if (timeParts.length >= 2) {
+            final hour = int.parse(timeParts[0]);
+            final minute = int.parse(timeParts[1]);
+            final departureTime = DateTime(
+              now.year,
+              now.month,
+              now.day,
+              hour,
+              minute,
+            );
+
+            final cutoffTime = now.add(const Duration(minutes: 30));
+            isDeparted = departureTime.isBefore(cutoffTime) || 
+                        departureTime.isAtSameMomentAs(cutoffTime);
+            
+            print('🎨 [VIEW] ${train['namaKereta']}: Jam=$jadwalBerangkat, Cutoff=${cutoffTime.hour}:${cutoffTime.minute.toString().padLeft(2, '0')}, isDeparted=$isDeparted');
+          }
+        }
+      } catch (e) {
+        print('❌ [VIEW] Error checking departure time: $e');
+      }
+    }
+    
     bool isSoldOut = sisaTiket <= 0;
+    bool isDisabled = isSoldOut || isDeparted;
+    
     String statusText = "Available";
     Color statusColor = Colors.green;
 
-    if (isSoldOut) {
+    if (isDeparted) {
+      statusText = "Sudah Berangkat";
+      statusColor = Colors.red;
+    } else if (isSoldOut) {
       statusText = "Habis";
       statusColor = Colors.grey;
     } else if (sisaTiket <= 20) {
       statusText = "$sisaTiket Seat${sisaTiket == 1 ? '' : 's'} Remaining";
-      statusColor = Colors.red;
+      statusColor = Colors.orange;
     }
 
     return Opacity(
-      opacity: isSoldOut ? 0.6 : 1.0,
+      opacity: isDisabled ? 0.6 : 1.0,
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
@@ -330,7 +379,7 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
         child: Material(
           color: Colors.transparent,
           child: InkWell(
-            onTap: isSoldOut ? null : () => controller.selectTrain(train),
+            onTap: isDisabled ? null : () => controller.selectTrain(train),
             borderRadius: BorderRadius.circular(20),
             child: Padding(
               padding: const EdgeInsets.all(20.0),
@@ -431,7 +480,7 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
                         ],
                       ),
                       OutlinedButton(
-                        onPressed: isSoldOut ? null : () {},
+                        onPressed: isDisabled ? null : () {},
                         style: OutlinedButton.styleFrom(
                           foregroundColor: const Color(0xFF656CEE),
                           side: const BorderSide(color: Color(0xFF656CEE)),

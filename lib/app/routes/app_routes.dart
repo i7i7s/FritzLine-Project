@@ -14,6 +14,12 @@ abstract class Routes {
   static const PROFIL = _Paths.PROFIL;
   static const DASHBOARD = _Paths.DASHBOARD;
   static const HELP_CENTER = _Paths.HELP_CENTER;
+  static const FREYA_CHAT = _Paths.FREYA_CHAT;
+  static const TICKET_DETAIL = _Paths.TICKET_DETAIL;
+  static const LOYALTY = _Paths.LOYALTY;
+  static const SUBMIT_REVIEW = _Paths.SUBMIT_REVIEW;
+  static const REQUEST_REFUND = _Paths.REQUEST_REFUND;
+  static const REQUEST_RESCHEDULE = _Paths.REQUEST_RESCHEDULE;
 }
 
 abstract class _Paths {
@@ -30,4 +36,10 @@ abstract class _Paths {
   static const PROFIL = '/profil';
   static const DASHBOARD = '/dashboard';
   static const HELP_CENTER = '/help-center';
+  static const FREYA_CHAT = '/freya-chat';
+  static const TICKET_DETAIL = '/ticket-detail';
+  static const LOYALTY = '/loyalty';
+  static const SUBMIT_REVIEW = '/submit-review';
+  static const REQUEST_REFUND = '/request-refund';
+  static const REQUEST_RESCHEDULE = '/request-reschedule';
 }

@@ -6,15 +6,17 @@ import 'package:fritzlinee/app/services/ticket_service.dart';
 import 'package:fritzlinee/app/services/hive_service.dart';
 import 'package:fritzlinee/app/routes/app_pages.dart';
 import 'package:timezone/timezone.dart' as tz;
-import 'dart:math';
 import 'package:fritzlinee/app/services/notification_service.dart';
 import 'package:fritzlinee/app/services/settings_service.dart';
+import 'package:fritzlinee/app/services/loyalty_service.dart';
+import '../../../modules/pilih_kursi/controllers/pilih_kursi_controller.dart';
 
 class DetailBookingTiketController extends GetxController {
   final bookingService = Get.find<BookingService>();
   final ticketService = Get.find<TicketService>();
   final settingsService = Get.find<SettingsService>();
   final hiveService = Get.find<HiveService>();
+  final loyaltyService = Get.find<LoyaltyService>();
 
   final trainData = <String, dynamic>{}.obs;
   final passengerData = <Map<String, String>>[].obs;
@@ -218,41 +220,125 @@ class DetailBookingTiketController extends GetxController {
   }
 
   Future<void> konfirmasiPembayaran() async {
-    String generateBookingCode() {
-      var random = Random();
-      return List.generate(6, (index) => random.nextInt(10).toString()).join();
+    print('💳 [PAYMENT] Starting payment confirmation...');
+    
+    // Get seat IDs from PilihKursiController
+    final pilihKursiController = Get.find<PilihKursiController>();
+    final seatIds = pilihKursiController.myBookedSeatIds;
+    
+    if (seatIds.isEmpty) {
+      Get.snackbar(
+        "Error",
+        "Tidak ada kursi yang di-book. Silakan pilih kursi kembali.",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
     }
+
+    print('💳 [PAYMENT] Train ID: ${trainData['id']}');
+    print('💳 [PAYMENT] Seat IDs: $seatIds');
+    print('💳 [PAYMENT] Passengers: ${passengerData.length}');
 
     String currencyCode = settingsService.preferredCurrency.value;
     double rate = (settingsService.exchangeRates[currencyCode] as num? ?? 1.0)
         .toDouble();
     double finalConvertedPrice = totalHarga.value * rate;
 
-    final ticketData = {
-      "bookingCode": "FRTZ-${generateBookingCode()}",
-      "trainData": {...trainData},
-      "passengerData": passengerData.toList(),
-      "selectedSeats": selectedSeats.toList(),
-      "totalPrice": totalHarga.value,
-      "paymentPrice": finalConvertedPrice,
-      "paymentCurrency": currencyCode,
-      "paymentDate": DateTime.now().toIso8601String(),
-      "selectedDate": bookingService.selectedDate.value.toIso8601String(),
-    };
-
-    await hiveService.kurangiStokTiket(trainData['id'], passengerData.length);
-
-    await ticketService.saveNewTicket(ticketData);
-    bookingService.resetBooking();
-
-    Get.find<NotificationService>().showPaymentSuccess();
-
-    Get.snackbar(
-      "Pembayaran Berhasil",
-      "Tiket Anda telah berhasil diterbitkan.",
-      snackPosition: SnackPosition.BOTTOM,
+    // Show loading dialog
+    Get.dialog(
+      WillPopScope(
+        onWillPop: () async => false,
+        child: const Center(
+          child: Card(
+            child: Padding(
+              padding: EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF656CEE)),
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    "Memproses pembayaran...",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+      barrierDismissible: false,
     );
 
-    Get.offAllNamed(Routes.HOME);
+    try {
+      // Confirm booking to server first
+      final kodeBooking = await hiveService.confirmBooking(
+        idKereta: trainData['id'].toString(),
+        seatIds: seatIds,
+        passengerData: passengerData.map((p) => {
+          'nama': p['nama'] ?? '',
+          'id_number': p['idNumber'] ?? p['id_number'] ?? '',
+        }).toList(),
+        totalPrice: totalHarga.value.toDouble(),
+      );
+
+      Get.back(); // Close loading dialog
+
+      if (kodeBooking != null) {
+        print('✅ [PAYMENT] Booking confirmed with code: $kodeBooking');
+        
+        // Stop timer
+        pilihKursiController.isTimerActive.value = false;
+        pilihKursiController.remainingSeconds.value = 0;
+
+        // Save ticket locally
+        final ticketData = {
+          "bookingCode": kodeBooking,
+          "trainData": {...trainData},
+          "passengerData": passengerData.toList(),
+          "selectedSeats": selectedSeats.toList(),
+          "totalPrice": totalHarga.value,
+          "paymentPrice": finalConvertedPrice,
+          "paymentCurrency": currencyCode,
+          "paymentDate": DateTime.now().toIso8601String(),
+          "selectedDate": bookingService.selectedDate.value.toIso8601String(),
+        };
+
+        await ticketService.saveNewTicket(ticketData);
+        
+        // Award loyalty points for this purchase
+        await loyaltyService.earnPoints(totalHarga.value);
+        
+        bookingService.resetBooking();
+
+        Get.find<NotificationService>().showPaymentSuccess();
+
+        Get.snackbar(
+          "Pembayaran Berhasil",
+          "Tiket Anda telah berhasil diterbitkan dengan kode: $kodeBooking",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color(0xFF00C853),
+          colorText: Colors.white,
+        );
+
+        Get.offAllNamed(Routes.HOME);
+      } else {
+        throw Exception('Gagal mendapatkan kode booking');
+      }
+    } catch (e) {
+      Get.back(); // Close loading dialog
+      print('❌ [PAYMENT] Error: $e');
+      
+      Get.snackbar(
+        "Pembayaran Gagal",
+        "Terjadi kesalahan saat memproses pembayaran. Silakan coba lagi.",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
   }
 }

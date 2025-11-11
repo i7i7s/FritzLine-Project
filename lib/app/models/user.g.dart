@@ -21,13 +21,15 @@ class UserAdapter extends TypeAdapter<User> {
       email: fields[1] as String,
       password: fields[2] as String,
       savedPassengers: (fields[3] as HiveList).castHiveList(),
+      loyaltyPoints: fields[4] as int?,
+      memberTier: fields[5] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, User obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -35,7 +37,11 @@ class UserAdapter extends TypeAdapter<User> {
       ..writeByte(2)
       ..write(obj.password)
       ..writeByte(3)
-      ..write(obj.savedPassengers);
+      ..write(obj.savedPassengers)
+      ..writeByte(4)
+      ..write(obj.loyaltyPoints)
+      ..writeByte(5)
+      ..write(obj.memberTier);
   }
 
   @override

@@ -17,6 +17,31 @@ class DashboardView extends GetView<DashboardController> {
           children: const [HomeView(), TiketView(), ProfilView()],
         ),
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => Get.toNamed('/freya-chat'),
+        backgroundColor: const Color(0xFF656CEE),
+        elevation: 6,
+        icon: Container(
+          width: 28,
+          height: 28,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.white, width: 2),
+            image: const DecorationImage(
+              image: AssetImage('assets/images/freya.jpg'),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        label: const Text(
+          'Freya AI',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 15,
+          ),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: Obx(
         () => Container(
           decoration: BoxDecoration(

@@ -148,6 +148,16 @@ class AuthService extends GetxService {
     currentUser.value = user;
     _loadSavedPassengers();
     isLoggedIn.value = true;
+    
+    try {
+      final ticketService = Get.find<dynamic>();
+      if (ticketService.toString().contains('TicketService')) {
+        ticketService.reloadTickets();
+      }
+    } catch (e) {
+      print('Could not reload tickets: $e');
+    }
+    
     return true;
   }
 
@@ -156,5 +166,14 @@ class AuthService extends GetxService {
     currentUser.value = null;
     savedPassengers.clear();
     isLoggedIn.value = false;
+    
+    try {
+      final ticketService = Get.find<dynamic>();
+      if (ticketService.toString().contains('TicketService')) {
+        ticketService.reloadTickets();
+      }
+    } catch (e) {
+      print('Could not reload tickets: $e');
+    }
   }
 }
