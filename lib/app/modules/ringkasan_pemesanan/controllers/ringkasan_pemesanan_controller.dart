@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:fritzlinee/app/services/booking_service.dart';
 import 'package:fritzlinee/app/services/auth_service.dart';
 import 'package:fritzlinee/app/routes/app_pages.dart';
-import '../../../models/passenger.dart'; 
+import '../../../models/passenger.dart';
 
 class PassengerFormControllers {
   final TextEditingController fullNameController;
@@ -13,11 +13,11 @@ class PassengerFormControllers {
   final RxBool savePassenger;
 
   PassengerFormControllers()
-      : fullNameController = TextEditingController(),
-        idNumberController = TextEditingController(),
-        selectedIdType = 'KTP'.obs,
-        isExpanded = true.obs,
-        savePassenger = false.obs;
+    : fullNameController = TextEditingController(),
+      idNumberController = TextEditingController(),
+      selectedIdType = 'KTP'.obs,
+      isExpanded = true.obs,
+      savePassenger = false.obs;
 
   void dispose() {
     fullNameController.dispose();

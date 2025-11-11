@@ -58,6 +58,20 @@ class DetailJadwalController extends GetxController {
     return DateFormat('EEEE, d MMMM yyyy', 'id_ID').format(selectedDate.value);
   }
 
+  List<DateTime> getDateRange() {
+    List<DateTime> dates = [];
+    for (int i = -2; i <= 2; i++) {
+      dates.add(selectedDate.value.add(Duration(days: i)));
+    }
+    return dates;
+  }
+
+  void changeDate(DateTime newDate) {
+    selectedDate.value = newDate;
+    bookingService.selectedDate.value = newDate;
+    _fetchInitialData();
+  }
+
   void selectTrain(Map<String, dynamic> train) {
     bookingService.selectedTrain.value = train;
     Get.toNamed(Routes.RINGKASAN_PEMESANAN, arguments: train);
@@ -113,18 +127,22 @@ class DetailJadwalController extends GetxController {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            Obx(() => CheckboxListTile(
-                  title: const Text("Ekonomi"),
-                  value: selectedClasses.contains("Ekonomi"),
-                  onChanged: (val) => toggleClassFilter("Ekonomi"),
-                  activeColor: const Color(0xFF656CEE),
-                )),
-            Obx(() => CheckboxListTile(
-                  title: const Text("Eksekutif"),
-                  value: selectedClasses.contains("Eksekutif"),
-                  onChanged: (val) => toggleClassFilter("Eksekutif"),
-                  activeColor: const Color(0xFF656CEE),
-                )),
+            Obx(
+              () => CheckboxListTile(
+                title: const Text("Ekonomi"),
+                value: selectedClasses.contains("Ekonomi"),
+                onChanged: (val) => toggleClassFilter("Ekonomi"),
+                activeColor: const Color(0xFF656CEE),
+              ),
+            ),
+            Obx(
+              () => CheckboxListTile(
+                title: const Text("Eksekutif"),
+                value: selectedClasses.contains("Eksekutif"),
+                onChanged: (val) => toggleClassFilter("Eksekutif"),
+                activeColor: const Color(0xFF656CEE),
+              ),
+            ),
             const SizedBox(height: 20),
             SizedBox(
               width: double.infinity,
@@ -140,7 +158,9 @@ class DetailJadwalController extends GetxController {
                 child: const Text(
                   "TERAPKAN FILTER",
                   style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold),
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),

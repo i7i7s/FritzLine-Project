@@ -13,6 +13,7 @@ abstract class Routes {
   static const TIKET = _Paths.TIKET;
   static const PROFIL = _Paths.PROFIL;
   static const DASHBOARD = _Paths.DASHBOARD;
+  static const HELP_CENTER = _Paths.HELP_CENTER;
 }
 
 abstract class _Paths {
@@ -28,4 +29,5 @@ abstract class _Paths {
   static const TIKET = '/tiket';
   static const PROFIL = '/profil';
   static const DASHBOARD = '/dashboard';
+  static const HELP_CENTER = '/help-center';
 }

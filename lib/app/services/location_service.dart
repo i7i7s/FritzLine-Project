@@ -3,7 +3,9 @@ import 'package:geolocator/geolocator.dart';
 
 class LocationService extends GetxService {
   Future<List<Map<String, dynamic>>> findNearestStations(
-      List<Map<String, dynamic>> allStations, int count) async {
+    List<Map<String, dynamic>> allStations,
+    int count,
+  ) async {
     try {
       LocationPermission permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied ||
@@ -30,12 +32,15 @@ class LocationService extends GetxService {
 
         var stationCopy = Map<String, dynamic>.from(station);
         stationCopy['distance_m'] = distanceInMeters;
-        stationCopy['distance_km'] = (distanceInMeters / 1000).toStringAsFixed(1);
+        stationCopy['distance_km'] = (distanceInMeters / 1000).toStringAsFixed(
+          1,
+        );
         stationsWithDistance.add(stationCopy);
       }
 
-      stationsWithDistance
-          .sort((a, b) => a['distance_m'].compareTo(b['distance_m']));
+      stationsWithDistance.sort(
+        (a, b) => a['distance_m'].compareTo(b['distance_m']),
+      );
 
       return stationsWithDistance.take(count).toList();
     } catch (e) {

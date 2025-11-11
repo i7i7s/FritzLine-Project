@@ -19,7 +19,7 @@ class PilihKursiController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    
+
     final Map<String, dynamic>? data = Get.arguments as Map<String, dynamic>?;
 
     if (data != null) {
@@ -36,7 +36,8 @@ class PilihKursiController extends GetxController {
   }
 
   RxList<List<Map<String, dynamic>>> _generateAllGerbong() {
-    String kelas = trainData.value['kelas']?.toString().toLowerCase() ?? 'ekonomi';
+    String kelas =
+        trainData.value['kelas']?.toString().toLowerCase() ?? 'ekonomi';
     int jumlahGerbong = 5;
     String namaKelas = "Gerbong";
 
@@ -76,10 +77,11 @@ class PilihKursiController extends GetxController {
           } else {
             layout.add({
               "id": seatId,
-              "status": (baris % 4 == 0 && kolom == 'A') ||
+              "status":
+                  (baris % 4 == 0 && kolom == 'A') ||
                       (baris == 2 && kolom == 'C')
                   ? "filled"
-                  : "available"
+                  : "available",
             });
           }
         }
@@ -114,9 +116,11 @@ class PilihKursiController extends GetxController {
       _showSeatSnackbar(seat["id"], namaGerbongTerpilih, true);
     } else if (status == "selected") {
       seat.update("status", (value) => "available");
-      selectedSeats.removeWhere((item) =>
-          item["id"] == seat["id"] &&
-          item["nama_gerbong"] == namaGerbongTerpilih);
+      selectedSeats.removeWhere(
+        (item) =>
+            item["id"] == seat["id"] &&
+            item["nama_gerbong"] == namaGerbongTerpilih,
+      );
       _showSeatSnackbar(seat["id"], namaGerbongTerpilih, false);
     } else if (status == "filled") {
       Get.snackbar("Gagal", "Kursi ${seat["id"]} sudah terisi.");
@@ -126,8 +130,7 @@ class PilihKursiController extends GetxController {
     update();
   }
 
-  void _showSeatSnackbar(
-      String seatId, String gerbongName, bool isSelected) {
+  void _showSeatSnackbar(String seatId, String gerbongName, bool isSelected) {
     Get.snackbar(
       isSelected ? "Berhasil Memilih Kursi" : "Pilihan Dibatalkan",
       isSelected

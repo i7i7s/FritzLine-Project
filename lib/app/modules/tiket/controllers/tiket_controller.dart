@@ -9,12 +9,16 @@ class TiketController extends GetxController {
   String _formatSavedPrice(double price, String currency) {
     if (currency == "IDR") {
       return NumberFormat.currency(
-              locale: 'id_ID', symbol: 'Rp', decimalDigits: 0)
-          .format(price);
+        locale: 'id_ID',
+        symbol: 'Rp',
+        decimalDigits: 0,
+      ).format(price);
     }
     return NumberFormat.currency(
-            locale: 'en_US', symbol: "$currency ", decimalDigits: 2)
-        .format(price);
+      locale: 'en_US',
+      symbol: "$currency ",
+      decimalDigits: 2,
+    ).format(price);
   }
 
   void showTicketDetail(Map<String, dynamic> ticket) {
@@ -22,10 +26,12 @@ class TiketController extends GetxController {
     final passengersRaw = ticket['passengerData'] as List<dynamic>;
     final seatsRaw = ticket['selectedSeats'] as List<dynamic>;
 
-    final passengerNames = passengersRaw.map((p) {
-      final passengerMap = p as Map<String, dynamic>;
-      return passengerMap['nama'] ?? '??';
-    }).join(", ");
+    final passengerNames = passengersRaw
+        .map((p) {
+          final passengerMap = p as Map<String, dynamic>;
+          return passengerMap['nama'] ?? '??';
+        })
+        .join(", ");
 
     final seatNumbers = seatsRaw.map((s) => s.toString()).join(", ");
 
@@ -55,9 +61,10 @@ class TiketController extends GetxController {
               Text(
                 "Detail Tiket",
                 style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF333E63)),
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF333E63),
+                ),
               ),
               Text(
                 ticket['bookingCode'] ?? '---',
@@ -65,19 +72,35 @@ class TiketController extends GetxController {
               ),
               const Divider(height: 24),
               _buildDetailRow(
-                  Icons.train_outlined, "Kereta", train['namaKereta'] ?? '---'),
-              _buildDetailRow(Icons.route_outlined, "Rute",
-                  "${train['stasiunBerangkat']} ➔ ${train['stasiunTiba']}"),
-              _buildDetailRow(Icons.access_time, "Waktu",
-                  "$jadwalBerangkat - $jadwalTiba"),
-              _buildDetailRow(Icons.event_seat_outlined, "Kursi Anda",
-                  seatNumbers.isEmpty ? "Tidak ada" : seatNumbers),
+                Icons.train_outlined,
+                "Kereta",
+                train['namaKereta'] ?? '---',
+              ),
               _buildDetailRow(
-                  Icons.people_alt_outlined, "Penumpang", passengerNames),
+                Icons.route_outlined,
+                "Rute",
+                "${train['stasiunBerangkat']} ➔ ${train['stasiunTiba']}",
+              ),
               _buildDetailRow(
-                  Icons.payments_outlined,
-                  "Total Bayar ($paymentCurrency)",
-                  _formatSavedPrice(paymentPrice, paymentCurrency)),
+                Icons.access_time,
+                "Waktu",
+                "$jadwalBerangkat - $jadwalTiba",
+              ),
+              _buildDetailRow(
+                Icons.event_seat_outlined,
+                "Kursi Anda",
+                seatNumbers.isEmpty ? "Tidak ada" : seatNumbers,
+              ),
+              _buildDetailRow(
+                Icons.people_alt_outlined,
+                "Penumpang",
+                passengerNames,
+              ),
+              _buildDetailRow(
+                Icons.payments_outlined,
+                "Total Bayar ($paymentCurrency)",
+                _formatSavedPrice(paymentPrice, paymentCurrency),
+              ),
               const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
@@ -93,9 +116,10 @@ class TiketController extends GetxController {
                   child: const Text(
                     "TUTUP",
                     style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16),
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
               ),
@@ -127,9 +151,10 @@ class TiketController extends GetxController {
                 Text(
                   value,
                   style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF333E63)),
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF333E63),
+                  ),
                 ),
               ],
             ),

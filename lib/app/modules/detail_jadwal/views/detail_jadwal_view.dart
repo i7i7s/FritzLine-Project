@@ -15,25 +15,9 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
     );
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FA),
       body: Stack(
-        children: [
-          _buildBackground(),
-          _buildBody(currencyFormatter),
-          _buildFilterButton(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBackground() {
-    return Container(
-      width: Get.width,
-      height: Get.height,
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage('assets/images/bg.png'),
-          fit: BoxFit.cover,
-        ),
+        children: [_buildBody(currencyFormatter), _buildFilterButton()],
       ),
     );
   }
@@ -42,57 +26,214 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
     return Column(
       children: [
         _buildCustomAppBar(),
-        _buildSelectedDateInfo(),
+        _buildDateSelector(),
         _buildTrainList(currencyFormatter),
       ],
     );
   }
 
   Widget _buildCustomAppBar() {
-    return SafeArea(
-      bottom: false,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        width: Get.width,
-        child: Row(
-          children: [
-            IconButton(
-              icon: const Icon(Icons.arrow_back, color: Color(0xFF333E63)),
-              onPressed: () => Get.back(),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Obx(() => Text(
-                    "${controller.departure['name']} - ${controller.arrival['name']}",
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF333E63),
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Color(0x0F000000),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFF656CEE).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: IconButton(
+                  icon: const Icon(
+                    Icons.arrow_back_rounded,
+                    color: Color(0xFF656CEE),
+                  ),
+                  onPressed: () => Get.back(),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Pilih Jadwal Kereta",
+                      style: TextStyle(fontSize: 13, color: Color(0xFF49454F)),
                     ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  )),
-            ),
-          ],
+                    const SizedBox(height: 4),
+                    Obx(
+                      () => Text(
+                        "${controller.departure['code']} → ${controller.arrival['code']}",
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF1B1B1F),
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildSelectedDateInfo() {
+  Widget _buildDateSelector() {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-      color: Colors.white.withOpacity(0.5),
-      child: Obx(() => Text(
-            controller.getFormattedDate(),
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF333E63),
+      color: Colors.white,
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF656CEE).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    Icons.calendar_today_rounded,
+                    size: 18,
+                    color: Color(0xFF656CEE),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Obx(
+                  () => Text(
+                    controller.getFormattedDate(),
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF1B1B1F),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          )),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            height: 90,
+            child: Obx(() {
+              final dates = controller.getDateRange();
+              return ListView.separated(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                physics: const BouncingScrollPhysics(),
+                itemCount: dates.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 12),
+                itemBuilder: (context, index) {
+                  final date = dates[index];
+                  final isSelected =
+                      DateFormat(
+                        'yyyy-MM-dd',
+                      ).format(controller.selectedDate.value) ==
+                      DateFormat('yyyy-MM-dd').format(date);
+
+                  return _buildDateCard(date, isSelected);
+                },
+              );
+            }),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDateCard(DateTime date, bool isSelected) {
+    final dayName = DateFormat('EEE', 'id_ID').format(date);
+    final dayNumber = DateFormat('d').format(date);
+    final monthName = DateFormat('MMM', 'id_ID').format(date);
+
+    return GestureDetector(
+      onTap: () => controller.changeDate(date),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        width: 75,
+        decoration: BoxDecoration(
+          gradient: isSelected
+              ? const LinearGradient(
+                  colors: [Color(0xFF656CEE), Color(0xFF4147D5)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : null,
+          color: isSelected ? null : const Color(0xFFF5F7FA),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected
+                ? Colors.transparent
+                : const Color(0xFF656CEE).withOpacity(0.2),
+            width: 1.5,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: const Color(0xFF656CEE).withOpacity(0.3),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              dayName.toUpperCase(),
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: isSelected
+                    ? Colors.white.withOpacity(0.9)
+                    : const Color(0xFF49454F).withOpacity(0.7),
+                letterSpacing: 0.5,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              dayNumber,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w800,
+                color: isSelected ? Colors.white : const Color(0xFF1B1B1F),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              monthName.toUpperCase(),
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: isSelected
+                    ? Colors.white.withOpacity(0.9)
+                    : const Color(0xFF49454F).withOpacity(0.7),
+                letterSpacing: 0.5,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -110,20 +251,27 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
               children: [
                 Icon(Icons.train_outlined, size: 80, color: Colors.grey),
                 SizedBox(height: 16),
-                Text("Tidak Ada Jadwal",
-                    style:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                Text("Coba cari rute atau tanggal lain, atau ubah filter Anda.",
-                    style: TextStyle(color: Colors.grey),
-                    textAlign: TextAlign.center),
+                Text(
+                  "Tidak Ada Jadwal",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  "Coba cari rute atau tanggal lain, atau ubah filter Anda.",
+                  style: TextStyle(color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
               ],
             ),
           );
         }
 
         return ListView.builder(
-          padding:
-              const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 100),
+          padding: const EdgeInsets.only(
+            left: 20,
+            right: 20,
+            top: 10,
+            bottom: 100,
+          ),
           itemCount: controller.trainList.length,
           itemBuilder: (context, index) {
             final train = controller.trainList[index];
@@ -135,14 +283,16 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
   }
 
   Widget _buildTrainCard(
-      Map<String, dynamic> train, NumberFormat currencyFormatter) {
+    Map<String, dynamic> train,
+    NumberFormat currencyFormatter,
+  ) {
     String kelas = train["kelas"] ?? "Ekonomi";
     Color tagColor = Colors.pink;
     if (kelas.toLowerCase().contains("eksekutif")) {
-      tagColor = Colors.deepPurple;
+      tagColor = const Color(0xFF656CEE);
       kelas = "Executive";
     } else if (kelas.toLowerCase().contains("campuran")) {
-      tagColor = Colors.orange;
+      tagColor = const Color(0xFFFF6B35);
       kelas = "Campuran";
     } else {
       tagColor = Colors.pink;
@@ -164,105 +314,137 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
 
     return Opacity(
       opacity: isSoldOut ? 0.6 : 1.0,
-      child: Card(
-        elevation: 3,
-        shadowColor: Colors.black.withOpacity(0.1),
+      child: Container(
         margin: const EdgeInsets.only(bottom: 16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.06),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
-        child: InkWell(
-          onTap: isSoldOut ? null : () => controller.selectTrain(train),
-          borderRadius: BorderRadius.circular(15),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildClassTag(kelas, tagColor),
-                    _buildStatusTag(statusText, statusColor),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  train["namaKereta"],
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF333E63),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: isSoldOut ? null : () => controller.selectTrain(train),
+            borderRadius: BorderRadius.circular(20),
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildClassTag(kelas, tagColor),
+                      _buildStatusTag(statusText, statusColor),
+                    ],
                   ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    _buildTimeColumn(
-                      train["jadwalBerangkat"],
-                      train["stasiunBerangkat"],
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF656CEE), Color(0xFF4147D5)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.train_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          train["namaKereta"],
+                          style: const TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF1B1B1F),
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      _buildTimeColumn(
+                        train["jadwalBerangkat"],
+                        train["stasiunBerangkat"],
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          children: [
+                            Text(
+                              train["durasi"],
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            const DottedLine(),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      _buildTimeColumn(
+                        train["jadwalTiba"],
+                        train["stasiunTiba"],
+                        align: CrossAxisAlignment.end,
+                      ),
+                    ],
+                  ),
+                  const Divider(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          const Text(
+                            "Prices Starting From:",
+                            style: TextStyle(color: Colors.grey, fontSize: 12),
+                          ),
+                          const SizedBox(height: 2),
                           Text(
-                            train["durasi"],
+                            "${currencyFormatter.format(train["harga"])} / Pax",
                             style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF656CEE),
                             ),
                           ),
-                          const SizedBox(height: 4),
-                          const DottedLine(),
                         ],
                       ),
-                    ),
-                    const SizedBox(width: 10),
-                    _buildTimeColumn(
-                      train["jadwalTiba"],
-                      train["stasiunTiba"],
-                      align: CrossAxisAlignment.end,
-                    ),
-                  ],
-                ),
-                const Divider(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Prices Starting From:",
-                          style: TextStyle(color: Colors.grey, fontSize: 12),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          "${currencyFormatter.format(train["harga"])} / Pax",
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF656CEE),
+                      OutlinedButton(
+                        onPressed: isSoldOut ? null : () {},
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: const Color(0xFF656CEE),
+                          side: const BorderSide(color: Color(0xFF656CEE)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                      ],
-                    ),
-                    OutlinedButton(
-                      onPressed: isSoldOut ? null : () {},
-                      child: const Text("Train Details"),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFF656CEE),
-                        side: const BorderSide(color: Color(0xFF656CEE)),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                        child: const Text("Train Details"),
                       ),
-                    ),
-                  ],
-                )
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -342,9 +524,10 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
         Text(
           time,
           style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF333E63)),
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF333E63),
+          ),
         ),
         const SizedBox(height: 4),
         Text(code, style: const TextStyle(fontSize: 14, color: Colors.grey)),

@@ -162,7 +162,8 @@ class PilihKursiView extends GetView<PilihKursiController> {
           const SizedBox(height: 10),
           Expanded(
             child: Container(
-              child: (controller.gerbong.isEmpty ||
+              child:
+                  (controller.gerbong.isEmpty ||
                       controller.indexGerbong.value >=
                           controller.gerbong.length)
                   ? const Center(child: Text("Loading gerbong..."))
@@ -170,12 +171,13 @@ class PilihKursiView extends GetView<PilihKursiController> {
                       padding: const EdgeInsets.all(0),
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                        mainAxisSpacing: 8,
-                        crossAxisSpacing: 8,
-                        crossAxisCount: 5,
-                      ),
+                            mainAxisSpacing: 8,
+                            crossAxisSpacing: 8,
+                            crossAxisCount: 5,
+                          ),
                       itemCount: controller
-                          .gerbong[controller.indexGerbong.value].length,
+                          .gerbong[controller.indexGerbong.value]
+                          .length,
                       itemBuilder: (context, index) {
                         final seat = controller
                             .gerbong[controller.indexGerbong.value][index];
@@ -195,16 +197,20 @@ class PilihKursiView extends GetView<PilihKursiController> {
       children: [
         SizedBox(width: 10),
         Expanded(
-            child: Center(child: Text("A", style: TextStyle(fontSize: 18)))),
+          child: Center(child: Text("A", style: TextStyle(fontSize: 18))),
+        ),
         Expanded(
-            child: Center(child: Text("B", style: TextStyle(fontSize: 18)))),
+          child: Center(child: Text("B", style: TextStyle(fontSize: 18))),
+        ),
         Expanded(
-            child:
-                Center(child: Icon(Icons.arrow_downward, color: Colors.grey))),
+          child: Center(child: Icon(Icons.arrow_downward, color: Colors.grey)),
+        ),
         Expanded(
-            child: Center(child: Text("C", style: TextStyle(fontSize: 18)))),
+          child: Center(child: Text("C", style: TextStyle(fontSize: 18))),
+        ),
         Expanded(
-            child: Center(child: Text("D", style: TextStyle(fontSize: 18)))),
+          child: Center(child: Text("D", style: TextStyle(fontSize: 18))),
+        ),
       ],
     );
   }
@@ -216,9 +222,14 @@ class PilihKursiView extends GetView<PilihKursiController> {
     if (status == "aisle") {
       int baris = (index ~/ 5) + 1;
       return Center(
-          child: Text("$baris",
-              style: const TextStyle(
-                  color: Colors.grey, fontWeight: FontWeight.bold)));
+        child: Text(
+          "$baris",
+          style: const TextStyle(
+            color: Colors.grey,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      );
     }
 
     if (status == "empty") {
@@ -229,14 +240,12 @@ class PilihKursiView extends GetView<PilihKursiController> {
       onTap: () => controller.selectKursi(index),
       child: Container(
         decoration: BoxDecoration(
-          border: Border.all(
-            color: Colors.black38,
-          ),
+          border: Border.all(color: Colors.black38),
           color: status == "available"
               ? Colors.white
               : status == "filled"
-                  ? Colors.orangeAccent
-                  : Colors.deepPurpleAccent,
+              ? Colors.orangeAccent
+              : Colors.deepPurpleAccent,
           borderRadius: BorderRadius.circular(8),
         ),
       ),
@@ -255,9 +264,7 @@ class PilihKursiView extends GetView<PilihKursiController> {
           ),
           child: const Text(
             "Pilih Tempat Duduk",
-            style: TextStyle(
-              color: Colors.white,
-            ),
+            style: TextStyle(color: Colors.white),
           ),
         ),
       ),
@@ -266,11 +273,7 @@ class PilihKursiView extends GetView<PilihKursiController> {
 }
 
 class ItemStatus extends StatelessWidget {
-  const ItemStatus({
-    super.key,
-    required this.status,
-    required this.color,
-  });
+  const ItemStatus({super.key, required this.status, required this.color});
 
   final String status;
   final Color color;
@@ -289,12 +292,7 @@ class ItemStatus extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 7),
-        Text(
-          status,
-          style: const TextStyle(
-            fontSize: 18,
-          ),
-        ),
+        Text(status, style: const TextStyle(fontSize: 18)),
       ],
     );
   }

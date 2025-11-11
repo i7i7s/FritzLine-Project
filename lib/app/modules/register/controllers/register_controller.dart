@@ -24,11 +24,7 @@ class RegisterController extends GetxController {
     try {
       await Future.delayed(Duration(milliseconds: 100));
 
-      registerSuccess = await _authService.register(
-        name,
-        email,
-        password,
-      );
+      registerSuccess = await _authService.register(name, email, password);
     } catch (e) {
       Get.snackbar("Error Registrasi", "Terjadi kesalahan: ${e.toString()}");
       registerSuccess = false;

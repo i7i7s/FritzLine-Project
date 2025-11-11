@@ -4,7 +4,8 @@ import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class NotificationService extends GetxService {
-  final FlutterLocalNotificationsPlugin _plugin = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _plugin =
+      FlutterLocalNotificationsPlugin();
   static const _channelId = 'pay_channel';
   static const _channelName = 'Payment';
   static const _channelDesc = 'Payment notifications';
@@ -22,7 +23,9 @@ class NotificationService extends GetxService {
         importance: Importance.high,
       );
       await _plugin
-          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >()
           ?.createNotificationChannel(channel);
     }
     return this;
@@ -38,6 +41,12 @@ class NotificationService extends GetxService {
       priority: Priority.high,
     );
     const details = NotificationDetails(android: android);
-    await _plugin.show(id, 'Pembayaran Berhasil', 'Terima kasih, transaksi kamu sukses.', details, payload: 'payment_success');
+    await _plugin.show(
+      id,
+      'Pembayaran Berhasil',
+      'Terima kasih, transaksi kamu sukses.',
+      details,
+      payload: 'payment_success',
+    );
   }
 }

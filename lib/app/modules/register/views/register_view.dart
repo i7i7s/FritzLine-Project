@@ -35,12 +35,7 @@ class _RegisterViewState extends State<RegisterView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          _buildBackground(),
-          _buildBody(context),
-        ],
-      ),
+      body: Stack(children: [_buildBackground(), _buildBody(context)]),
     );
   }
 
@@ -82,10 +77,7 @@ class _RegisterViewState extends State<RegisterView> {
   Widget _buildHeader() {
     return Column(
       children: [
-        Image.asset(
-          'assets/images/logo.png',
-          width: 120,
-        ),
+        Image.asset('assets/images/logo.png', width: 120),
         const SizedBox(height: 16),
         const Text(
           "Buat Akun Baru",
@@ -98,10 +90,7 @@ class _RegisterViewState extends State<RegisterView> {
         const SizedBox(height: 8),
         Text(
           "Silakan isi data diri Anda",
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.grey,
-          ),
+          style: TextStyle(fontSize: 16, color: Colors.grey),
         ),
       ],
     );
@@ -179,10 +168,10 @@ class _RegisterViewState extends State<RegisterView> {
           onPressed: controller.isLoading.value
               ? null
               : () => controller.processRegister(
-                    _nameController.text,
-                    _emailController.text,
-                    _passwordController.text,
-                  ),
+                  _nameController.text,
+                  _emailController.text,
+                  _passwordController.text,
+                ),
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF656CEE),
             padding: const EdgeInsets.symmetric(vertical: 16),

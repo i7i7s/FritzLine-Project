@@ -32,12 +32,7 @@ class _LoginPageViewState extends State<LoginPageView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          _buildBackground(),
-          _buildBody(context),
-        ],
-      ),
+      body: Stack(children: [_buildBackground(), _buildBody(context)]),
     );
   }
 
@@ -79,10 +74,7 @@ class _LoginPageViewState extends State<LoginPageView> {
   Widget _buildHeader() {
     return Column(
       children: [
-        Image.asset(
-          'assets/images/logo.png',
-          width: 120,
-        ),
+        Image.asset('assets/images/logo.png', width: 120),
         const SizedBox(height: 16),
         const Text(
           "Selamat Datang Kembali",
@@ -95,10 +87,7 @@ class _LoginPageViewState extends State<LoginPageView> {
         const SizedBox(height: 8),
         Text(
           "Silakan login ke akun Anda",
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.grey,
-          ),
+          style: TextStyle(fontSize: 16, color: Colors.grey),
         ),
       ],
     );

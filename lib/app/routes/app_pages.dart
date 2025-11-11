@@ -20,6 +20,8 @@ import '../modules/splash_screen/bindings/splash_screen_binding.dart';
 import '../modules/splash_screen/views/splash_screen_view.dart';
 import '../modules/tiket/bindings/tiket_binding.dart';
 import '../modules/tiket/views/tiket_view.dart';
+import '../modules/help_center/bindings/help_center_binding.dart';
+import '../modules/help_center/views/help_center_view.dart';
 
 part 'app_routes.dart';
 
@@ -93,6 +95,11 @@ class AppPages {
       name: _Paths.DASHBOARD,
       page: () => const DashboardView(),
       binding: DashboardBinding(),
+    ),
+    GetPage(
+      name: _Paths.HELP_CENTER,
+      page: () => const HelpCenterView(),
+      binding: HelpCenterBinding(),
     ),
   ];
 }

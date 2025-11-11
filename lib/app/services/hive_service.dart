@@ -10,7 +10,9 @@ class HiveService extends GetxService {
   }
 
   Future<List<Map<String, dynamic>>> cariKereta(
-      String kodeAsal, String kodeTujuan) async {
+    String kodeAsal,
+    String kodeTujuan,
+  ) async {
     final uri = Uri.parse('$_apiBaseUrl/search?from=$kodeAsal&to=$kodeTujuan');
 
     try {
@@ -37,11 +39,14 @@ class HiveService extends GetxService {
         return results;
       } else {
         throw Exception(
-            'Gagal memuat data dari server (${response.statusCode})');
+          'Gagal memuat data dari server (${response.statusCode})',
+        );
       }
     } catch (e) {
       Get.snackbar(
-          "Error Jaringan", "Gagal terhubung ke server: ${e.toString()}");
+        "Error Jaringan",
+        "Gagal terhubung ke server: ${e.toString()}",
+      );
       return [];
     }
   }

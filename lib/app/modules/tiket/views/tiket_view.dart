@@ -24,48 +24,77 @@ class TiketView extends GetView<TiketController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         title: const Text(
           "Tiket Saya",
           style: TextStyle(
-              color: Color(0xFF1B1B1F), fontWeight: FontWeight.bold),
+            color: Color(0xFF1B1B1F),
+            fontWeight: FontWeight.w700,
+            fontSize: 20,
+          ),
         ),
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
+        surfaceTintColor: Colors.white,
       ),
       body: SafeArea(
         child: Obx(() {
           if (controller.ticketService.allMyTickets.isEmpty) {
-            return const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.confirmation_number_outlined,
-                    size: 80,
-                    color: Colors.grey,
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    "Belum Ada Tiket",
-                    style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF1B1B1F)),
-                  ),
-                  Text(
-                    "Semua tiket yang Anda beli akan muncul di sini.",
-                    style: TextStyle(color: Color(0xFF49454F)),
-                  ),
-                ],
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(32),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            const Color(0xFF656CEE).withOpacity(0.1),
+                            const Color(0xFFFF6B35).withOpacity(0.1),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.confirmation_number_outlined,
+                        size: 80,
+                        color: const Color(0xFF656CEE).withOpacity(0.6),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    const Text(
+                      "Belum Ada Tiket",
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF1B1B1F),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      "Semua tiket yang Anda beli\nakan muncul di sini.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: const Color(0xFF49454F).withOpacity(0.8),
+                        fontSize: 15,
+                        height: 1.5,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
           }
 
           return ListView.builder(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(20),
+            physics: const BouncingScrollPhysics(),
             itemCount: controller.ticketService.allMyTickets.length,
             itemBuilder: (context, index) {
               final ticket = controller.ticketService.allMyTickets[index];
@@ -96,103 +125,315 @@ class TiketView extends GetView<TiketController> {
                 }
               }
 
-              return InkWell(
-                onTap: () => controller.showTicketDetail(ticket),
-                borderRadius: BorderRadius.circular(12),
-                child: Card(
-                  elevation: 4,
-                  shadowColor: Colors.black.withOpacity(0.05),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  margin: const EdgeInsets.only(bottom: 16),
-                  clipBehavior: Clip.antiAlias,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 12),
-                        color: const Color(0xFF333E63),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              train['namaKereta'] ?? 'Nama Kereta',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            Text(
-                              ticket['bookingCode'] ?? '---',
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white.withOpacity(0.8)),
-                            ),
-                          ],
-                        ),
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () => controller.showTicketDetail(ticket),
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.06),
+                            blurRadius: 16,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              _formatSavedPrice(paymentPrice, paymentCurrency),
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF656CEE),
+                      clipBehavior: Clip.antiAlias,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Header dengan gradient
+                          Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Color(0xFF656CEE), Color(0xFF4147D5)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
                               ),
                             ),
-                            const Divider(height: 24),
-                            Text(
-                              displayDate,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF1B1B1F),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  train['stasiunBerangkat'] ?? '...',
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        train['namaKereta'] ?? 'Nama Kereta',
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.white,
+                                          letterSpacing: 0.3,
+                                        ),
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 6,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.2),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Text(
+                                        ticket['bookingCode'] ?? '---',
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.white,
+                                          letterSpacing: 1,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                const Padding(
-                                  padding:
-                                      EdgeInsets.symmetric(horizontal: 8.0),
-                                  child: Icon(Icons.arrow_forward, size: 16),
-                                ),
-                                Text(
-                                  train['stasiunTiba'] ?? '...',
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16),
+                                const SizedBox(height: 12),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.calendar_today_rounded,
+                                      size: 16,
+                                      color: Colors.white.withOpacity(0.9),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      displayDate,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white.withOpacity(0.9),
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
-                            Text(
-                              "$jadwalBerangkat - $jadwalTiba (${train['durasi']})",
-                              style: const TextStyle(
-                                  color: Color(0xFF49454F), fontSize: 13),
+                          ),
+
+                          // Body content
+                          Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Harga
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: const Color(
+                                          0xFF656CEE,
+                                        ).withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: const Icon(
+                                        Icons.payment_rounded,
+                                        size: 20,
+                                        color: Color(0xFF656CEE),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      _formatSavedPrice(
+                                        paymentPrice,
+                                        paymentCurrency,
+                                      ),
+                                      style: const TextStyle(
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.w800,
+                                        color: Color(0xFF656CEE),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
+                                const SizedBox(height: 20),
+                                Divider(
+                                  height: 1,
+                                  thickness: 1,
+                                  color: Colors.grey.shade200,
+                                ),
+                                const SizedBox(height: 20),
+
+                                // Route info
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "KEBERANGKATAN",
+                                            style: TextStyle(
+                                              color: const Color(
+                                                0xFF49454F,
+                                              ).withOpacity(0.7),
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w600,
+                                              letterSpacing: 0.8,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Text(
+                                            train['stasiunBerangkat'] ?? '...',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 16,
+                                              color: Color(0xFF1B1B1F),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            jadwalBerangkat,
+                                            style: const TextStyle(
+                                              color: Color(0xFF49454F),
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: const Color(
+                                          0xFF656CEE,
+                                        ).withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: const Icon(
+                                        Icons.arrow_forward_rounded,
+                                        color: Color(0xFF656CEE),
+                                        size: 20,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: [
+                                          Text(
+                                            "TIBA",
+                                            style: TextStyle(
+                                              color: const Color(
+                                                0xFF49454F,
+                                              ).withOpacity(0.7),
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w600,
+                                              letterSpacing: 0.8,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Text(
+                                            train['stasiunTiba'] ?? '...',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 16,
+                                              color: Color(0xFF1B1B1F),
+                                            ),
+                                            textAlign: TextAlign.end,
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            jadwalTiba,
+                                            style: const TextStyle(
+                                              color: Color(0xFF49454F),
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
+                                const SizedBox(height: 16),
+
+                                // Duration & Passengers
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Container(
+                                        padding: const EdgeInsets.all(12),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFF5F7FA),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            const Icon(
+                                              Icons.access_time_rounded,
+                                              size: 18,
+                                              color: Color(0xFF656CEE),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              train['durasi'] ?? '-',
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 14,
+                                                color: Color(0xFF1B1B1F),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Container(
+                                        padding: const EdgeInsets.all(12),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFF5F7FA),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            const Icon(
+                                              Icons.people_rounded,
+                                              size: 18,
+                                              color: Color(0xFF656CEE),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              "${passengers.length} Penumpang",
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 14,
+                                                color: Color(0xFF1B1B1F),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 8),
-                            Text(
-                              "Penumpang: ${passengers.length} orang",
-                              style: const TextStyle(
-                                  color: Color(0xFF49454F), fontSize: 13),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
               );

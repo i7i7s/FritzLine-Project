@@ -13,17 +13,9 @@ class Passenger extends HiveObject {
   @HiveField(2)
   String idNumber;
 
-  Passenger({
-    required this.nama,
-    required this.idType,
-    required this.idNumber,
-  });
+  Passenger({required this.nama, required this.idType, required this.idNumber});
 
   Map<String, String> toMap() {
-    return {
-      "nama": nama,
-      "id_type": idType,
-      "id_number": idNumber,
-    };
+    return {"nama": nama, "id_type": idType, "id_number": idNumber};
   }
 }

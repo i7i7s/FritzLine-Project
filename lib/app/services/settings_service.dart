@@ -14,15 +14,19 @@ class SettingsService extends GetxService {
   final exchangeRates = {}.obs;
   final isRatesLoading = false.obs;
 
-  final currencyFormatter =
-      NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0);
+  final currencyFormatter = NumberFormat.currency(
+    locale: 'id_ID',
+    symbol: 'Rp',
+    decimalDigits: 0,
+  );
 
   Future<SettingsService> init() async {
     _settingsBox = await Hive.openBox('app_settings');
-    preferredCurrency.value =
-        _settingsBox.get('currency', defaultValue: 'IDR');
-    preferredTimezone.value =
-        _settingsBox.get('timezone', defaultValue: 'Asia/Jakarta');
+    preferredCurrency.value = _settingsBox.get('currency', defaultValue: 'IDR');
+    preferredTimezone.value = _settingsBox.get(
+      'timezone',
+      defaultValue: 'Asia/Jakarta',
+    );
 
     await fetchExchangeRates();
     return this;
@@ -41,8 +45,11 @@ class SettingsService extends GetxService {
   Future<void> fetchExchangeRates() async {
     isRatesLoading.value = true;
     try {
-      final response = await http.get(Uri.parse(
-          "https://v6.exchangerate-api.com/v6/574116bcb3be786574b56e56/latest/IDR"));
+      final response = await http.get(
+        Uri.parse(
+          "https://v6.exchangerate-api.com/v6/574116bcb3be786574b56e56/latest/IDR",
+        ),
+      );
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -66,13 +73,17 @@ class SettingsService extends GetxService {
 
     if (code == "IDR") {
       return NumberFormat.currency(
-              locale: 'id_ID', symbol: 'Rp', decimalDigits: 0)
-          .format(convertedPrice);
+        locale: 'id_ID',
+        symbol: 'Rp',
+        decimalDigits: 0,
+      ).format(convertedPrice);
     }
 
     return NumberFormat.currency(
-            locale: 'en_US', symbol: "$code ", decimalDigits: 2)
-        .format(convertedPrice);
+      locale: 'en_US',
+      symbol: "$code ",
+      decimalDigits: 2,
+    ).format(convertedPrice);
   }
 
   String formatTime(String? wibTimeString) {

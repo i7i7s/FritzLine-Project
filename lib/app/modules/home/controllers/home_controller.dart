@@ -73,8 +73,9 @@ class HomeController extends GetxController {
   Future<void> fetchStations() async {
     try {
       isLoadingStations.value = true;
-      final response = await http
-          .get(Uri.parse("https://stasiun-api.vercel.app/stasiun_api.json"));
+      final response = await http.get(
+        Uri.parse("https://stasiun-api.vercel.app/stasiun_api.json"),
+      );
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as Map<String, dynamic>;
@@ -102,10 +103,7 @@ class HomeController extends GetxController {
       if (allStations.isEmpty) {
         return;
       }
-      final result = await locationService.findNearestStations(
-        allStations,
-        3,
-      );
+      final result = await locationService.findNearestStations(allStations, 3);
       stasiunTerdekat.assignAll(result);
     } catch (e) {
       stasiunTerdekat.clear();
@@ -116,9 +114,11 @@ class HomeController extends GetxController {
   }
 
   void swapCities() {
-    final temp = Map<String, String>.from(selectedDeparture);
-    selectedDeparture.assignAll(selectedArrival);
-    selectedArrival.assignAll(temp);
+    final tempDeparture = Map<String, String>.from(selectedDeparture);
+    final tempArrival = Map<String, String>.from(selectedArrival);
+
+    selectedDeparture.value = tempArrival;
+    selectedArrival.value = tempDeparture;
   }
 
   void incrementPassenger() {
@@ -172,7 +172,7 @@ class HomeController extends GetxController {
   void selectStation(Map<String, dynamic> station, bool isDeparture) {
     final Map<String, String> stationMap = {
       "code": station['id'] as String,
-      "name": station['nama'] as String
+      "name": station['nama'] as String,
     };
 
     if (isDeparture) {
@@ -207,19 +207,17 @@ class HomeController extends GetxController {
 
     Get.defaultDialog(
       title: "Pilih Stasiun",
-      titleStyle:
-          const TextStyle(color: Color(0xFF333E63), fontWeight: FontWeight.bold),
-      content: StationSearchDialog(
-        controller: this,
-        isDeparture: isDeparture,
+      titleStyle: const TextStyle(
+        color: Color(0xFF333E63),
+        fontWeight: FontWeight.bold,
       ),
+      content: StationSearchDialog(controller: this, isDeparture: isDeparture),
       radius: 10,
     );
   }
 
   void cariTiket() {
-    if (selectedDeparture['code'] == "" ||
-        selectedArrival['code'] == "") {
+    if (selectedDeparture['code'] == "" || selectedArrival['code'] == "") {
       Get.snackbar("Error", "Harap pilih stasiun keberangkatan dan tujuan.");
       return;
     }

@@ -22,8 +22,11 @@ class DetailBookingTiketController extends GetxController {
 
   final totalHarga = 0.obs;
 
-  final currencyFormatter =
-      NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0);
+  final currencyFormatter = NumberFormat.currency(
+    locale: 'id_ID',
+    symbol: 'Rp',
+    decimalDigits: 0,
+  );
 
   final availableCurrencies = {
     "IDR": "Rupiah (IDR)",
@@ -51,12 +54,16 @@ class DetailBookingTiketController extends GetxController {
   String _formatPriceByCode(double price, String code) {
     if (code == "IDR") {
       return NumberFormat.currency(
-              locale: 'id_ID', symbol: 'Rp', decimalDigits: 0)
-          .format(price);
+        locale: 'id_ID',
+        symbol: 'Rp',
+        decimalDigits: 0,
+      ).format(price);
     }
     return NumberFormat.currency(
-            locale: 'en_US', symbol: "$code ", decimalDigits: 2)
-        .format(price);
+      locale: 'en_US',
+      symbol: "$code ",
+      decimalDigits: 2,
+    ).format(price);
   }
 
   void showCurrencyBottomSheet() {
@@ -91,8 +98,10 @@ class DetailBookingTiketController extends GetxController {
                               1.0)
                           .toDouble();
                   double convertedPrice = totalHarga.value * rate;
-                  String formattedPrice =
-                      _formatPriceByCode(convertedPrice, currencyCode);
+                  String formattedPrice = _formatPriceByCode(
+                    convertedPrice,
+                    currencyCode,
+                  );
 
                   return ListTile(
                     title: Text(entry.value),
@@ -135,20 +144,32 @@ class DetailBookingTiketController extends GetxController {
     final wibBerangkat = _parseWIB(trainData['jadwalBerangkat']);
     final wibTiba = _parseWIB(trainData['jadwalTiba']);
 
-    final witaBerangkat =
-        tz.TZDateTime.from(wibBerangkat, tz.getLocation('Asia/Makassar'));
-    final witaTiba =
-        tz.TZDateTime.from(wibTiba, tz.getLocation('Asia/Makassar'));
+    final witaBerangkat = tz.TZDateTime.from(
+      wibBerangkat,
+      tz.getLocation('Asia/Makassar'),
+    );
+    final witaTiba = tz.TZDateTime.from(
+      wibTiba,
+      tz.getLocation('Asia/Makassar'),
+    );
 
-    final witBerangkat =
-        tz.TZDateTime.from(wibBerangkat, tz.getLocation('Asia/Jayapura'));
-    final witTiba =
-        tz.TZDateTime.from(wibTiba, tz.getLocation('Asia/Jayapura'));
+    final witBerangkat = tz.TZDateTime.from(
+      wibBerangkat,
+      tz.getLocation('Asia/Jayapura'),
+    );
+    final witTiba = tz.TZDateTime.from(
+      wibTiba,
+      tz.getLocation('Asia/Jayapura'),
+    );
 
-    final lonBerangkat =
-        tz.TZDateTime.from(wibBerangkat, tz.getLocation('Europe/London'));
-    final lonTiba =
-        tz.TZDateTime.from(wibTiba, tz.getLocation('Europe/London'));
+    final lonBerangkat = tz.TZDateTime.from(
+      wibBerangkat,
+      tz.getLocation('Europe/London'),
+    );
+    final lonTiba = tz.TZDateTime.from(
+      wibTiba,
+      tz.getLocation('Europe/London'),
+    );
 
     Get.bottomSheet(
       Container(
@@ -177,7 +198,10 @@ class DetailBookingTiketController extends GetxController {
   }
 
   Widget _buildTimezoneRow(
-      String zone, tz.TZDateTime berangkat, tz.TZDateTime tiba) {
+    String zone,
+    tz.TZDateTime berangkat,
+    tz.TZDateTime tiba,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
@@ -216,8 +240,7 @@ class DetailBookingTiketController extends GetxController {
       "selectedDate": bookingService.selectedDate.value.toIso8601String(),
     };
 
-    await hiveService.kurangiStokTiket(
-        trainData['id'], passengerData.length);
+    await hiveService.kurangiStokTiket(trainData['id'], passengerData.length);
 
     await ticketService.saveNewTicket(ticketData);
     bookingService.resetBooking();

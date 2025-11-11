@@ -61,24 +61,28 @@ class AuthService extends GetxService {
       idNumber: passengerData['id_number']!,
     );
 
-    bool alreadyExists = currentUser.value!.savedPassengers.any((p) =>
-        p.nama == newPassenger.nama && p.idNumber == newPassenger.idNumber);
+    bool alreadyExists = currentUser.value!.savedPassengers.any(
+      (p) => p.nama == newPassenger.nama && p.idNumber == newPassenger.idNumber,
+    );
 
     if (!alreadyExists) {
       await _passengerBox.add(newPassenger);
 
       currentUser.value!.savedPassengers.add(newPassenger);
       await currentUser.value!.save();
-      
+
       _loadSavedPassengers();
     }
   }
 
   Future<void> updateSavedPassenger(
-      int index, Map<String, dynamic> updatedPassenger) async {
+    int index,
+    Map<String, dynamic> updatedPassenger,
+  ) async {
     if (currentUser.value == null ||
         index < 0 ||
-        index >= currentUser.value!.savedPassengers.length) return;
+        index >= currentUser.value!.savedPassengers.length)
+      return;
 
     final passengerToUpdate = currentUser.value!.savedPassengers[index];
     passengerToUpdate.nama = updatedPassenger['nama'];
@@ -92,7 +96,8 @@ class AuthService extends GetxService {
   Future<void> deleteSavedPassenger(int index) async {
     if (currentUser.value == null ||
         index < 0 ||
-        index >= currentUser.value!.savedPassengers.length) return;
+        index >= currentUser.value!.savedPassengers.length)
+      return;
 
     final passengerToDelete = currentUser.value!.savedPassengers[index];
 
@@ -100,7 +105,7 @@ class AuthService extends GetxService {
     await currentUser.value!.save();
 
     await passengerToDelete.delete();
-    
+
     _loadSavedPassengers();
   }
 
@@ -111,7 +116,7 @@ class AuthService extends GetxService {
     }
 
     String hashedPassword = _hashPassword(password);
-    
+
     final user = User(
       name: name,
       email: email,

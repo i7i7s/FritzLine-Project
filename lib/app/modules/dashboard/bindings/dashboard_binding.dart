@@ -8,17 +8,9 @@ import '../../profil/controllers/profil_controller.dart';
 class DashboardBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<DashboardController>(
-      () => DashboardController(),
-    );
-    Get.lazyPut<HomeController>(
-      () => HomeController(),
-    );
-    Get.lazyPut<TiketController>(
-      () => TiketController(),
-    );
-    Get.lazyPut<ProfilController>(
-      () => ProfilController(),
-    );
+    Get.lazyPut<DashboardController>(() => DashboardController());
+    Get.lazyPut<HomeController>(() => HomeController());
+    Get.lazyPut<TiketController>(() => TiketController());
+    Get.lazyPut<ProfilController>(() => ProfilController());
   }
 }

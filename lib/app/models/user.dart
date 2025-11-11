@@ -12,7 +12,7 @@ class User extends HiveObject {
   String email;
 
   @HiveField(2)
-  String password; 
+  String password;
 
   @HiveField(3)
   HiveList<Passenger> savedPassengers;
