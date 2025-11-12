@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../services/auth_service.dart';
 import 'dart:async';
@@ -33,8 +34,16 @@ class RegisterController extends GetxController {
     }
 
     if (registerSuccess) {
-      Get.snackbar("Sukses", "Registrasi berhasil. Silakan login.");
-      await Future.delayed(Duration(milliseconds: 200));
+      Get.snackbar(
+        "Sukses",
+        "Akun berhasil dibuat! Silahkan login dengan akun Anda.",
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Get.theme.colorScheme.primary,
+        colorText: Colors.white,
+        duration: Duration(seconds: 3),
+        margin: EdgeInsets.all(16),
+      );
+      await Future.delayed(Duration(seconds: 1));
       Get.back();
     }
   }

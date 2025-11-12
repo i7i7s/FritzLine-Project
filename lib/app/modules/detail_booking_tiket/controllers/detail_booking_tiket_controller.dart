@@ -221,11 +221,11 @@ class DetailBookingTiketController extends GetxController {
 
   Future<void> konfirmasiPembayaran() async {
     print('💳 [PAYMENT] Starting payment confirmation...');
-    
+
     // Get seat IDs from PilihKursiController
     final pilihKursiController = Get.find<PilihKursiController>();
     final seatIds = pilihKursiController.myBookedSeatIds;
-    
+
     if (seatIds.isEmpty) {
       Get.snackbar(
         "Error",
@@ -257,7 +257,9 @@ class DetailBookingTiketController extends GetxController {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF656CEE)),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Color(0xFF656CEE),
+                    ),
                   ),
                   SizedBox(height: 16),
                   Text(
@@ -278,10 +280,14 @@ class DetailBookingTiketController extends GetxController {
       final kodeBooking = await hiveService.confirmBooking(
         idKereta: trainData['id'].toString(),
         seatIds: seatIds,
-        passengerData: passengerData.map((p) => {
-          'nama': p['nama'] ?? '',
-          'id_number': p['idNumber'] ?? p['id_number'] ?? '',
-        }).toList(),
+        passengerData: passengerData
+            .map(
+              (p) => {
+                'nama': p['nama'] ?? '',
+                'id_number': p['idNumber'] ?? p['id_number'] ?? '',
+              },
+            )
+            .toList(),
         totalPrice: totalHarga.value.toDouble(),
       );
 
@@ -289,7 +295,7 @@ class DetailBookingTiketController extends GetxController {
 
       if (kodeBooking != null) {
         print('✅ [PAYMENT] Booking confirmed with code: $kodeBooking');
-        
+
         // Stop timer
         pilihKursiController.isTimerActive.value = false;
         pilihKursiController.remainingSeconds.value = 0;
@@ -308,10 +314,10 @@ class DetailBookingTiketController extends GetxController {
         };
 
         await ticketService.saveNewTicket(ticketData);
-        
+
         // Award loyalty points for this purchase
         await loyaltyService.earnPoints(totalHarga.value);
-        
+
         bookingService.resetBooking();
 
         Get.find<NotificationService>().showPaymentSuccess();
@@ -331,7 +337,7 @@ class DetailBookingTiketController extends GetxController {
     } catch (e) {
       Get.back(); // Close loading dialog
       print('❌ [PAYMENT] Error: $e');
-      
+
       Get.snackbar(
         "Pembayaran Gagal",
         "Terjadi kesalahan saat memproses pembayaran. Silakan coba lagi.",

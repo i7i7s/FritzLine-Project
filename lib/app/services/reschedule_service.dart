@@ -8,20 +8,20 @@ class RescheduleService extends GetxService {
   late Box<RescheduleRequest> _rescheduleBox;
   final authService = Get.find<AuthService>();
 
-  // Reschedule fee rules (percentage of original ticket price)
   static const Map<String, double> RESCHEDULE_FEES = {
-    'H-7+': 0.10, // 10% fee if rescheduled 7+ days before
-    'H-3_to_H-6': 0.20, // 20% fee if rescheduled 3-6 days before
-    'H-1_to_H-2': 0.30, // 30% fee if rescheduled 1-2 days before
-    'H-0': 0.50, // 50% fee on departure day
+    'H-7+': 0.10,
+    'H-3_to_H-6': 0.20,
+    'H-1_to_H-2': 0.30,
+    'H-0': 0.50,
   };
 
   Future<RescheduleService> init() async {
-    _rescheduleBox = await Hive.openBox<RescheduleRequest>('rescheduleRequests');
+    _rescheduleBox = await Hive.openBox<RescheduleRequest>(
+      'rescheduleRequests',
+    );
     return this;
   }
 
-  // Calculate reschedule fee based on days before departure
   Map<String, dynamic> calculateRescheduleFee({
     required DateTime originalTravelDate,
     required double originalAmount,
@@ -29,13 +29,12 @@ class RescheduleService extends GetxService {
     DateTime? requestDate,
   }) {
     requestDate ??= DateTime.now();
-    
-    // Calculate days before original departure
+
     int daysBeforeDeparture = originalTravelDate.difference(requestDate).inDays;
-    
+
     double feePercentage;
     String ruleApplied;
-    
+
     if (daysBeforeDeparture >= 7) {
       feePercentage = RESCHEDULE_FEES['H-7+']!;
       ruleApplied = 'H-7+ (7 hari atau lebih)';
@@ -54,16 +53,16 @@ class RescheduleService extends GetxService {
         'reason': 'Tidak dapat reschedule setelah keberangkatan',
       };
     }
-    
+
     double rescheduleFee = originalAmount * feePercentage;
-    double additionalCharge = newTicketPrice > originalAmount 
-        ? newTicketPrice - originalAmount 
+    double additionalCharge = newTicketPrice > originalAmount
+        ? newTicketPrice - originalAmount
         : 0;
     double totalCharge = rescheduleFee + additionalCharge;
-    double refundAmount = newTicketPrice < originalAmount 
+    double refundAmount = newTicketPrice < originalAmount
         ? originalAmount - newTicketPrice - rescheduleFee
         : 0;
-    
+
     return {
       'daysBeforeDeparture': daysBeforeDeparture,
       'feePercentage': feePercentage,
@@ -76,7 +75,6 @@ class RescheduleService extends GetxService {
     };
   }
 
-  // Create reschedule request
   Future<RescheduleRequest> createRescheduleRequest({
     required String originalTicketId,
     required String originalTrainId,
@@ -93,7 +91,6 @@ class RescheduleService extends GetxService {
     double newTicketPrice = 0,
   }) async {
     try {
-      // Calculate reschedule fee
       var calculation = calculateRescheduleFee(
         originalTravelDate: originalTravelDate,
         originalAmount: originalAmount,
@@ -104,10 +101,8 @@ class RescheduleService extends GetxService {
         throw Exception(calculation['reason']);
       }
 
-      // Generate request ID
       String requestId = 'RSC${DateTime.now().millisecondsSinceEpoch}';
 
-      // Create reschedule request
       RescheduleRequest request = RescheduleRequest(
         requestId: requestId,
         originalTicketId: originalTicketId,
@@ -139,7 +134,6 @@ class RescheduleService extends GetxService {
     }
   }
 
-  // Get all reschedule requests for current user
   List<RescheduleRequest> getUserRescheduleRequests() {
     User? user = authService.currentUser.value;
     if (user == null) return [];
@@ -148,7 +142,6 @@ class RescheduleService extends GetxService {
       ..sort((a, b) => b.requestDate.compareTo(a.requestDate));
   }
 
-  // Get reschedule request by ID
   RescheduleRequest? getRescheduleRequestById(String requestId) {
     try {
       return _rescheduleBox.values.firstWhere(
@@ -159,7 +152,6 @@ class RescheduleService extends GetxService {
     }
   }
 
-  // Get reschedule request by ticket ID
   RescheduleRequest? getRescheduleRequestByTicketId(String ticketId) {
     try {
       return _rescheduleBox.values.firstWhere(
@@ -170,15 +162,14 @@ class RescheduleService extends GetxService {
     }
   }
 
-  // Check if ticket already has reschedule request
   bool hasRescheduleRequest(String ticketId) {
     return _rescheduleBox.values.any(
-      (request) => request.originalTicketId == ticketId && 
-                   (request.status == 'pending' || request.status == 'approved')
+      (request) =>
+          request.originalTicketId == ticketId &&
+          (request.status == 'pending' || request.status == 'approved'),
     );
   }
 
-  // Update reschedule request
   Future<void> updateRescheduleRequest({
     required String requestId,
     String? newTrainId,
@@ -195,7 +186,8 @@ class RescheduleService extends GetxService {
         if (newTrainName != null) request.newTrainName = newTrainName;
         if (newTravelDate != null) request.newTravelDate = newTravelDate;
         if (newSeatNumber != null) request.newSeatNumber = newSeatNumber;
-        if (additionalCharge != null) request.additionalCharge = additionalCharge;
+        if (additionalCharge != null)
+          request.additionalCharge = additionalCharge;
         if (totalCharge != null) request.totalCharge = totalCharge;
         await request.save();
       }
@@ -204,7 +196,6 @@ class RescheduleService extends GetxService {
     }
   }
 
-  // Update reschedule status
   Future<void> updateRescheduleStatus({
     required String requestId,
     required String status,
@@ -225,7 +216,6 @@ class RescheduleService extends GetxService {
     }
   }
 
-  // Approve reschedule
   Future<void> approveReschedule({
     required String requestId,
     required String newTicketId,
@@ -239,7 +229,6 @@ class RescheduleService extends GetxService {
     );
   }
 
-  // Reject reschedule
   Future<void> rejectReschedule(String requestId, String reason) async {
     await updateRescheduleStatus(
       requestId: requestId,
@@ -248,7 +237,6 @@ class RescheduleService extends GetxService {
     );
   }
 
-  // Complete reschedule
   Future<void> completeReschedule(String requestId) async {
     await updateRescheduleStatus(
       requestId: requestId,
@@ -257,7 +245,6 @@ class RescheduleService extends GetxService {
     );
   }
 
-  // Cancel reschedule request
   Future<bool> cancelRescheduleRequest(String requestId) async {
     try {
       RescheduleRequest? request = getRescheduleRequestById(requestId);
@@ -271,7 +258,6 @@ class RescheduleService extends GetxService {
     }
   }
 
-  // Get reschedule policy text
   String getReschedulePolicyText(int daysBeforeDeparture) {
     if (daysBeforeDeparture >= 7) {
       return 'Biaya reschedule 10% dari harga tiket';
@@ -286,16 +272,17 @@ class RescheduleService extends GetxService {
     }
   }
 
-  // Get reschedule statistics
   Map<String, dynamic> getRescheduleStats() {
     List<RescheduleRequest> requests = getUserRescheduleRequests();
-    
+
     int totalRequests = requests.length;
     int pendingRequests = requests.where((r) => r.status == 'pending').length;
     int approvedRequests = requests.where((r) => r.status == 'approved').length;
     int rejectedRequests = requests.where((r) => r.status == 'rejected').length;
-    int completedRequests = requests.where((r) => r.status == 'completed').length;
-    
+    int completedRequests = requests
+        .where((r) => r.status == 'completed')
+        .length;
+
     double totalFeesPaid = requests
         .where((r) => r.status == 'completed')
         .fold(0, (sum, r) => sum + r.totalCharge);
@@ -310,7 +297,6 @@ class RescheduleService extends GetxService {
     };
   }
 
-  // Validate reschedule eligibility
   Map<String, dynamic> validateRescheduleEligibility({
     required DateTime originalTravelDate,
     required String ticketStatus,
@@ -342,7 +328,6 @@ class RescheduleService extends GetxService {
     };
   }
 
-  // Get free reschedule count (for loyalty members)
   int getFreeRescheduleCount(String memberTier) {
     switch (memberTier) {
       case 'Silver':
@@ -356,18 +341,18 @@ class RescheduleService extends GetxService {
     }
   }
 
-  // Check if user has free reschedule available
   bool hasFreeReschedule(String memberTier) {
     int allowedFree = getFreeRescheduleCount(memberTier);
     if (allowedFree == 0) return false;
 
-    // Count completed reschedules this year
     DateTime startOfYear = DateTime(DateTime.now().year, 1, 1);
     int usedReschedules = _rescheduleBox.values
-        .where((r) => 
-            r.status == 'completed' && 
-            r.processedDate != null &&
-            r.processedDate!.isAfter(startOfYear))
+        .where(
+          (r) =>
+              r.status == 'completed' &&
+              r.processedDate != null &&
+              r.processedDate!.isAfter(startOfYear),
+        )
         .length;
 
     return usedReschedules < allowedFree;

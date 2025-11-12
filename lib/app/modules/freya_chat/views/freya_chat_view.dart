@@ -38,10 +38,7 @@ class FreyaChatView extends GetView<FreyaChatController> {
                 children: [
                   const Text(
                     'Freya AI Assistant',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                   ),
                   Obx(
                     () => Text(
@@ -162,7 +159,9 @@ class FreyaChatView extends GetView<FreyaChatController> {
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xFF656CEE).withOpacity(0.3),
+                                  color: const Color(
+                                    0xFF656CEE,
+                                  ).withOpacity(0.3),
                                   blurRadius: 20,
                                   offset: const Offset(0, 8),
                                 ),
@@ -315,8 +314,9 @@ class FreyaChatView extends GetView<FreyaChatController> {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
-        mainAxisAlignment:
-            isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment: isUser
+            ? MainAxisAlignment.end
+            : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (!isUser) ...[
@@ -326,10 +326,7 @@ class FreyaChatView extends GetView<FreyaChatController> {
               margin: const EdgeInsets.only(right: 10.0),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: const Color(0xFF656CEE),
-                  width: 2,
-                ),
+                border: Border.all(color: const Color(0xFF656CEE), width: 2),
                 boxShadow: [
                   BoxShadow(
                     color: const Color(0xFF656CEE).withOpacity(0.3),
@@ -433,10 +430,7 @@ class FreyaChatView extends GetView<FreyaChatController> {
                 decoration: BoxDecoration(
                   color: const Color(0xFFF5F7FA),
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                    color: Colors.grey.shade200,
-                    width: 1,
-                  ),
+                  border: Border.all(color: Colors.grey.shade200, width: 1),
                 ),
                 child: TextField(
                   controller: controller.textController,
@@ -456,10 +450,7 @@ class FreyaChatView extends GetView<FreyaChatController> {
                   ),
                   maxLines: null,
                   textCapitalization: TextCapitalization.sentences,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    height: 1.4,
-                  ),
+                  style: const TextStyle(fontSize: 15, height: 1.4),
                 ),
               ),
             ),

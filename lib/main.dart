@@ -24,9 +24,9 @@ import 'app/models/reschedule_request.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   await dotenv.load(fileName: ".env");
-  
+
   await initializeDateFormatting('id_ID', null);
 
   tz_data.initializeTimeZones();
@@ -42,7 +42,10 @@ void main() async {
   await Get.putAsync(() => HiveService().init());
   await Get.putAsync(() => NotificationService().init());
   await Get.putAsync(() => AuthService().init());
-  await Get.putAsync(() => TicketService().init());
+
+  final ticketService = await Get.putAsync(() => TicketService().init());
+  await ticketService.cleanupOldTicketsWithoutUserId();
+
   await Get.putAsync(() => SettingsService().init());
   await Get.putAsync(() => LoyaltyService().init());
   await Get.putAsync(() => ReviewService().init());

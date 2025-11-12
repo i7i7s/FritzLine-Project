@@ -98,8 +98,9 @@ class DetailJadwalController extends GetxController {
             );
 
             final cutoffTime = now.add(const Duration(minutes: 30));
-            
-            if (departureTime.isBefore(cutoffTime) || departureTime.isAtSameMomentAs(cutoffTime)) {
+
+            if (departureTime.isBefore(cutoffTime) ||
+                departureTime.isAtSameMomentAs(cutoffTime)) {
               Get.snackbar(
                 "Tidak Dapat Memesan",
                 "Kereta ${train['namaKereta']} berangkat pada $jadwalBerangkat. Pemesanan harus dilakukan minimal 30 menit sebelum keberangkatan.",
@@ -181,9 +182,11 @@ class DetailJadwalController extends GetxController {
                 );
 
                 final cutoffTime = now.add(const Duration(minutes: 30));
-                
-                print('🚂 [FILTER] ${train['namaKereta']}: Jam=${jadwalBerangkat}, Cutoff=${cutoffTime.hour}:${cutoffTime.minute.toString().padLeft(2, '0')}, Pass=${departureTime.isAfter(cutoffTime)}');
-                
+
+                print(
+                  '🚂 [FILTER] ${train['namaKereta']}: Jam=${jadwalBerangkat}, Cutoff=${cutoffTime.hour}:${cutoffTime.minute.toString().padLeft(2, '0')}, Pass=${departureTime.isAfter(cutoffTime)}',
+                );
+
                 return departureTime.isAfter(cutoffTime);
               }
             }
@@ -199,27 +202,27 @@ class DetailJadwalController extends GetxController {
         try {
           String timeA = a['jadwalBerangkat'] ?? '00:00';
           String timeB = b['jadwalBerangkat'] ?? '00:00';
-                    var partsA = timeA.split(':');
+          var partsA = timeA.split(':');
           var partsB = timeB.split(':');
-          
+
           if (partsA.length >= 2 && partsB.length >= 2) {
             int hourA = int.parse(partsA[0]);
             int minuteA = int.parse(partsA[1]);
             int hourB = int.parse(partsB[0]);
             int minuteB = int.parse(partsB[1]);
-                        if (hourA != hourB) {
+            if (hourA != hourB) {
               return hourA.compareTo(hourB);
             }
             return minuteA.compareTo(minuteB);
           }
-          
+
           return timeA.compareTo(timeB);
         } catch (e) {
           print('Error sorting trains: $e');
           return 0;
         }
       });
-      
+
       trainList.value = filteredTrains;
     }
 

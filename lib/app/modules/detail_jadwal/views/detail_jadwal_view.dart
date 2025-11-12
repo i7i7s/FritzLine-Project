@@ -305,7 +305,7 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
     } else if (train["sisaTiket"] is String) {
       sisaTiket = int.tryParse(train["sisaTiket"]) ?? 0;
     }
-    
+
     // Check if train has departed or too close to departure time
     bool isDeparted = false;
     final now = DateTime.now();
@@ -333,20 +333,23 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
             );
 
             final cutoffTime = now.add(const Duration(minutes: 30));
-            isDeparted = departureTime.isBefore(cutoffTime) || 
-                        departureTime.isAtSameMomentAs(cutoffTime);
-            
-            print('🎨 [VIEW] ${train['namaKereta']}: Jam=$jadwalBerangkat, Cutoff=${cutoffTime.hour}:${cutoffTime.minute.toString().padLeft(2, '0')}, isDeparted=$isDeparted');
+            isDeparted =
+                departureTime.isBefore(cutoffTime) ||
+                departureTime.isAtSameMomentAs(cutoffTime);
+
+            print(
+              '🎨 [VIEW] ${train['namaKereta']}: Jam=$jadwalBerangkat, Cutoff=${cutoffTime.hour}:${cutoffTime.minute.toString().padLeft(2, '0')}, isDeparted=$isDeparted',
+            );
           }
         }
       } catch (e) {
         print('❌ [VIEW] Error checking departure time: $e');
       }
     }
-    
+
     bool isSoldOut = sisaTiket <= 0;
     bool isDisabled = isSoldOut || isDeparted;
-    
+
     String statusText = "Available";
     Color statusColor = Colors.green;
 

@@ -94,10 +94,7 @@ class RequestRefundView extends GetView<RequestRefundController> {
                     ),
                     Text(
                       'Pembatalan tiket',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.white70,
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.white70),
                     ),
                   ],
                 ),
@@ -134,10 +131,7 @@ class RequestRefundView extends GetView<RequestRefundController> {
               Expanded(
                 child: Text(
                   controller.trainName,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
             ],
@@ -148,7 +142,10 @@ class RequestRefundView extends GetView<RequestRefundController> {
               Icon(Icons.calendar_today, size: 16, color: Colors.grey[600]),
               SizedBox(width: 8),
               Text(
-                DateFormat('EEEE, dd MMMM yyyy', 'id_ID').format(controller.travelDate),
+                DateFormat(
+                  'EEEE, dd MMMM yyyy',
+                  'id_ID',
+                ).format(controller.travelDate),
                 style: TextStyle(color: Colors.grey[600]),
               ),
             ],
@@ -156,7 +153,11 @@ class RequestRefundView extends GetView<RequestRefundController> {
           SizedBox(height: 8),
           Row(
             children: [
-              Icon(Icons.confirmation_number, size: 16, color: Colors.grey[600]),
+              Icon(
+                Icons.confirmation_number,
+                size: 16,
+                color: Colors.grey[600],
+              ),
               SizedBox(width: 8),
               Text(
                 'Tiket ID: ${controller.ticketId}',
@@ -172,17 +173,11 @@ class RequestRefundView extends GetView<RequestRefundController> {
             children: [
               Text(
                 'Harga Tiket',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               ),
               Text(
                 'Rp ${controller.originalAmount.toStringAsFixed(0)}',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -197,7 +192,7 @@ class RequestRefundView extends GetView<RequestRefundController> {
         padding: EdgeInsets.all(20),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: controller.canRefund.value 
+            colors: controller.canRefund.value
                 ? [Color(0xFF4CAF50), Color(0xFF45A049)]
                 : [Color(0xFF9E9E9E), Color(0xFF757575)],
             begin: Alignment.topLeft,
@@ -206,9 +201,11 @@ class RequestRefundView extends GetView<RequestRefundController> {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: (controller.canRefund.value 
-                  ? Color(0xFF4CAF50) 
-                  : Color(0xFF9E9E9E)).withOpacity(0.3),
+              color:
+                  (controller.canRefund.value
+                          ? Color(0xFF4CAF50)
+                          : Color(0xFF9E9E9E))
+                      .withOpacity(0.3),
               blurRadius: 12,
               offset: Offset(0, 4),
             ),
@@ -219,7 +216,9 @@ class RequestRefundView extends GetView<RequestRefundController> {
             Row(
               children: [
                 Icon(
-                  controller.canRefund.value ? Icons.check_circle : Icons.cancel,
+                  controller.canRefund.value
+                      ? Icons.check_circle
+                      : Icons.cancel,
                   color: Colors.white,
                   size: 32,
                 ),
@@ -229,7 +228,7 @@ class RequestRefundView extends GetView<RequestRefundController> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        controller.canRefund.value 
+                        controller.canRefund.value
                             ? 'Refund Tersedia'
                             : 'Refund Tidak Tersedia',
                         style: TextStyle(
@@ -240,10 +239,7 @@ class RequestRefundView extends GetView<RequestRefundController> {
                       ),
                       Text(
                         controller.ruleApplied.value,
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 12,
-                        ),
+                        style: TextStyle(color: Colors.white70, fontSize: 12),
                       ),
                     ],
                   ),
@@ -317,10 +313,7 @@ class RequestRefundView extends GetView<RequestRefundController> {
                     Expanded(
                       child: Text(
                         '${controller.daysBeforeDeparture.value} hari sebelum keberangkatan',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                        ),
+                        style: TextStyle(color: Colors.white, fontSize: 12),
                       ),
                     ),
                   ],
@@ -377,10 +370,7 @@ class RequestRefundView extends GetView<RequestRefundController> {
           Expanded(
             child: Text(
               text,
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.blue[800],
-              ),
+              style: TextStyle(fontSize: 12, color: Colors.blue[800]),
             ),
           ),
         ],
@@ -407,10 +397,7 @@ class RequestRefundView extends GetView<RequestRefundController> {
         children: [
           Text(
             'Form Refund',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 16),
           TextField(
@@ -470,10 +457,7 @@ class RequestRefundView extends GetView<RequestRefundController> {
                 Expanded(
                   child: Text(
                     'Proses refund memakan waktu 3-7 hari kerja setelah disetujui.',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.orange[800],
-                    ),
+                    style: TextStyle(fontSize: 11, color: Colors.orange[800]),
                   ),
                 ),
               ],
@@ -505,7 +489,8 @@ class RequestRefundView extends GetView<RequestRefundController> {
           top: false,
           child: Obx(() {
             return ElevatedButton(
-              onPressed: controller.isLoading.value || !controller.canRefund.value
+              onPressed:
+                  controller.isLoading.value || !controller.canRefund.value
                   ? null
                   : controller.submitRefundRequest,
               style: ElevatedButton.styleFrom(

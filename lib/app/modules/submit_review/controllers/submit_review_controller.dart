@@ -57,8 +57,8 @@ class SubmitReviewController extends GetxController {
       trainId: trainId,
       trainName: trainName,
       rating: rating.value,
-      comment: commentController.text.trim().isEmpty 
-          ? null 
+      comment: commentController.text.trim().isEmpty
+          ? null
           : commentController.text.trim(),
       tags: selectedTags.toList(),
     );

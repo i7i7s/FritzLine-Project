@@ -193,7 +193,9 @@ class RingkasanPemesananController extends GetxController {
 
     print('🎫 [CONFIRM] Train ID: ${trainData['id']}');
     print('🎫 [CONFIRM] Seat IDs to confirm: $seatIds');
-    print('🎫 [CONFIRM] Selected Seats: ${pilihKursiController.selectedSeats.map((s) => '${s['nama_gerbong']}-${s['id']}').toList()}');
+    print(
+      '🎫 [CONFIRM] Selected Seats: ${pilihKursiController.selectedSeats.map((s) => '${s['nama_gerbong']}-${s['id']}').toList()}',
+    );
 
     List<Map<String, String>> passengerData = formList.map((form) {
       return {

@@ -26,9 +26,11 @@ class LoyaltyView extends GetView<LoyaltyController> {
                   const SizedBox(height: 24),
                   _buildTabBar(),
                   const SizedBox(height: 16),
-                  Obx(() => controller.selectedTab.value == 0
-                      ? _buildBenefitsTab()
-                      : _buildHistoryTab()),
+                  Obx(
+                    () => controller.selectedTab.value == 0
+                        ? _buildBenefitsTab()
+                        : _buildHistoryTab(),
+                  ),
                   const SizedBox(height: 24),
                 ],
               ),
@@ -106,10 +108,7 @@ class LoyaltyView extends GetView<LoyaltyController> {
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [
-                tierColor,
-                tierColor.withOpacity(0.8),
-              ],
+              colors: [tierColor, tierColor.withOpacity(0.8)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -132,18 +131,12 @@ class LoyaltyView extends GetView<LoyaltyController> {
                     children: [
                       const Text(
                         "Tier Anda",
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.white70,
-                        ),
+                        style: TextStyle(fontSize: 14, color: Colors.white70),
                       ),
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          Text(
-                            tierIcon,
-                            style: const TextStyle(fontSize: 24),
-                          ),
+                          Text(tierIcon, style: const TextStyle(fontSize: 24)),
                           const SizedBox(width: 8),
                           Text(
                             tierName,
@@ -182,10 +175,7 @@ class LoyaltyView extends GetView<LoyaltyController> {
                   children: [
                     const Text(
                       "Total Poin",
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.white70,
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.white70),
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -261,10 +251,8 @@ class LoyaltyView extends GetView<LoyaltyController> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Obx(() {
-        final pointsToNext =
-            controller.loyaltyService.pointsToNextTier.value;
-        final currentPoints =
-            controller.loyaltyService.currentPoints.value;
+        final pointsToNext = controller.loyaltyService.pointsToNextTier.value;
+        final currentPoints = controller.loyaltyService.currentPoints.value;
         final tierName = controller.loyaltyService.currentTier.value;
 
         if (pointsToNext == 0) {
@@ -310,10 +298,7 @@ class LoyaltyView extends GetView<LoyaltyController> {
                       SizedBox(height: 4),
                       Text(
                         "Anda sudah mencapai tier tertinggi",
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
+                        style: TextStyle(fontSize: 14, color: Colors.grey),
                       ),
                     ],
                   ),
@@ -326,13 +311,13 @@ class LoyaltyView extends GetView<LoyaltyController> {
         String nextTier = tierName == 'Bronze'
             ? 'Silver'
             : tierName == 'Silver'
-                ? 'Gold'
-                : 'Platinum';
+            ? 'Gold'
+            : 'Platinum';
         int threshold = tierName == 'Bronze'
             ? 5000
             : tierName == 'Silver'
-                ? 15000
-                : 50000;
+            ? 15000
+            : 50000;
         double progress = currentPoints / threshold;
 
         return Container(
@@ -393,40 +378,42 @@ class LoyaltyView extends GetView<LoyaltyController> {
   Widget _buildTabBar() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Obx(() => Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
+      child: Obx(
+        () => Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.all(4),
+          child: Row(
+            children: [
+              Expanded(
+                child: _buildTabButton(
+                  label: "Benefits",
+                  icon: Icons.card_giftcard,
+                  isSelected: controller.selectedTab.value == 0,
+                  onTap: () => controller.changeTab(0),
                 ),
-              ],
-            ),
-            padding: const EdgeInsets.all(4),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _buildTabButton(
-                    label: "Benefits",
-                    icon: Icons.card_giftcard,
-                    isSelected: controller.selectedTab.value == 0,
-                    onTap: () => controller.changeTab(0),
-                  ),
+              ),
+              Expanded(
+                child: _buildTabButton(
+                  label: "Riwayat",
+                  icon: Icons.history,
+                  isSelected: controller.selectedTab.value == 1,
+                  onTap: () => controller.changeTab(1),
                 ),
-                Expanded(
-                  child: _buildTabButton(
-                    label: "Riwayat",
-                    icon: Icons.history,
-                    isSelected: controller.selectedTab.value == 1,
-                    onTap: () => controller.changeTab(1),
-                  ),
-                ),
-              ],
-            ),
-          )),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -487,10 +474,7 @@ class LoyaltyView extends GetView<LoyaltyController> {
           children: [
             Text(
               "Benefit Tier $tierName",
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             ...benefits.map((benefit) => _buildBenefitCard(benefit)),
@@ -533,10 +517,7 @@ class LoyaltyView extends GetView<LoyaltyController> {
           Expanded(
             child: Text(
               benefit,
-              style: const TextStyle(
-                fontSize: 14,
-                height: 1.5,
-              ),
+              style: const TextStyle(fontSize: 14, height: 1.5),
             ),
           ),
         ],
@@ -555,18 +536,11 @@ class LoyaltyView extends GetView<LoyaltyController> {
             padding: const EdgeInsets.all(40),
             child: Column(
               children: [
-                Icon(
-                  Icons.history,
-                  size: 64,
-                  color: Colors.grey.shade300,
-                ),
+                Icon(Icons.history, size: 64, color: Colors.grey.shade300),
                 const SizedBox(height: 16),
                 const Text(
                   "Belum ada riwayat poin",
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey,
-                  ),
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
                 ),
               ],
             ),
@@ -578,10 +552,7 @@ class LoyaltyView extends GetView<LoyaltyController> {
           children: [
             const Text(
               "Riwayat Poin",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             ...history.map((transaction) => _buildHistoryCard(transaction)),
@@ -641,10 +612,7 @@ class LoyaltyView extends GetView<LoyaltyController> {
                 const SizedBox(height: 4),
                 Text(
                   DateFormat('dd MMM yyyy, HH:mm', 'id_ID').format(timestamp),
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey.shade600,
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                 ),
               ],
             ),
@@ -663,9 +631,6 @@ class LoyaltyView extends GetView<LoyaltyController> {
   }
 
   String _formatCurrency(int amount) {
-    return 'Rp ${amount.toString().replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]}.',
-        )}';
+    return 'Rp ${amount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}';
   }
 }

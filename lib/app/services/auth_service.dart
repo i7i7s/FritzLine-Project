@@ -1,3 +1,4 @@
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:crypto/crypto.dart';
@@ -148,32 +149,63 @@ class AuthService extends GetxService {
     currentUser.value = user;
     _loadSavedPassengers();
     isLoggedIn.value = true;
-    
-    try {
-      final ticketService = Get.find<dynamic>();
-      if (ticketService.toString().contains('TicketService')) {
-        ticketService.reloadTickets();
+
+    print('👤 [AuthService] User logged in: ${user.email}');
+
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      try {
+        final ticketService = Get.find<dynamic>();
+        if (ticketService.toString().contains('TicketService')) {
+          print('🔄 [AuthService] Reloading tickets for: ${user.email}');
+          ticketService.reloadTickets();
+        }
+      } catch (e) {
+        print('❌ [AuthService] Could not reload tickets: $e');
       }
-    } catch (e) {
-      print('Could not reload tickets: $e');
-    }
-    
+
+      try {
+        final loyaltyService = Get.find<dynamic>();
+        if (loyaltyService.toString().contains('LoyaltyService')) {
+          print('🔄 [AuthService] Reloading loyalty for: ${user.email}');
+          loyaltyService.reloadLoyaltyData();
+        }
+      } catch (e) {
+        print('❌ [AuthService] Could not reload loyalty: $e');
+      }
+    });
+
     return true;
   }
 
   Future<void> logout() async {
+    final loggedOutUser = currentUser.value?.email ?? 'unknown';
+    print('👋 [AuthService] User logging out: $loggedOutUser');
+
     await _sessionBox.delete('currentUserKey');
     currentUser.value = null;
     savedPassengers.clear();
     isLoggedIn.value = false;
-    
-    try {
-      final ticketService = Get.find<dynamic>();
-      if (ticketService.toString().contains('TicketService')) {
-        ticketService.reloadTickets();
+
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      try {
+        final ticketService = Get.find<dynamic>();
+        if (ticketService.toString().contains('TicketService')) {
+          print('🔄 [AuthService] Clearing tickets after logout');
+          ticketService.reloadTickets();
+        }
+      } catch (e) {
+        print('❌ [AuthService] Could not reload tickets: $e');
       }
-    } catch (e) {
-      print('Could not reload tickets: $e');
-    }
+
+      try {
+        final loyaltyService = Get.find<dynamic>();
+        if (loyaltyService.toString().contains('LoyaltyService')) {
+          print('🔄 [AuthService] Clearing loyalty after logout');
+          loyaltyService.clearLoyaltyData();
+        }
+      } catch (e) {
+        print('❌ [AuthService] Could not clear loyalty: $e');
+      }
+    });
   }
 }

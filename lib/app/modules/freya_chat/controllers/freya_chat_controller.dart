@@ -21,10 +21,10 @@ class FreyaChatController extends GetxController {
   Future<void> _initializeAI() async {
     isModelLoading.value = true;
     await _aiService.initialize();
-    
+
     if (_aiService.isInitialized) {
       modelName.value = _aiService.modelName ?? '';
-      
+
       // Load chat history from Hive
       final chatHistory = _aiService.loadChatHistory();
       if (chatHistory.isNotEmpty) {
@@ -35,7 +35,8 @@ class FreyaChatController extends GetxController {
             ChatMessage(
               text: chat['message'] ?? '',
               isUser: chat['isUser'] ?? false,
-              timestamp: DateTime.tryParse(chat['timestamp'] ?? '') ?? DateTime.now(),
+              timestamp:
+                  DateTime.tryParse(chat['timestamp'] ?? '') ?? DateTime.now(),
             ),
           );
         }
@@ -44,7 +45,8 @@ class FreyaChatController extends GetxController {
         messages.insert(
           0,
           ChatMessage(
-            text: 'Hai! 👋 Aku Freya, asisten virtual FritzLine! 🚂\n\nAku bisa bantu kamu:\n• Cek jadwal & harga kereta real-time 🎫\n• Panduan booking tiket 📱\n• Rekomendasi destinasi wisata 🏝️\n• Info kuliner & budaya lokal 🍜\n• Tips travelling hemat 💰\n• Cek tiket kamu yang aktif 🎟️\n\nMau tanya apa nih? 😊',
+            text:
+                'Hai! 👋 Aku Freya, asisten virtual FritzLine! 🚂\n\nAku bisa bantu kamu:\n• Cek jadwal & harga kereta real-time 🎫\n• Panduan booking tiket 📱\n• Rekomendasi destinasi wisata 🏝️\n• Info kuliner & budaya lokal 🍜\n• Tips travelling hemat 💰\n• Cek tiket kamu yang aktif 🎟️\n\nMau tanya apa nih? 😊',
             isUser: false,
           ),
         );
@@ -53,12 +55,13 @@ class FreyaChatController extends GetxController {
       messages.insert(
         0,
         ChatMessage(
-          text: 'Maaf, aku sedang mengalami masalah koneksi. Pastikan internet kamu aktif ya! 🔌',
+          text:
+              'Maaf, aku sedang mengalami masalah koneksi. Pastikan internet kamu aktif ya! 🔌',
           isUser: false,
         ),
       );
     }
-    
+
     isModelLoading.value = false;
   }
 
@@ -68,7 +71,8 @@ class FreyaChatController extends GetxController {
     messages.insert(
       0,
       ChatMessage(
-        text: 'Chat history sudah dihapus! ✨\n\nAku Freya siap bantu kamu lagi! Ada yang mau ditanyakan? 😊',
+        text:
+            'Chat history sudah dihapus! ✨\n\nAku Freya siap bantu kamu lagi! Ada yang mau ditanyakan? 😊',
         isUser: false,
       ),
     );
@@ -78,27 +82,15 @@ class FreyaChatController extends GetxController {
     final text = textController.text.trim();
     if (text.isEmpty) return;
 
-    messages.insert(
-      0,
-      ChatMessage(
-        text: text,
-        isUser: true,
-      ),
-    );
+    messages.insert(0, ChatMessage(text: text, isUser: true));
 
     textController.clear();
     isLoading.value = true;
 
     try {
       final response = await _aiService.sendMessage(text);
-      
-      messages.insert(
-        0,
-        ChatMessage(
-          text: response,
-          isUser: false,
-        ),
-      );
+
+      messages.insert(0, ChatMessage(text: response, isUser: false));
     } catch (e) {
       messages.insert(
         0,

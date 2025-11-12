@@ -5,6 +5,15 @@ import '../../../services/ticket_service.dart';
 class TiketController extends GetxController {
   final ticketService = Get.find<TicketService>();
 
+  @override
+  void onInit() {
+    super.onInit();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ticketService.reloadTickets();
+      print('🎫 [TiketController] Reloaded tickets on page open');
+    });
+  }
+
   void showTicketDetail(Map<String, dynamic>? ticket) {
     if (ticket == null) {
       Get.snackbar(
@@ -16,7 +25,7 @@ class TiketController extends GetxController {
       );
       return;
     }
-    
+
     Get.toNamed('/ticket-detail', arguments: ticket);
   }
 }

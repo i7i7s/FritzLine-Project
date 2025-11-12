@@ -206,10 +206,7 @@ class ProfilView extends GetView<ProfilController> {
                         ),
                       ),
                       SizedBox(width: 6),
-                      Text(
-                        "✨",
-                        style: TextStyle(fontSize: 16),
-                      ),
+                      Text("✨", style: TextStyle(fontSize: 16)),
                     ],
                   ),
                   SizedBox(height: 6),

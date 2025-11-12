@@ -18,7 +18,7 @@ class RequestRescheduleController extends GetxController {
   late String memberTier;
 
   final reason = TextEditingController();
-  
+
   final rescheduleFee = 0.0.obs;
   final feePercentage = 0.0.obs;
   final daysBeforeDeparture = 0.obs;
@@ -100,16 +100,17 @@ class RequestRescheduleController extends GetxController {
     try {
       isLoading.value = true;
 
-      RescheduleRequest request = await rescheduleService.createRescheduleRequest(
-        originalTicketId: originalTicketId,
-        originalTrainId: originalTrainId,
-        originalTrainName: originalTrainName,
-        originalTravelDate: originalTravelDate,
-        originalDeparture: originalDeparture,
-        originalArrival: originalArrival,
-        reason: reason.text,
-        originalAmount: originalAmount,
-      );
+      RescheduleRequest request = await rescheduleService
+          .createRescheduleRequest(
+            originalTicketId: originalTicketId,
+            originalTrainId: originalTrainId,
+            originalTrainName: originalTrainName,
+            originalTravelDate: originalTravelDate,
+            originalDeparture: originalDeparture,
+            originalArrival: originalArrival,
+            reason: reason.text,
+            originalAmount: originalAmount,
+          );
 
       isLoading.value = false;
 

@@ -13,6 +13,11 @@ class LoyaltyController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    // Reload loyalty data when page is opened to ensure correct user's data
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      loyaltyService.reloadLoyaltyData();
+      print('💎 [LoyaltyController] Reloaded loyalty on page open');
+    });
   }
 
   void changeTab(int index) {
@@ -21,7 +26,7 @@ class LoyaltyController extends GetxController {
 
   Future<void> showRedeemDialog() async {
     pointsToRedeem.value = 0;
-    
+
     Get.dialog(
       AlertDialog(
         title: const Text('Tukar Poin'),
@@ -30,10 +35,7 @@ class LoyaltyController extends GetxController {
           children: [
             Text(
               'Poin Anda: ${loyaltyService.currentPoints.value}',
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             const Text(
@@ -53,25 +55,26 @@ class LoyaltyController extends GetxController {
               },
             ),
             const SizedBox(height: 8),
-            Obx(() => Text(
-              'Diskon: Rp ${_formatCurrency(pointsToRedeem.value * 1000)}',
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF656CEE),
+            Obx(
+              () => Text(
+                'Diskon: Rp ${_formatCurrency(pointsToRedeem.value * 1000)}',
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF656CEE),
+                ),
               ),
-            )),
+            ),
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('Batal'),
-          ),
+          TextButton(onPressed: () => Get.back(), child: const Text('Batal')),
           ElevatedButton(
             onPressed: () async {
               if (pointsToRedeem.value > 0) {
-                final discount = await loyaltyService.redeemPoints(pointsToRedeem.value);
+                final discount = await loyaltyService.redeemPoints(
+                  pointsToRedeem.value,
+                );
                 if (discount != null) {
                   Get.back();
                   Get.snackbar(

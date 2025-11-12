@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import '../models/user.dart';
 import 'auth_service.dart';
 
 class LoyaltyService extends GetxService {
@@ -12,15 +11,12 @@ class LoyaltyService extends GetxService {
   final currentTier = 'Bronze'.obs;
   final pointsToNextTier = 0.obs;
 
-  // Tier thresholds
   static const int SILVER_THRESHOLD = 5000;
   static const int GOLD_THRESHOLD = 15000;
   static const int PLATINUM_THRESHOLD = 50000;
 
-  // Points earning rates (1 point = Rp 1.000)
   static const double POINTS_PER_1000_IDR = 1.0;
 
-  // Tier multipliers
   static const Map<String, double> TIER_MULTIPLIERS = {
     'Bronze': 1.0,
     'Silver': 1.2,
@@ -28,7 +24,6 @@ class LoyaltyService extends GetxService {
     'Platinum': 2.0,
   };
 
-  // Tier benefits
   static const Map<String, List<String>> TIER_BENEFITS = {
     'Bronze': [
       'Dapatkan 1 poin per Rp 1.000',
@@ -66,11 +61,39 @@ class LoyaltyService extends GetxService {
 
   void _loadUserLoyaltyData() {
     final user = authService.currentUser.value;
+
+    print(
+      '💎 [LoyaltyService] Loading loyalty for user: ${user?.email ?? "none"}',
+    );
+
     if (user != null) {
       currentPoints.value = user.loyaltyPoints ?? 0;
       currentTier.value = _calculateTier(currentPoints.value);
       pointsToNextTier.value = _calculatePointsToNextTier(currentPoints.value);
+
+      print(
+        '✅ [LoyaltyService] Loaded ${currentPoints.value} points, tier: ${currentTier.value}',
+      );
+    } else {
+      currentPoints.value = 0;
+      currentTier.value = 'Bronze';
+      pointsToNextTier.value = SILVER_THRESHOLD;
+
+      print('⚠️ [LoyaltyService] No user, reset to default (0 points, Bronze)');
     }
+  }
+
+  void reloadLoyaltyData() {
+    print('🔄 [LoyaltyService] Reloading loyalty data...');
+    _loadUserLoyaltyData();
+  }
+
+  void clearLoyaltyData() {
+    print('🧹 [LoyaltyService] Clearing loyalty data...');
+    currentPoints.value = 0;
+    currentTier.value = 'Bronze';
+    pointsToNextTier.value = SILVER_THRESHOLD;
+    print('✅ [LoyaltyService] Loyalty data cleared');
   }
 
   String _calculateTier(int points) {
@@ -81,44 +104,38 @@ class LoyaltyService extends GetxService {
   }
 
   int _calculatePointsToNextTier(int points) {
-    if (points >= PLATINUM_THRESHOLD) return 0; // Max tier
+    if (points >= PLATINUM_THRESHOLD) return 0;
     if (points >= GOLD_THRESHOLD) return PLATINUM_THRESHOLD - points;
     if (points >= SILVER_THRESHOLD) return GOLD_THRESHOLD - points;
     return SILVER_THRESHOLD - points;
   }
 
-  /// Earn points from ticket purchase
   Future<void> earnPoints(int transactionAmountIDR) async {
     final user = authService.currentUser.value;
     if (user == null) return;
 
-    // Calculate base points (1 point per Rp 1.000)
     double basePoints = transactionAmountIDR / 1000.0;
 
-    // Apply tier multiplier
     String tier = _calculateTier(user.loyaltyPoints ?? 0);
     double multiplier = TIER_MULTIPLIERS[tier] ?? 1.0;
     int earnedPoints = (basePoints * multiplier).round();
 
-    // Add points to user
     int newTotal = (user.loyaltyPoints ?? 0) + earnedPoints;
     user.loyaltyPoints = newTotal;
     await user.save();
 
-    // Update observable
     currentPoints.value = newTotal;
     currentTier.value = _calculateTier(newTotal);
     pointsToNextTier.value = _calculatePointsToNextTier(newTotal);
 
-    // Log transaction
     await _logPointsTransaction(
       type: 'earned',
       points: earnedPoints,
-      description: 'Pembelian tiket senilai Rp ${_formatCurrency(transactionAmountIDR)}',
+      description:
+          'Pembelian tiket senilai Rp ${_formatCurrency(transactionAmountIDR)}',
       transactionAmount: transactionAmountIDR,
     );
 
-    // Check for tier upgrade
     String newTier = _calculateTier(newTotal);
     if (newTier != tier) {
       await _notifyTierUpgrade(newTier);
@@ -132,7 +149,6 @@ class LoyaltyService extends GetxService {
     );
   }
 
-  /// Redeem points for discount
   Future<int?> redeemPoints(int pointsToRedeem) async {
     final user = authService.currentUser.value;
     if (user == null) return null;
@@ -157,56 +173,50 @@ class LoyaltyService extends GetxService {
       return null;
     }
 
-    // Calculate discount (1 point = Rp 1.000)
     int discountAmount = pointsToRedeem * 1000;
 
-    // Deduct points
     user.loyaltyPoints = currentUserPoints - pointsToRedeem;
     await user.save();
 
-    // Update observable
     currentPoints.value = user.loyaltyPoints!;
 
-    // Log transaction
     await _logPointsTransaction(
       type: 'redeemed',
       points: -pointsToRedeem,
-      description: 'Redeem poin untuk diskon Rp ${_formatCurrency(discountAmount)}',
+      description:
+          'Redeem poin untuk diskon Rp ${_formatCurrency(discountAmount)}',
       transactionAmount: discountAmount,
     );
 
     return discountAmount;
   }
 
-  /// Get tier discount percentage
   double getTierDiscount() {
     switch (currentTier.value) {
       case 'Silver':
-        return 0.05; // 5%
+        return 0.05;
       case 'Gold':
-        return 0.10; // 10%
+        return 0.10;
       case 'Platinum':
-        return 0.15; // 15%
+        return 0.15;
       default:
         return 0.0;
     }
   }
 
-  /// Get tier color
   int getTierColor() {
     switch (currentTier.value) {
       case 'Silver':
-        return 0xFFC0C0C0; // Silver
+        return 0xFFC0C0C0;
       case 'Gold':
-        return 0xFFFFD700; // Gold
+        return 0xFFFFD700;
       case 'Platinum':
-        return 0xFFE5E4E2; // Platinum
+        return 0xFFE5E4E2;
       default:
-        return 0xFFCD7F32; // Bronze
+        return 0xFFCD7F32;
     }
   }
 
-  /// Get tier icon
   String getTierIcon() {
     switch (currentTier.value) {
       case 'Silver':
@@ -220,7 +230,6 @@ class LoyaltyService extends GetxService {
     }
   }
 
-  /// Get points history
   List<Map<String, dynamic>> getPointsHistory() {
     return _loyaltyBox.values
         .cast<Map<dynamic, dynamic>>()
@@ -237,7 +246,7 @@ class LoyaltyService extends GetxService {
     int? transactionAmount,
   }) async {
     final transaction = {
-      'type': type, // 'earned' or 'redeemed'
+      'type': type,
       'points': points,
       'description': description,
       'transactionAmount': transactionAmount,
@@ -271,10 +280,7 @@ class LoyaltyService extends GetxService {
               const SizedBox(height: 16),
               const Text(
                 "Selamat! 🎉",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               Text(
@@ -285,10 +291,7 @@ class LoyaltyService extends GetxService {
               const SizedBox(height: 16),
               Text(
                 "Nikmati benefit eksklusif tier $newTier",
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey,
-                ),
+                style: const TextStyle(fontSize: 14, color: Colors.grey),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
@@ -312,12 +315,11 @@ class LoyaltyService extends GetxService {
 
   String _formatCurrency(int amount) {
     return amount.toString().replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]}.',
-        );
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]}.',
+    );
   }
 
-  /// Check if user can get birthday voucher (once per year)
   bool canClaimBirthdayVoucher() {
     final lastClaim = _loyaltyBox.get('last_birthday_claim');
     if (lastClaim == null) return true;
@@ -327,7 +329,6 @@ class LoyaltyService extends GetxService {
     return now.year > lastClaimDate.year;
   }
 
-  /// Claim birthday voucher
   Future<int?> claimBirthdayVoucher() async {
     if (currentTier.value == 'Bronze' || currentTier.value == 'Silver') {
       Get.snackbar(
@@ -349,7 +350,10 @@ class LoyaltyService extends GetxService {
 
     int voucherAmount = currentTier.value == 'Gold' ? 100000 : 250000;
 
-    await _loyaltyBox.put('last_birthday_claim', DateTime.now().toIso8601String());
+    await _loyaltyBox.put(
+      'last_birthday_claim',
+      DateTime.now().toIso8601String(),
+    );
 
     Get.snackbar(
       "Selamat Ulang Tahun! 🎂",

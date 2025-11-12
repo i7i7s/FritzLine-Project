@@ -38,7 +38,7 @@ class RefundRequest extends HiveObject {
   int daysBeforeDeparture;
 
   @HiveField(11)
-  String status; // pending, approved, rejected, completed
+  String status;
 
   @HiveField(12)
   String? bankAccount;

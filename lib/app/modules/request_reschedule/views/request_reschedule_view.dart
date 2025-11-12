@@ -134,7 +134,10 @@ class RequestRescheduleView extends GetView<RequestRescheduleController> {
           ),
           SizedBox(height: 8),
           Text(
-            DateFormat('EEEE, dd MMMM yyyy', 'id_ID').format(controller.originalTravelDate),
+            DateFormat(
+              'EEEE, dd MMMM yyyy',
+              'id_ID',
+            ).format(controller.originalTravelDate),
             style: TextStyle(color: Colors.grey[600]),
           ),
         ],
@@ -239,7 +242,10 @@ class RequestRescheduleView extends GetView<RequestRescheduleController> {
               SizedBox(width: 8),
               Text(
                 'Kebijakan Reschedule',
-                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue[800]),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue[800],
+                ),
               ),
             ],
           ),
@@ -298,7 +304,10 @@ class RequestRescheduleView extends GetView<RequestRescheduleController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Alasan Reschedule', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          Text(
+            'Alasan Reschedule',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
           SizedBox(height: 16),
           TextField(
             controller: controller.reason,
@@ -306,7 +315,9 @@ class RequestRescheduleView extends GetView<RequestRescheduleController> {
             decoration: InputDecoration(
               hintText: 'Jelaskan alasan reschedule...',
               prefixIcon: Icon(Icons.edit_note),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               filled: true,
               fillColor: Colors.grey[50],
             ),
@@ -325,25 +336,37 @@ class RequestRescheduleView extends GetView<RequestRescheduleController> {
         padding: EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: Offset(0, -2))],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              offset: Offset(0, -2),
+            ),
+          ],
         ),
         child: SafeArea(
           top: false,
           child: Obx(() {
             return ElevatedButton(
-              onPressed: controller.isLoading.value || !controller.canReschedule.value
+              onPressed:
+                  controller.isLoading.value || !controller.canReschedule.value
                   ? null
                   : controller.submitRescheduleRequest,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFFFF9800),
                 padding: EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               child: controller.isLoading.value
                   ? SizedBox(
                       height: 20,
                       width: 20,
-                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
                     )
                   : Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -352,7 +375,11 @@ class RequestRescheduleView extends GetView<RequestRescheduleController> {
                         SizedBox(width: 8),
                         Text(
                           'Ajukan Reschedule',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
                         ),
                       ],
                     ),

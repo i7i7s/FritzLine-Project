@@ -11,7 +11,6 @@ class ReviewService extends GetxService {
   final allReviews = <Review>[].obs;
   final myReviews = <Review>[].obs;
 
-  // Available tags
   static const List<String> AVAILABLE_TAGS = [
     "Bersih",
     "Tepat Waktu",
@@ -33,19 +32,17 @@ class ReviewService extends GetxService {
 
   void _loadReviews() {
     allReviews.assignAll(_reviewBox.values.toList());
-    
+
     final currentUserId = authService.currentUser.value?.email ?? '';
     myReviews.assignAll(
       allReviews.where((review) => review.userId == currentUserId).toList(),
     );
   }
 
-  /// Check if user already reviewed this ticket
   bool hasReviewed(String ticketId) {
     return allReviews.any((review) => review.ticketId == ticketId);
   }
 
-  /// Submit a new review
   Future<bool> submitReview({
     required String ticketId,
     required String trainId,
@@ -65,7 +62,6 @@ class ReviewService extends GetxService {
         return false;
       }
 
-      // Check if already reviewed
       if (hasReviewed(ticketId)) {
         Get.snackbar(
           "Sudah Direview",
@@ -109,13 +105,11 @@ class ReviewService extends GetxService {
     }
   }
 
-  /// Get reviews for a specific train
   List<Review> getTrainReviews(String trainId) {
     return allReviews.where((review) => review.trainId == trainId).toList()
       ..sort((a, b) => b.reviewDate.compareTo(a.reviewDate));
   }
 
-  /// Get average rating for a train
   double getTrainAverageRating(String trainId) {
     final trainReviews = getTrainReviews(trainId);
     if (trainReviews.isEmpty) return 0.0;
@@ -127,7 +121,6 @@ class ReviewService extends GetxService {
     return totalRating / trainReviews.length;
   }
 
-  /// Get rating distribution for a train
   Map<int, int> getTrainRatingDistribution(String trainId) {
     final trainReviews = getTrainReviews(trainId);
     final distribution = <int, int>{1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
@@ -139,8 +132,10 @@ class ReviewService extends GetxService {
     return distribution;
   }
 
-  /// Get most popular tags for a train
-  List<MapEntry<String, int>> getTrainPopularTags(String trainId, {int limit = 5}) {
+  List<MapEntry<String, int>> getTrainPopularTags(
+    String trainId, {
+    int limit = 5,
+  }) {
     final trainReviews = getTrainReviews(trainId);
     final tagCounts = <String, int>{};
 
@@ -156,7 +151,6 @@ class ReviewService extends GetxService {
     return sortedTags.take(limit).toList();
   }
 
-  /// Delete a review (user's own review only)
   Future<bool> deleteReview(Review review) async {
     try {
       final user = authService.currentUser.value;
@@ -189,7 +183,6 @@ class ReviewService extends GetxService {
     }
   }
 
-  /// Get rating statistics summary
   Map<String, dynamic> getTrainReviewStats(String trainId) {
     final reviews = getTrainReviews(trainId);
     final avgRating = getTrainAverageRating(trainId);

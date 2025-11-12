@@ -11,7 +11,7 @@ class FreyaAIService {
   GenerativeModel? _model;
   String? _modelName;
   bool _isInitialized = false;
-  
+
   final String _apiBaseUrl = "https://kereta-api-production.up.railway.app";
   Box? _chatHistoryBox;
 
@@ -26,18 +26,20 @@ class FreyaAIService {
     try {
       final ticketService = Get.find<TicketService>();
       final tickets = ticketService.allMyTickets;
-      
+
       if (tickets.isEmpty) {
         return 'User belum punya tiket yang aktif.';
       }
-      
+
       StringBuffer info = StringBuffer('TIKET USER SAAT INI:\n\n');
       for (var i = 0; i < tickets.length; i++) {
         final ticket = tickets[i];
         info.writeln('Tiket ${i + 1}:');
         info.writeln('Kode Booking: ${ticket['bookingCode']}');
         info.writeln('Kereta: ${ticket['train']?['namaKereta']}');
-        info.writeln('Rute: ${ticket['train']?['stasiunBerangkat']} → ${ticket['train']?['stasiunTiba']}');
+        info.writeln(
+          'Rute: ${ticket['train']?['stasiunBerangkat']} → ${ticket['train']?['stasiunTiba']}',
+        );
         info.writeln('Berangkat: ${ticket['train']?['jadwalBerangkat']}');
         info.writeln('Kelas: ${ticket['train']?['kelas']}');
         info.writeln('Kursi: ${ticket['selectedSeats']?.join(', ')}');
@@ -53,18 +55,18 @@ class FreyaAIService {
 
   Future<void> saveChatMessage(String message, bool isUser) async {
     if (_chatHistoryBox == null) return;
-    
+
     try {
       final authService = Get.find<AuthService>();
       final userId = authService.currentUser.value?.email ?? 'guest';
-      
+
       final chatData = {
         'userId': userId,
         'message': message,
         'isUser': isUser,
         'timestamp': DateTime.now().toIso8601String(),
       };
-      
+
       await _chatHistoryBox!.add(chatData);
     } catch (e) {
       print('⚠️ Error saving chat: $e');
@@ -73,11 +75,11 @@ class FreyaAIService {
 
   List<Map<String, dynamic>> loadChatHistory() {
     if (_chatHistoryBox == null) return [];
-    
+
     try {
       final authService = Get.find<AuthService>();
       final userId = authService.currentUser.value?.email ?? 'guest';
-      
+
       final allChats = _chatHistoryBox!.values.toList();
       final userChats = allChats.where((chat) {
         if (chat is Map) {
@@ -85,7 +87,7 @@ class FreyaAIService {
         }
         return false;
       }).toList();
-      
+
       return userChats.map((chat) {
         if (chat is Map) {
           return Map<String, dynamic>.from(chat);
@@ -100,11 +102,11 @@ class FreyaAIService {
 
   Future<void> clearChatHistory() async {
     if (_chatHistoryBox == null) return;
-    
+
     try {
       final authService = Get.find<AuthService>();
       final userId = authService.currentUser.value?.email ?? 'guest';
-      
+
       final keysToDelete = <dynamic>[];
       for (var i = 0; i < _chatHistoryBox!.length; i++) {
         final chat = _chatHistoryBox!.getAt(i);
@@ -112,11 +114,11 @@ class FreyaAIService {
           keysToDelete.add(_chatHistoryBox!.keyAt(i));
         }
       }
-      
+
       for (var key in keysToDelete) {
         await _chatHistoryBox!.delete(key);
       }
-      
+
       print('✅ Chat history cleared for user: $userId');
     } catch (e) {
       print('⚠️ Error clearing chat history: $e');
@@ -131,12 +133,13 @@ class FreyaAIService {
     }
 
     print('🔑 API Key loaded: ${apiKey.substring(0, 10)}...');
-    
+
     await initChatHistory();
 
     try {
       final uri = Uri.parse(
-          'https://generativelanguage.googleapis.com/v1/models?key=$apiKey');
+        'https://generativelanguage.googleapis.com/v1/models?key=$apiKey',
+      );
       final resp = await http.get(uri);
 
       if (resp.statusCode == 200) {
@@ -146,21 +149,23 @@ class FreyaAIService {
         String? pickFrom(List<String> preferences) {
           for (final pref in preferences) {
             final match = models.cast<Map<String, dynamic>?>().firstWhere(
-                  (m) =>
-                      m != null &&
-                      (m['name']?.toString().contains(pref) ?? false) &&
-                      (((m['supportedGenerationMethods'] ??
-                                      m['supported_generation_methods'])
-                                  as List?)
-                              ?.contains('generateContent') ??
-                          false),
-                  orElse: () => null,
-                );
+              (m) =>
+                  m != null &&
+                  (m['name']?.toString().contains(pref) ?? false) &&
+                  (((m['supportedGenerationMethods'] ??
+                                  m['supported_generation_methods'])
+                              as List?)
+                          ?.contains('generateContent') ??
+                      false),
+              orElse: () => null,
+            );
             if (match != null) return match['name'] as String;
           }
           for (final m in models.cast<Map<String, dynamic>>()) {
-            final methods = (m['supportedGenerationMethods'] ??
-                    m['supported_generation_methods']) as List?;
+            final methods =
+                (m['supportedGenerationMethods'] ??
+                        m['supported_generation_methods'])
+                    as List?;
             if ((methods ?? const []).contains('generateContent')) {
               return m['name'] as String;
             }
@@ -321,13 +326,13 @@ Jawab dengan ramah dan helpful! Jadilah travel buddy sekaligus customer service 
     try {
       final uri = Uri.parse('$_apiBaseUrl/search?from=$from&to=$to');
       final response = await http.get(uri).timeout(const Duration(seconds: 10));
-      
+
       if (response.statusCode == 200) {
         final List<dynamic> trains = json.decode(response.body);
         if (trains.isEmpty) {
           return 'Tidak ada jadwal kereta dari $from ke $to.';
         }
-        
+
         StringBuffer result = StringBuffer('Jadwal Kereta $from → $to:\n\n');
         for (var train in trains) {
           result.writeln('🚂 ${train['nama_kereta']}');
@@ -360,48 +365,53 @@ Jawab dengan ramah dan helpful! Jadilah travel buddy sekaligus customer service 
     try {
       String contextData = '';
       final lowerMessage = message.toLowerCase();
-      
-      if (lowerMessage.contains('tiket saya') || 
+
+      if (lowerMessage.contains('tiket saya') ||
           lowerMessage.contains('tiket aku') ||
           lowerMessage.contains('booking saya') ||
           lowerMessage.contains('booking aku') ||
           lowerMessage.contains('punya tiket')) {
         contextData = '\n\n${_getUserTicketsInfo()}\n';
       }
-      
-      if ((lowerMessage.contains('jadwal') || lowerMessage.contains('kereta') || 
-           lowerMessage.contains('tiket') || lowerMessage.contains('harga')) &&
-          (lowerMessage.contains('ke ') || lowerMessage.contains('dari '))) {
 
+      if ((lowerMessage.contains('jadwal') ||
+              lowerMessage.contains('kereta') ||
+              lowerMessage.contains('tiket') ||
+              lowerMessage.contains('harga')) &&
+          (lowerMessage.contains('ke ') || lowerMessage.contains('dari '))) {
         final patterns = [
           RegExp(r'dari\s+(\w+)\s+ke\s+(\w+)', caseSensitive: false),
           RegExp(r'(\w+)\s+ke\s+(\w+)', caseSensitive: false),
         ];
-        
+
         for (var pattern in patterns) {
           final match = pattern.firstMatch(message);
           if (match != null && match.groupCount >= 2) {
             final from = match.group(1)!;
             final to = match.group(2)!;
-            
+
             contextData += '\n\nDATA REAL-TIME JADWAL KERETA:\n';
             contextData += await _getTrainSchedules(from, to);
             break;
           }
         }
       }
-      
-      final fullMessage = contextData.isEmpty 
-          ? message 
+
+      final fullMessage = contextData.isEmpty
+          ? message
           : '$message\n$contextData\n\nBerdasarkan data di atas, tolong bantu user dengan informasi yang akurat.';
-      
-      final response = await _model!.generateContent([Content.text(fullMessage)]);
-      final aiResponse = response.text ?? "Maaf, saya tidak dapat memberikan respons saat ini. 😔";
-      
+
+      final response = await _model!.generateContent([
+        Content.text(fullMessage),
+      ]);
+      final aiResponse =
+          response.text ??
+          "Maaf, saya tidak dapat memberikan respons saat ini. 😔";
+
       if (saveHistory) {
         await saveChatMessage(aiResponse, false);
       }
-      
+
       return aiResponse;
     } catch (e) {
       print('❌ Error generating response: $e');

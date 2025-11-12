@@ -21,10 +21,7 @@ class TicketDetailView extends GetView<TicketDetailController> {
         ),
         title: const Text(
           'Detail Tiket',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
         ),
         centerTitle: true,
       ),
@@ -37,23 +34,24 @@ class TicketDetailView extends GetView<TicketDetailController> {
         final train = ticket['trainData'] as Map<String, dynamic>? ?? {};
         final selectedDateStr = ticket['selectedDate'] ?? '';
         final bookingCode = ticket['bookingCode'] ?? '';
-        
+
         // Format date
         String displayDate = '';
         if (selectedDateStr.isNotEmpty) {
           try {
-            displayDate = DateFormat('EEEE, d MMMM yyyy', 'id_ID').format(
-              DateFormat('dd-MM-yyyy').parse(selectedDateStr),
-            );
+            displayDate = DateFormat(
+              'EEEE, d MMMM yyyy',
+              'id_ID',
+            ).format(DateFormat('dd-MM-yyyy').parse(selectedDateStr));
           } catch (e) {
             displayDate = selectedDateStr;
           }
         }
-        
+
         // Parse jam
         final jamBerangkat = train['jadwalBerangkat'] ?? '00:00';
         final jamTiba = train['jadwalTiba'] ?? '00:00';
-        
+
         // Payment details
         final int totalPriceIDR = (ticket['totalPrice'] is num)
             ? (ticket['totalPrice'] as num).toInt()
@@ -62,7 +60,7 @@ class TicketDetailView extends GetView<TicketDetailController> {
             ? (ticket['paymentPrice'] as num).toDouble()
             : (totalPriceIDR.toDouble());
         final String paymentCurrency = ticket['paymentCurrency'] ?? 'IDR';
-        
+
         // Passenger details
         final passengers = ticket['passengerData'] as List<dynamic>? ?? [];
         final seats = ticket['selectedSeats'] as List<dynamic>? ?? [];
@@ -91,10 +89,7 @@ class TicketDetailView extends GetView<TicketDetailController> {
                       padding: const EdgeInsets.all(24),
                       decoration: const BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [
-                            Color(0xFF656CEE),
-                            Color(0xFF4147D5),
-                          ],
+                          colors: [Color(0xFF656CEE), Color(0xFF4147D5)],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -309,9 +304,12 @@ class TicketDetailView extends GetView<TicketDetailController> {
                                     ),
                                     const SizedBox(height: 8),
                                     ...passengers.map((p) {
-                                      final passenger = p as Map<String, dynamic>;
+                                      final passenger =
+                                          p as Map<String, dynamic>;
                                       return Padding(
-                                        padding: const EdgeInsets.only(bottom: 4),
+                                        padding: const EdgeInsets.only(
+                                          bottom: 4,
+                                        ),
                                         child: Text(
                                           passenger['nama'] ?? '-',
                                           style: const TextStyle(
@@ -348,8 +346,12 @@ class TicketDetailView extends GetView<TicketDetailController> {
                                           vertical: 4,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFF656CEE).withOpacity(0.1),
-                                          borderRadius: BorderRadius.circular(8),
+                                          color: const Color(
+                                            0xFF656CEE,
+                                          ).withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
                                         ),
                                         child: Text(
                                           s.toString(),
@@ -366,9 +368,9 @@ class TicketDetailView extends GetView<TicketDetailController> {
                               ),
                             ],
                           ),
-                          
+
                           const SizedBox(height: 24),
-                          
+
                           // Price
                           Container(
                             padding: const EdgeInsets.all(16),
@@ -483,7 +485,7 @@ class TicketDetailView extends GetView<TicketDetailController> {
                   ],
                 ),
               ),
-              
+
               Container(
                 margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
                 padding: const EdgeInsets.all(16),
@@ -547,10 +549,7 @@ class TicketDetailView extends GetView<TicketDetailController> {
                   icon: const Icon(Icons.star_rounded, size: 24),
                   label: const Text(
                     "Beri Review Perjalanan",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -564,15 +563,19 @@ class TicketDetailView extends GetView<TicketDetailController> {
                         height: 52,
                         child: ElevatedButton.icon(
                           onPressed: () {
-                            DateTime travelDate = DateTime.now().add(Duration(days: 7));
+                            DateTime travelDate = DateTime.now().add(
+                              Duration(days: 7),
+                            );
                             try {
                               if (ticket['tanggalKeberangkatan'] != null) {
-                                travelDate = DateTime.parse(ticket['tanggalKeberangkatan']);
+                                travelDate = DateTime.parse(
+                                  ticket['tanggalKeberangkatan'],
+                                );
                               }
                             } catch (e) {
                               print('Error parsing travel date: $e');
                             }
-                            
+
                             Get.toNamed(
                               Routes.REQUEST_REFUND,
                               arguments: {
@@ -580,7 +583,8 @@ class TicketDetailView extends GetView<TicketDetailController> {
                                 'trainId': train['id'] ?? '',
                                 'trainName': train['namaKereta'] ?? '',
                                 'travelDate': travelDate,
-                                'originalAmount': (train['harga'] ?? 0).toDouble(),
+                                'originalAmount': (train['harga'] ?? 0)
+                                    .toDouble(),
                               },
                             );
                           },
@@ -609,17 +613,21 @@ class TicketDetailView extends GetView<TicketDetailController> {
                         height: 52,
                         child: ElevatedButton.icon(
                           onPressed: () {
-                            DateTime travelDate = DateTime.now().add(Duration(days: 7));
+                            DateTime travelDate = DateTime.now().add(
+                              Duration(days: 7),
+                            );
                             try {
                               if (ticket['tanggalKeberangkatan'] != null) {
-                                travelDate = DateTime.parse(ticket['tanggalKeberangkatan']);
+                                travelDate = DateTime.parse(
+                                  ticket['tanggalKeberangkatan'],
+                                );
                               }
                             } catch (e) {
                               print('Error parsing travel date: $e');
                             }
-                            
+
                             String memberTier = 'Bronze';
-                            
+
                             Get.toNamed(
                               Routes.REQUEST_RESCHEDULE,
                               arguments: {
@@ -629,7 +637,8 @@ class TicketDetailView extends GetView<TicketDetailController> {
                                 'travelDate': travelDate,
                                 'departure': train['stasiunBerangkat'] ?? '',
                                 'arrival': train['stasiunTiba'] ?? '',
-                                'originalAmount': (train['harga'] ?? 0).toDouble(),
+                                'originalAmount': (train['harga'] ?? 0)
+                                    .toDouble(),
                                 'memberTier': memberTier,
                               },
                             );

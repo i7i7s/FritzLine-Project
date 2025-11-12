@@ -35,10 +35,7 @@ class DashboardView extends GetView<DashboardController> {
         ),
         label: const Text(
           'Freya AI',
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 15,
-          ),
+          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,

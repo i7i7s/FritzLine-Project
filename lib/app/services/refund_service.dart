@@ -26,12 +26,12 @@ class RefundService extends GetxService {
     DateTime? requestDate,
   }) {
     requestDate ??= DateTime.now();
-    
+
     int daysBeforeDeparture = travelDate.difference(requestDate).inDays;
-    
+
     double refundPercentage;
     String ruleApplied;
-    
+
     if (daysBeforeDeparture >= 7) {
       refundPercentage = REFUND_RULES['H-7+']!;
       ruleApplied = 'H-7+ (7 hari atau lebih)';
@@ -45,10 +45,10 @@ class RefundService extends GetxService {
       refundPercentage = REFUND_RULES['H-0']!;
       ruleApplied = 'H-0 (Hari keberangkatan)';
     }
-    
+
     double refundAmount = originalAmount * refundPercentage;
     double adminFee = originalAmount - refundAmount;
-    
+
     return {
       'daysBeforeDeparture': daysBeforeDeparture,
       'refundPercentage': refundPercentage,
@@ -209,13 +209,15 @@ class RefundService extends GetxService {
 
   Map<String, dynamic> getRefundStats() {
     List<RefundRequest> requests = getUserRefundRequests();
-    
+
     int totalRequests = requests.length;
     int pendingRequests = requests.where((r) => r.status == 'pending').length;
     int approvedRequests = requests.where((r) => r.status == 'approved').length;
     int rejectedRequests = requests.where((r) => r.status == 'rejected').length;
-    int completedRequests = requests.where((r) => r.status == 'completed').length;
-    
+    int completedRequests = requests
+        .where((r) => r.status == 'completed')
+        .length;
+
     double totalRefunded = requests
         .where((r) => r.status == 'completed')
         .fold(0, (sum, r) => sum + r.refundAmount);
