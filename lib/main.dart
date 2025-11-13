@@ -13,14 +13,8 @@ import 'app/services/notification_service.dart';
 import 'app/services/location_service.dart';
 import 'app/services/settings_service.dart';
 import 'app/services/loyalty_service.dart';
-import 'app/services/review_service.dart';
-import 'app/services/refund_service.dart';
-import 'app/services/reschedule_service.dart';
 import 'app/models/passenger.dart';
 import 'app/models/user.dart';
-import 'app/models/review.dart';
-import 'app/models/refund_request.dart';
-import 'app/models/reschedule_request.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,9 +29,6 @@ void main() async {
 
   Hive.registerAdapter(PassengerAdapter());
   Hive.registerAdapter(UserAdapter());
-  Hive.registerAdapter(ReviewAdapter());
-  Hive.registerAdapter(RefundRequestAdapter());
-  Hive.registerAdapter(RescheduleRequestAdapter());
 
   await Get.putAsync(() => HiveService().init());
   await Get.putAsync(() => NotificationService().init());
@@ -48,9 +39,6 @@ void main() async {
 
   await Get.putAsync(() => SettingsService().init());
   await Get.putAsync(() => LoyaltyService().init());
-  await Get.putAsync(() => ReviewService().init());
-  await Get.putAsync(() => RefundService().init());
-  await Get.putAsync(() => RescheduleService().init());
 
   Get.put(BookingService());
   Get.put(LocationService());

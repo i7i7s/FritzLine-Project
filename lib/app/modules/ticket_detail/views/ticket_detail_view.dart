@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:intl/intl.dart';
 import '../controllers/ticket_detail_controller.dart';
-import '../../../routes/app_pages.dart';
 
 class TicketDetailView extends GetView<TicketDetailController> {
   const TicketDetailView({super.key});
@@ -35,7 +34,6 @@ class TicketDetailView extends GetView<TicketDetailController> {
         final selectedDateStr = ticket['selectedDate'] ?? '';
         final bookingCode = ticket['bookingCode'] ?? '';
 
-        // Format date
         String displayDate = '';
         if (selectedDateStr.isNotEmpty) {
           try {
@@ -48,11 +46,9 @@ class TicketDetailView extends GetView<TicketDetailController> {
           }
         }
 
-        // Parse jam
         final jamBerangkat = train['jadwalBerangkat'] ?? '00:00';
         final jamTiba = train['jadwalTiba'] ?? '00:00';
 
-        // Payment details
         final int totalPriceIDR = (ticket['totalPrice'] is num)
             ? (ticket['totalPrice'] as num).toInt()
             : 0;
@@ -61,14 +57,12 @@ class TicketDetailView extends GetView<TicketDetailController> {
             : (totalPriceIDR.toDouble());
         final String paymentCurrency = ticket['paymentCurrency'] ?? 'IDR';
 
-        // Passenger details
         final passengers = ticket['passengerData'] as List<dynamic>? ?? [];
         final seats = ticket['selectedSeats'] as List<dynamic>? ?? [];
 
         return SingleChildScrollView(
           child: Column(
             children: [
-              // Ticket Card with Boarding Pass Style
               Container(
                 margin: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
@@ -84,7 +78,6 @@ class TicketDetailView extends GetView<TicketDetailController> {
                 ),
                 child: Column(
                   children: [
-                    // Header Section
                     Container(
                       padding: const EdgeInsets.all(24),
                       decoration: const BoxDecoration(
@@ -155,7 +148,6 @@ class TicketDetailView extends GetView<TicketDetailController> {
                       ),
                     ),
 
-                    // Route Information
                     Padding(
                       padding: const EdgeInsets.all(24),
                       child: Row(
@@ -245,8 +237,6 @@ class TicketDetailView extends GetView<TicketDetailController> {
                         ],
                       ),
                     ),
-
-                    // Divider with circles
                     Stack(
                       children: [
                         Divider(
@@ -281,7 +271,6 @@ class TicketDetailView extends GetView<TicketDetailController> {
                       ],
                     ),
 
-                    // Passenger & Seat Info
                     Padding(
                       padding: const EdgeInsets.all(24),
                       child: Column(
@@ -404,7 +393,6 @@ class TicketDetailView extends GetView<TicketDetailController> {
                       ),
                     ),
 
-                    // QR Code Section
                     Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
@@ -515,150 +503,6 @@ class TicketDetailView extends GetView<TicketDetailController> {
                           fontSize: 13,
                           color: Colors.grey.shade700,
                           fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              Container(
-                margin: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    Get.toNamed(
-                      Routes.SUBMIT_REVIEW,
-                      arguments: {
-                        'ticketId': bookingCode,
-                        'trainId': train['id'] ?? '',
-                        'trainName': train['namaKereta'] ?? '',
-                      },
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFFD700),
-                    foregroundColor: Colors.black87,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    elevation: 4,
-                    shadowColor: const Color(0xFFFFD700).withOpacity(0.4),
-                  ),
-                  icon: const Icon(Icons.star_rounded, size: 24),
-                  label: const Text(
-                    "Beri Review Perjalanan",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: SizedBox(
-                        height: 52,
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            DateTime travelDate = DateTime.now().add(
-                              Duration(days: 7),
-                            );
-                            try {
-                              if (ticket['tanggalKeberangkatan'] != null) {
-                                travelDate = DateTime.parse(
-                                  ticket['tanggalKeberangkatan'],
-                                );
-                              }
-                            } catch (e) {
-                              print('Error parsing travel date: $e');
-                            }
-
-                            Get.toNamed(
-                              Routes.REQUEST_REFUND,
-                              arguments: {
-                                'ticketId': bookingCode,
-                                'trainId': train['id'] ?? '',
-                                'trainName': train['namaKereta'] ?? '',
-                                'travelDate': travelDate,
-                                'originalAmount': (train['harga'] ?? 0)
-                                    .toDouble(),
-                              },
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFE53935),
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            elevation: 2,
-                          ),
-                          icon: const Icon(Icons.money_off, size: 20),
-                          label: const Text(
-                            "Refund",
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: SizedBox(
-                        height: 52,
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            DateTime travelDate = DateTime.now().add(
-                              Duration(days: 7),
-                            );
-                            try {
-                              if (ticket['tanggalKeberangkatan'] != null) {
-                                travelDate = DateTime.parse(
-                                  ticket['tanggalKeberangkatan'],
-                                );
-                              }
-                            } catch (e) {
-                              print('Error parsing travel date: $e');
-                            }
-
-                            String memberTier = 'Bronze';
-
-                            Get.toNamed(
-                              Routes.REQUEST_RESCHEDULE,
-                              arguments: {
-                                'ticketId': bookingCode,
-                                'trainId': train['id'] ?? '',
-                                'trainName': train['namaKereta'] ?? '',
-                                'travelDate': travelDate,
-                                'departure': train['stasiunBerangkat'] ?? '',
-                                'arrival': train['stasiunTiba'] ?? '',
-                                'originalAmount': (train['harga'] ?? 0)
-                                    .toDouble(),
-                                'memberTier': memberTier,
-                              },
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFFF9800),
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            elevation: 2,
-                          ),
-                          icon: const Icon(Icons.schedule, size: 20),
-                          label: const Text(
-                            "Reschedule",
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
                         ),
                       ),
                     ),
