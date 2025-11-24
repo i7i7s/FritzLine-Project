@@ -23,6 +23,8 @@ class DetailBookingTiketController extends GetxController {
   final selectedSeats = <String>[].obs;
 
   final totalHarga = 0.obs;
+  
+  late DateTime tanggalKeberangkatan; // Property untuk tanggal keberangkatan
 
   final currencyFormatter = NumberFormat.currency(
     locale: 'id_ID',
@@ -47,10 +49,13 @@ class DetailBookingTiketController extends GetxController {
     trainData.value = bookingService.selectedTrain;
     passengerData.value = bookingService.passengerData;
     selectedSeats.value = bookingService.selectedSeats;
+    
+    // Get tanggal keberangkatan dari BookingService atau default hari ini
+    tanggalKeberangkatan = bookingService.selectedDate.value;
 
     int hargaPerTiket = trainData['harga'] ?? 0;
-    int jumlahPenumpang = passengerData.length;
-    totalHarga.value = hargaPerTiket * jumlahPenumpang;
+    int jumlahPenumpangBayar = bookingService.totalPayingPassengers;
+    totalHarga.value = hargaPerTiket * jumlahPenumpangBayar;
   }
 
   String _formatPriceByCode(double price, String code) {
@@ -221,7 +226,6 @@ class DetailBookingTiketController extends GetxController {
 
   Future<void> konfirmasiPembayaran() async {
 
-    // Get seat IDs from PilihKursiController
     final pilihKursiController = Get.find<PilihKursiController>();
     final seatIds = pilihKursiController.myBookedSeatIds;
 
@@ -241,7 +245,6 @@ class DetailBookingTiketController extends GetxController {
         .toDouble();
     double finalConvertedPrice = totalHarga.value * rate;
 
-    // Show loading dialog
     Get.dialog(
       WillPopScope(
         onWillPop: () async => false,
@@ -272,9 +275,9 @@ class DetailBookingTiketController extends GetxController {
     );
 
     try {
-      // Confirm booking to server first
       final kodeBooking = await hiveService.confirmBooking(
         idKereta: trainData['id'].toString(),
+        tanggalKeberangkatan: tanggalKeberangkatan,
         seatIds: seatIds,
         passengerData: passengerData
             .map(
@@ -287,15 +290,12 @@ class DetailBookingTiketController extends GetxController {
         totalPrice: totalHarga.value.toDouble(),
       );
 
-      Get.back(); // Close loading dialog
+      Get.back(); 
 
       if (kodeBooking != null) {
-
-        // Stop timer
         pilihKursiController.isTimerActive.value = false;
         pilihKursiController.remainingSeconds.value = 0;
 
-        // Save ticket locally
         final ticketData = {
           "bookingCode": kodeBooking,
           "trainData": {...trainData},
@@ -310,7 +310,6 @@ class DetailBookingTiketController extends GetxController {
 
         await ticketService.saveNewTicket(ticketData);
 
-        // Award loyalty points for this purchase
         await loyaltyService.earnPoints(totalHarga.value);
 
         bookingService.resetBooking();
@@ -330,8 +329,7 @@ class DetailBookingTiketController extends GetxController {
         throw Exception('Gagal mendapatkan kode booking');
       }
     } catch (e) {
-      Get.back(); // Close loading dialog
-
+      Get.back(); 
       Get.snackbar(
         "Pembayaran Gagal",
         "Terjadi kesalahan saat memproses pembayaran. Silakan coba lagi.",

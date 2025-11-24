@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../controllers/ringkasan_pemesanan_controller.dart';
+import '../../../models/passenger_type.dart';
 
 class RingkasanPemesananView extends GetView<RingkasanPemesananController> {
   const RingkasanPemesananView({super.key});
@@ -233,7 +234,6 @@ class RingkasanPemesananView extends GetView<RingkasanPemesananController> {
               ],
             ),
             const Divider(height: 32),
-            // Price and passenger count
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -631,12 +631,48 @@ class RingkasanPemesananView extends GetView<RingkasanPemesananController> {
                 ),
               ),
               const SizedBox(width: 12),
-              Text(
-                "Penumpang ${index + 1}",
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: textPrimary,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Penumpang ${index + 1}",
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: textPrimary,
+                      ),
+                    ),
+                    Obx(() {
+                      final type = formControllers.passengerType.value;
+                      String label = '';
+                      Color labelColor = Colors.grey;
+                      
+                      switch (type) {
+                        case PassengerType.adult:
+                          label = 'Dewasa - Perlu kursi & bayar';
+                          labelColor = primaryColor;
+                          break;
+                        case PassengerType.childWithSeat:
+                          label = 'Anak (≥3 tahun) - Perlu kursi & bayar';
+                          labelColor = accentColor;
+                          break;
+                        case PassengerType.infant:
+                          label = 'Bayi (<3 tahun) - Gratis, tanpa kursi';
+                          labelColor = Colors.green;
+                          break;
+                      }
+                      
+                      return Text(
+                        label,
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: labelColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      );
+                    }),
+                  ],
                 ),
               ),
             ],
@@ -664,6 +700,8 @@ class RingkasanPemesananView extends GetView<RingkasanPemesananController> {
                     label: "Nama lengkap",
                     controller: formControllers.fullNameController,
                   ),
+                  const SizedBox(height: 16),
+                  _buildGenderDropdown(index),
                   const SizedBox(height: 8),
                   Container(
                     decoration: BoxDecoration(
@@ -1003,6 +1041,79 @@ class RingkasanPemesananView extends GetView<RingkasanPemesananController> {
           fontSize: 12,
         ),
       ),
+    );
+  }
+
+  Widget _buildGenderDropdown(int index) {
+    const primaryColor = Color(0xFF656CEE);
+    const textSecondary = Color(0xFF333E63);
+    const backgroundColor = Color(0xFFF5F7FA);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Jenis Kelamin",
+          style: TextStyle(
+            fontSize: 13,
+            color: textSecondary,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Obx(
+          () => DropdownButtonFormField<String>(
+            value: controller.formList[index].selectedGender.value,
+            items: controller.genderOptions.map((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Row(
+                  children: [
+                    Icon(
+                      value == 'Perempuan' ? Icons.female : Icons.male,
+                      size: 18,
+                      color: value == 'Perempuan' ? Colors.pink : Colors.blue,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      value,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+            onChanged: (newValue) => controller.changeGender(index, newValue),
+            decoration: InputDecoration(
+              isDense: true,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 14,
+              ),
+              filled: true,
+              fillColor: backgroundColor,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(
+                  color: primaryColor,
+                  width: 2,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

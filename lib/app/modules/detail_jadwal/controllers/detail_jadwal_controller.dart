@@ -43,7 +43,11 @@ class DetailJadwalController extends GetxController {
         throw Exception("Stasiun asal atau tujuan tidak valid.");
       }
 
-      var results = await hiveService.cariKereta(stasiunAsal, stasiunTiba);
+      var results = await hiveService.cariKereta(
+        stasiunAsal,
+        stasiunTiba,
+        tanggalKeberangkatan: selectedDate.value,
+      );
 
       originalTrainList.value = results;
       applyFilter();

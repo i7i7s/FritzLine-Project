@@ -13,6 +13,7 @@ import 'app/services/notification_service.dart';
 import 'app/services/location_service.dart';
 import 'app/services/settings_service.dart';
 import 'app/services/loyalty_service.dart';
+import 'app/services/encryption_service.dart';
 import 'app/models/passenger.dart';
 import 'app/models/user.dart';
 
@@ -40,6 +41,7 @@ void main() async {
   await Get.putAsync(() => SettingsService().init());
   await Get.putAsync(() => LoyaltyService().init());
 
+  Get.put(EncryptionService());
   Get.put(BookingService());
   Get.put(LocationService());
 

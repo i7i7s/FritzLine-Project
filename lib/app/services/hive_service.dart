@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:intl/intl.dart';
 
 class HiveService extends GetxService {
   final String _apiBaseUrl = "https://kereta-api-production.up.railway.app";
@@ -12,9 +13,14 @@ class HiveService extends GetxService {
 
   Future<List<Map<String, dynamic>>> cariKereta(
     String kodeAsal,
-    String kodeTujuan,
-  ) async {
-    final uri = Uri.parse('$_apiBaseUrl/search?from=$kodeAsal&to=$kodeTujuan');
+    String kodeTujuan, {
+    DateTime? tanggalKeberangkatan,
+  }) async {
+    // Default ke hari ini jika tidak disediakan
+    final date = tanggalKeberangkatan ?? DateTime.now();
+    final dateString = DateFormat('yyyy-MM-dd').format(date);
+    
+    final uri = Uri.parse('$_apiBaseUrl/search?from=$kodeAsal&to=$kodeTujuan&date=$dateString');
 
     try {
       final response = await http.get(uri).timeout(const Duration(seconds: 15));
@@ -52,8 +58,13 @@ class HiveService extends GetxService {
     }
   }
 
-  Future<Map<String, dynamic>?> getAvailableSeats(String idKereta) async {
-    final uri = Uri.parse('$_apiBaseUrl/seats/$idKereta');
+  Future<Map<String, dynamic>?> getAvailableSeats(
+    String idKereta, {
+    required DateTime tanggalKeberangkatan,
+  }) async {
+    final dateString = DateFormat('yyyy-MM-dd').format(tanggalKeberangkatan);
+    
+    final uri = Uri.parse('$_apiBaseUrl/seats/$idKereta?date=$dateString');
 
     try {
       final response = await http.get(uri).timeout(const Duration(seconds: 15));
@@ -73,15 +84,32 @@ class HiveService extends GetxService {
     }
   }
 
-  Future<bool> bookSeats(String idKereta, List<int> seatIds) async {
+  Future<bool> bookSeats(
+    String idKereta,
+    List<int> seatIds, {
+    required DateTime tanggalKeberangkatan,
+    List<Map<String, dynamic>>? seatDetails,
+  }) async {
     final uri = Uri.parse('$_apiBaseUrl/seats/book');
 
     try {
+      final dateString = DateFormat('yyyy-MM-dd').format(tanggalKeberangkatan);
+      
+      final Map<String, dynamic> requestBody = {
+        'id_kereta': idKereta,
+        'seat_ids': seatIds,
+        'tanggal_keberangkatan': dateString,
+      };
+      
+      if (seatDetails != null && seatDetails.isNotEmpty) {
+        requestBody['seat_details'] = seatDetails;
+      }
+      
       final response = await http
           .post(
             uri,
             headers: {'Content-Type': 'application/json'},
-            body: json.encode({'id_kereta': idKereta, 'seat_ids': seatIds}),
+            body: json.encode(requestBody),
           )
           .timeout(const Duration(seconds: 15));
 
@@ -96,7 +124,6 @@ class HiveService extends GetxService {
         );
         return true;
       } else if (response.statusCode == 409) {
-        // Conflict - kursi sudah di-book orang lain
         final error = json.decode(response.body);
         Get.snackbar(
           "Kursi Tidak Tersedia",
@@ -122,15 +149,23 @@ class HiveService extends GetxService {
     }
   }
 
-  Future<bool> releaseSeats(List<int> seatIds) async {
+  Future<bool> releaseSeats(
+    List<int> seatIds, {
+    required DateTime tanggalKeberangkatan,
+  }) async {
     final uri = Uri.parse('$_apiBaseUrl/seats/release');
 
     try {
+      final dateString = DateFormat('yyyy-MM-dd').format(tanggalKeberangkatan);
+      
       final response = await http
           .post(
             uri,
             headers: {'Content-Type': 'application/json'},
-            body: json.encode({'seat_ids': seatIds}),
+            body: json.encode({
+              'seat_ids': seatIds,
+              'tanggal_keberangkatan': dateString,
+            }),
           )
           .timeout(const Duration(seconds: 15));
 
@@ -147,6 +182,7 @@ class HiveService extends GetxService {
 
   Future<String?> confirmBooking({
     required String idKereta,
+    required DateTime tanggalKeberangkatan,
     required List<int> seatIds,
     required List<Map<String, String>> passengerData,
     required double totalPrice,
@@ -154,8 +190,11 @@ class HiveService extends GetxService {
   }) async {
     final uri = Uri.parse('$_apiBaseUrl/bookings/confirm');
 
+    final dateString = DateFormat('yyyy-MM-dd').format(tanggalKeberangkatan);
+
     print('🚀 [API] Confirm Booking Request:');
     print('   Train ID: $idKereta');
+    print('   Date: $dateString');
     print('   Seat IDs: $seatIds');
     print('   Passengers: ${passengerData.length}');
     print('   Total: $totalPrice');
@@ -163,6 +202,7 @@ class HiveService extends GetxService {
     try {
       final requestBody = {
         'id_kereta': idKereta,
+        'tanggal_keberangkatan': dateString,
         'seat_ids': seatIds,
         'passenger_data': passengerData,
         'total_price': totalPrice,

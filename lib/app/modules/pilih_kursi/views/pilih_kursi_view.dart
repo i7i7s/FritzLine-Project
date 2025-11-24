@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import '../controllers/pilih_kursi_controller.dart';
+import '../../../models/passenger_type.dart';
 
 class PilihKursiView extends GetView<PilihKursiController> {
   const PilihKursiView({super.key});
@@ -46,7 +48,7 @@ class PilihKursiView extends GetView<PilihKursiController> {
                   children: [
                     SizedBox(height: context.mediaQueryPadding.top),
                     _buildHeader(),
-                    _buildLegend(),
+                    _buildPassengerList(),
                     const SizedBox(height: 10),
                     _buildSeatMap(),
                     _buildSubmitButton(),
@@ -120,6 +122,25 @@ class PilihKursiView extends GetView<PilihKursiController> {
                         color: textPrimary,
                       ),
                       overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.calendar_today,
+                          size: 12,
+                          color: textSecondary,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          DateFormat('EEEE, dd MMM yyyy', 'id_ID')
+                              .format(controller.tanggalKeberangkatan),
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: textSecondary,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -197,13 +218,19 @@ class PilihKursiView extends GetView<PilihKursiController> {
     );
   }
 
-  Widget _buildLegend() {
+  Widget _buildPassengerList() {
     const primaryColor = Color(0xFF656CEE);
     const accentColor = Color(0xFFFF6B35);
     const cardBackground = Colors.white;
 
+    final passengers = controller.bookingService.passengerInfoList;
+
+    if (passengers.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 25, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 25, vertical: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: cardBackground,
@@ -212,74 +239,218 @@ class PilihKursiView extends GetView<PilihKursiController> {
           BoxShadow(
             color: Colors.black.withOpacity(0.06),
             blurRadius: 12,
-            offset: const Offset(0, 4),
+            offset: const Offset(0, 3),
           ),
         ],
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildLegendItem(
-            icon: Icons.event_seat_rounded,
-            label: "Tersedia",
-            color: cardBackground,
-            borderColor: primaryColor.withOpacity(0.3),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: primaryColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.people_rounded,
+                  color: primaryColor,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Daftar Penumpang',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF1B1B1F),
+                      ),
+                    ),
+                    Text(
+                      'Tap nama untuk memilih kursi',
+                      style: TextStyle(fontSize: 11, color: Color(0xFF49454F)),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          _buildLegendItem(
-            icon: Icons.event_seat,
-            label: "Terisi",
-            color: accentColor,
-            borderColor: accentColor,
-          ),
-          _buildLegendItem(
-            icon: Icons.event_seat,
-            label: "Dipilih",
-            color: primaryColor,
-            borderColor: primaryColor,
+          const SizedBox(height: 12),
+          Obx(
+            () => Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: passengers.asMap().entries.map((entry) {
+                final index = entry.key;
+                final passenger = entry.value;
+                final isSelected =
+                    controller.currentSelectingPassengerIndex.value == index;
+                final hasSeat = controller.seatAssignments.containsKey(index);
+                final seatInfo = controller.seatAssignments[index];
+
+                if (!passenger.needsSeat) {
+                  return Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade200,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Colors.grey.shade300,
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.child_care_rounded,
+                              size: 16,
+                              color: Colors.grey.shade600,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              passenger.name,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Tidak perlu kursi',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.grey.shade500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                return GestureDetector(
+                  onTap: () {
+                    if (hasSeat) {
+                      Get.snackbar(
+                        'Info',
+                        '${passenger.name} sudah memiliki kursi ${seatInfo!['id']} di ${seatInfo['nama_gerbong']}',
+                        snackPosition: SnackPosition.TOP,
+                        duration: const Duration(seconds: 2),
+                      );
+                    } else {
+                      controller.currentSelectingPassengerIndex.value = index;
+                      Get.snackbar(
+                        'Mode Pilih Kursi',
+                        'Pilih kursi untuk ${passenger.name}',
+                        snackPosition: SnackPosition.TOP,
+                        backgroundColor: primaryColor,
+                        colorText: Colors.white,
+                        duration: const Duration(seconds: 2),
+                      );
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: hasSeat
+                          ? Colors.green.shade50
+                          : (isSelected
+                                ? primaryColor.withOpacity(0.1)
+                                : Colors.white),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: hasSeat
+                            ? Colors.green
+                            : (isSelected
+                                  ? primaryColor
+                                  : Colors.grey.shade300),
+                        width: isSelected || hasSeat ? 2 : 1.5,
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              hasSeat
+                                  ? Icons.check_circle_rounded
+                                  : (passenger.type == PassengerType.adult
+                                        ? Icons.person_rounded
+                                        : Icons.child_friendly_rounded),
+                              size: 16,
+                              color: hasSeat
+                                  ? Colors.green
+                                  : (isSelected ? primaryColor : accentColor),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              passenger.name,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: hasSeat
+                                    ? Colors.green.shade700
+                                    : (isSelected
+                                          ? primaryColor
+                                          : const Color(0xFF1B1B1F)),
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Icon(
+                              passenger.gender == 'Perempuan'
+                                  ? Icons.female
+                                  : Icons.male,
+                              size: 14,
+                              color: passenger.gender == 'Perempuan'
+                                  ? Colors.pink.shade300
+                                  : Colors.blue.shade400,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          hasSeat
+                              ? '${seatInfo!['id']} - ${seatInfo['nama_gerbong']}'
+                              : passenger.typeLabel,
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: hasSeat
+                                ? Colors.green.shade600
+                                : Colors.grey.shade600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildLegendItem({
-    required IconData icon,
-    required String label,
-    required Color color,
-    required Color borderColor,
-  }) {
-    const primaryColor = Color(0xFF656CEE);
-    const textSecondary = Color(0xFF333E63);
-    const cardBackground = Colors.white;
-
-    return Row(
-      children: [
-        Container(
-          width: 32,
-          height: 32,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: borderColor, width: 2),
-          ),
-          child: Icon(
-            icon,
-            size: 16,
-            color: color == cardBackground
-                ? primaryColor
-                : cardBackground,
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: textSecondary,
-          ),
-        ),
-      ],
     );
   }
 
@@ -363,9 +534,7 @@ class PilihKursiView extends GetView<PilihKursiController> {
                     controller.namaGerbong[index],
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: isSelected
-                          ? cardBackground
-                          : textSecondary,
+                      color: isSelected ? cardBackground : textSecondary,
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
                     ),
@@ -464,16 +633,22 @@ class PilihKursiView extends GetView<PilihKursiController> {
       return Container();
     }
 
+    Color seatColor;
+    if (status == "available") {
+      seatColor = cardBackground;
+    } else if (status == "filled") {
+      final gender = seat["gender"] as String?;
+      seatColor = (gender == "Perempuan") ? Colors.pink.shade300 : accentColor;
+    } else {
+      seatColor = primaryColor;
+    }
+
     return GestureDetector(
       onTap: () => controller.selectKursi(index),
       child: Container(
         decoration: BoxDecoration(
           border: Border.all(color: Colors.black38),
-          color: status == "available"
-              ? cardBackground
-              : status == "filled"
-              ? accentColor
-              : primaryColor,
+          color: seatColor,
           borderRadius: BorderRadius.circular(8),
         ),
       ),
