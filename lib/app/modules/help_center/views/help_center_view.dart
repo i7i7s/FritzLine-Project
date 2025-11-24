@@ -5,9 +5,12 @@ import '../controllers/help_center_controller.dart';
 class HelpCenterView extends GetView<HelpCenterController> {
   const HelpCenterView({Key? key}) : super(key: key);
 
+  static const bgColor = Color(0xFFF5F7FA);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: bgColor,
       body: Column(
         children: [
           _buildCustomAppBar(),
@@ -36,12 +39,18 @@ class HelpCenterView extends GetView<HelpCenterController> {
   }
 
   Widget _buildCustomAppBar() {
+    const gradientColor1 = Color(0xFF656CEE);
+    const gradientColor2 = Color(0xFF4147D5);
+    const iconBgColor = Colors.white;
+    const textColor = Colors.white;
+    const iconColor = Colors.white;
+    
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF656CEE), Color(0xFF4147D5)],
+          colors: [gradientColor1, gradientColor2],
         ),
       ),
       child: SafeArea(
@@ -52,11 +61,11 @@ class HelpCenterView extends GetView<HelpCenterController> {
             children: [
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: iconBgColor.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  icon: const Icon(Icons.arrow_back, color: iconColor),
                   onPressed: () => Get.back(),
                 ),
               ),
@@ -70,14 +79,14 @@ class HelpCenterView extends GetView<HelpCenterController> {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: textColor,
                         letterSpacing: 0.5,
                       ),
                     ),
                     SizedBox(height: 4),
                     Text(
                       "Kami siap membantu Anda 24/7",
-                      style: TextStyle(fontSize: 13, color: Colors.white70),
+                      style: TextStyle(fontSize: 13, color: textColor),
                     ),
                   ],
                 ),
@@ -85,12 +94,12 @@ class HelpCenterView extends GetView<HelpCenterController> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: iconBgColor.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
                   Icons.support_agent_rounded,
-                  color: Colors.white,
+                  color: iconColor,
                   size: 24,
                 ),
               ),
@@ -102,11 +111,14 @@ class HelpCenterView extends GetView<HelpCenterController> {
   }
 
   Widget _buildSearchBar() {
+    const cardBgColor = Colors.white;
+    const iconColor = Color(0xFF656CEE);
+    
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: cardBgColor,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -123,7 +135,7 @@ class HelpCenterView extends GetView<HelpCenterController> {
             hintStyle: TextStyle(color: Colors.grey.shade400),
             prefixIcon: const Icon(
               Icons.search_rounded,
-              color: Color(0xFF656CEE),
+              color: iconColor,
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
@@ -142,6 +154,9 @@ class HelpCenterView extends GetView<HelpCenterController> {
   }
 
   Widget _buildQuickActions() {
+    const cardBgColor = Colors.white;
+    const textColor = Color(0xFF333E63);
+    
     return SizedBox(
       height: 120,
       child: ListView.builder(
@@ -154,7 +169,7 @@ class HelpCenterView extends GetView<HelpCenterController> {
             width: 140,
             margin: const EdgeInsets.only(right: 16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: cardBgColor,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
@@ -194,7 +209,7 @@ class HelpCenterView extends GetView<HelpCenterController> {
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF333E63),
+                            color: textColor,
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -212,6 +227,10 @@ class HelpCenterView extends GetView<HelpCenterController> {
   }
 
   Widget _buildSectionTitle(String title) {
+    const gradientColor1 = Color(0xFF656CEE);
+    const gradientColor2 = Color(0xFF4147D5);
+    const textColor = Color(0xFF333E63);
+    
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       child: Row(
@@ -221,7 +240,7 @@ class HelpCenterView extends GetView<HelpCenterController> {
             height: 24,
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [Color(0xFF656CEE), Color(0xFF4147D5)],
+                colors: [gradientColor1, gradientColor2],
               ),
               borderRadius: BorderRadius.circular(2),
             ),
@@ -232,7 +251,7 @@ class HelpCenterView extends GetView<HelpCenterController> {
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF333E63),
+              color: textColor,
               letterSpacing: 0.3,
             ),
           ),
@@ -242,6 +261,13 @@ class HelpCenterView extends GetView<HelpCenterController> {
   }
 
   Widget _buildFaqSection() {
+    const cardBgColor = Colors.white;
+    const iconGradient1 = Color(0xFF656CEE);
+    const iconGradient2 = Color(0xFF4147D5);
+    const iconColor = Color(0xFF656CEE);
+    const textColor = Color(0xFF333E63);
+    const answerBgColor = Color(0xFFF5F7FA);
+    
     return Obx(() {
       final faqs = controller.getFilteredFaqs();
       if (faqs.isEmpty) {
@@ -275,7 +301,7 @@ class HelpCenterView extends GetView<HelpCenterController> {
             return Container(
               margin: const EdgeInsets.only(bottom: 12),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: cardBgColor,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
@@ -302,15 +328,15 @@ class HelpCenterView extends GetView<HelpCenterController> {
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
                                   colors: [
-                                    const Color(0xFF656CEE).withOpacity(0.2),
-                                    const Color(0xFF4147D5).withOpacity(0.2),
+                                    iconGradient1.withOpacity(0.2),
+                                    iconGradient2.withOpacity(0.2),
                                   ],
                                 ),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: const Icon(
                                 Icons.help_outline_rounded,
-                                color: Color(0xFF656CEE),
+                                color: iconColor,
                                 size: 20,
                               ),
                             ),
@@ -321,7 +347,7 @@ class HelpCenterView extends GetView<HelpCenterController> {
                                 style: const TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFF333E63),
+                                  color: textColor,
                                 ),
                               ),
                             ),
@@ -329,7 +355,7 @@ class HelpCenterView extends GetView<HelpCenterController> {
                               isExpanded
                                   ? Icons.expand_less_rounded
                                   : Icons.expand_more_rounded,
-                              color: const Color(0xFF656CEE),
+                              color: iconColor,
                             ),
                           ],
                         ),
@@ -351,7 +377,7 @@ class HelpCenterView extends GetView<HelpCenterController> {
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF5F7FA),
+                              color: answerBgColor,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
@@ -377,6 +403,11 @@ class HelpCenterView extends GetView<HelpCenterController> {
   }
 
   Widget _buildContactSection() {
+    const cardBgColor = Colors.white;
+    const textColor = Color(0xFF333E63);
+    const arrowBgColor = Color(0xFFF5F7FA);
+    const arrowColor = Color(0xFF656CEE);
+    
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -384,7 +415,7 @@ class HelpCenterView extends GetView<HelpCenterController> {
           return Container(
             margin: const EdgeInsets.only(bottom: 12),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: cardBgColor,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
@@ -428,7 +459,7 @@ class HelpCenterView extends GetView<HelpCenterController> {
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF333E63),
+                                color: textColor,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -445,13 +476,13 @@ class HelpCenterView extends GetView<HelpCenterController> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF5F7FA),
+                          color: arrowBgColor,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Icon(
                           Icons.arrow_forward_ios_rounded,
                           size: 16,
-                          color: Color(0xFF656CEE),
+                          color: arrowColor,
                         ),
                       ),
                     ],

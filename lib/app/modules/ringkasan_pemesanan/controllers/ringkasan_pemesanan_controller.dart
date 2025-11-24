@@ -53,7 +53,8 @@ class RingkasanPemesananController extends GetxController {
       trainData.value = Map<String, dynamic>.from(bookingService.selectedTrain);
     }
 
-    passengerCount.value = bookingService.passengerCount.value;
+    // Use totalAllPassengers because all passengers need data input, including infants
+    passengerCount.value = bookingService.totalAllPassengers;
     savedPassengers.assignAll(authService.savedPassengers);
 
     if (passengerCount.value <= 0) {
@@ -62,6 +63,7 @@ class RingkasanPemesananController extends GetxController {
 
     bookingService.selectedSeats.clear();
 
+    // Create forms for all passengers (adults, children, and infants)
     for (int i = 0; i < passengerCount.value; i++) {
       formList.add(PassengerFormControllers());
     }
@@ -190,12 +192,6 @@ class RingkasanPemesananController extends GetxController {
       );
       return;
     }
-
-    print('🎫 [CONFIRM] Train ID: ${trainData['id']}');
-    print('🎫 [CONFIRM] Seat IDs to confirm: $seatIds');
-    print(
-      '🎫 [CONFIRM] Selected Seats: ${pilihKursiController.selectedSeats.map((s) => '${s['nama_gerbong']}-${s['id']}').toList()}',
-    );
 
     List<Map<String, String>> passengerData = formList.map((form) {
       return {

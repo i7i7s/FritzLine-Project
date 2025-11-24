@@ -62,38 +62,28 @@ class LoyaltyService extends GetxService {
   void _loadUserLoyaltyData() {
     final user = authService.currentUser.value;
 
-    print(
-      '💎 [LoyaltyService] Loading loyalty for user: ${user?.email ?? "none"}',
-    );
 
     if (user != null) {
       currentPoints.value = user.loyaltyPoints ?? 0;
       currentTier.value = _calculateTier(currentPoints.value);
       pointsToNextTier.value = _calculatePointsToNextTier(currentPoints.value);
 
-      print(
-        '✅ [LoyaltyService] Loaded ${currentPoints.value} points, tier: ${currentTier.value}',
-      );
     } else {
       currentPoints.value = 0;
       currentTier.value = 'Bronze';
       pointsToNextTier.value = SILVER_THRESHOLD;
 
-      print('⚠️ [LoyaltyService] No user, reset to default (0 points, Bronze)');
     }
   }
 
   void reloadLoyaltyData() {
-    print('🔄 [LoyaltyService] Reloading loyalty data...');
     _loadUserLoyaltyData();
   }
 
   void clearLoyaltyData() {
-    print('🧹 [LoyaltyService] Clearing loyalty data...');
     currentPoints.value = 0;
     currentTier.value = 'Bronze';
     pointsToNextTier.value = SILVER_THRESHOLD;
-    print('✅ [LoyaltyService] Loyalty data cleared');
   }
 
   String _calculateTier(int points) {

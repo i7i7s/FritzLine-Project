@@ -220,7 +220,6 @@ class DetailBookingTiketController extends GetxController {
   }
 
   Future<void> konfirmasiPembayaran() async {
-    print('💳 [PAYMENT] Starting payment confirmation...');
 
     // Get seat IDs from PilihKursiController
     final pilihKursiController = Get.find<PilihKursiController>();
@@ -236,9 +235,6 @@ class DetailBookingTiketController extends GetxController {
       return;
     }
 
-    print('💳 [PAYMENT] Train ID: ${trainData['id']}');
-    print('💳 [PAYMENT] Seat IDs: $seatIds');
-    print('💳 [PAYMENT] Passengers: ${passengerData.length}');
 
     String currencyCode = settingsService.preferredCurrency.value;
     double rate = (settingsService.exchangeRates[currencyCode] as num? ?? 1.0)
@@ -294,7 +290,6 @@ class DetailBookingTiketController extends GetxController {
       Get.back(); // Close loading dialog
 
       if (kodeBooking != null) {
-        print('✅ [PAYMENT] Booking confirmed with code: $kodeBooking');
 
         // Stop timer
         pilihKursiController.isTimerActive.value = false;
@@ -336,7 +331,6 @@ class DetailBookingTiketController extends GetxController {
       }
     } catch (e) {
       Get.back(); // Close loading dialog
-      print('❌ [PAYMENT] Error: $e');
 
       Get.snackbar(
         "Pembayaran Gagal",

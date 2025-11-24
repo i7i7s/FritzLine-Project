@@ -7,21 +7,25 @@ class PilihKursiView extends GetView<PilihKursiController> {
 
   @override
   Widget build(BuildContext context) {
+    const backgroundColor = Color(0xFFF5F7FA);
+
     return Scaffold(
+      backgroundColor: backgroundColor,
       body: Stack(
         children: [
-          _buildBackground(),
           GetBuilder<PilihKursiController>(
             builder: (controller) {
               return Obx(() {
                 if (controller.isLoadingSeats.value) {
+                  const primaryColor = Color(0xFF656CEE);
+
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const CircularProgressIndicator(
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            Color(0xFF656CEE),
+                            primaryColor,
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -56,24 +60,19 @@ class PilihKursiView extends GetView<PilihKursiController> {
     );
   }
 
-  Widget _buildBackground() {
-    return Container(
-      width: Get.width,
-      height: Get.height,
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage('assets/images/bg.png'),
-          fit: BoxFit.cover,
-        ),
-      ),
-    );
-  }
-
   Widget _buildHeader() {
+    const primaryColor = Color(0xFF656CEE);
+    const primaryDark = Color(0xFF4147D5);
+    const accentColor = Color(0xFFFF6B35);
+    const accentLight = Color(0xFFFF8C5A);
+    const textPrimary = Color(0xFF1B1B1F);
+    const textSecondary = Color(0xFF49454F);
+    const cardBackground = Colors.white;
+
     return Container(
       padding: const EdgeInsets.fromLTRB(25, 20, 25, 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBackground,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.06),
@@ -88,13 +87,13 @@ class PilihKursiView extends GetView<PilihKursiController> {
             children: [
               Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFF656CEE).withOpacity(0.1),
+                  color: primaryColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: IconButton(
                   icon: const Icon(
                     Icons.arrow_back_rounded,
-                    color: Color(0xFF656CEE),
+                    color: primaryColor,
                   ),
                   onPressed: () => Get.back(),
                 ),
@@ -108,7 +107,7 @@ class PilihKursiView extends GetView<PilihKursiController> {
                       "Pilih Tempat Duduk",
                       style: TextStyle(
                         fontSize: 13,
-                        color: Color(0xFF49454F),
+                        color: textSecondary,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -118,7 +117,7 @@ class PilihKursiView extends GetView<PilihKursiController> {
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF1B1B1F),
+                        color: textPrimary,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -132,7 +131,7 @@ class PilihKursiView extends GetView<PilihKursiController> {
                 ),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFF656CEE), Color(0xFF4147D5)],
+                    colors: [primaryColor, primaryDark],
                   ),
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -159,12 +158,12 @@ class PilihKursiView extends GetView<PilihKursiController> {
                 ),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFFFF6B35), Color(0xFFFF8C5A)],
+                    colors: [accentColor, accentLight],
                   ),
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFFFF6B35).withOpacity(0.3),
+                      color: accentColor.withOpacity(0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -199,11 +198,15 @@ class PilihKursiView extends GetView<PilihKursiController> {
   }
 
   Widget _buildLegend() {
+    const primaryColor = Color(0xFF656CEE);
+    const accentColor = Color(0xFFFF6B35);
+    const cardBackground = Colors.white;
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 25, vertical: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBackground,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -219,20 +222,20 @@ class PilihKursiView extends GetView<PilihKursiController> {
           _buildLegendItem(
             icon: Icons.event_seat_rounded,
             label: "Tersedia",
-            color: Colors.white,
-            borderColor: const Color(0xFF656CEE).withOpacity(0.3),
+            color: cardBackground,
+            borderColor: primaryColor.withOpacity(0.3),
           ),
           _buildLegendItem(
             icon: Icons.event_seat,
             label: "Terisi",
-            color: const Color(0xFFFF6B35),
-            borderColor: const Color(0xFFFF6B35),
+            color: accentColor,
+            borderColor: accentColor,
           ),
           _buildLegendItem(
             icon: Icons.event_seat,
             label: "Dipilih",
-            color: const Color(0xFF656CEE),
-            borderColor: const Color(0xFF656CEE),
+            color: primaryColor,
+            borderColor: primaryColor,
           ),
         ],
       ),
@@ -245,6 +248,10 @@ class PilihKursiView extends GetView<PilihKursiController> {
     required Color color,
     required Color borderColor,
   }) {
+    const primaryColor = Color(0xFF656CEE);
+    const textSecondary = Color(0xFF333E63);
+    const cardBackground = Colors.white;
+
     return Row(
       children: [
         Container(
@@ -258,9 +265,9 @@ class PilihKursiView extends GetView<PilihKursiController> {
           child: Icon(
             icon,
             size: 16,
-            color: color == Colors.white
-                ? const Color(0xFF656CEE)
-                : Colors.white,
+            color: color == cardBackground
+                ? primaryColor
+                : cardBackground,
           ),
         ),
         const SizedBox(width: 8),
@@ -269,7 +276,7 @@ class PilihKursiView extends GetView<PilihKursiController> {
           style: const TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,
-            color: Color(0xFF333E63),
+            color: textSecondary,
           ),
         ),
       ],
@@ -292,6 +299,11 @@ class PilihKursiView extends GetView<PilihKursiController> {
   }
 
   Widget _buildGerbongList() {
+    const primaryColor = Color(0xFF656CEE);
+    const primaryDark = Color(0xFF4147D5);
+    const textSecondary = Color(0xFF333E63);
+    const cardBackground = Colors.white;
+
     return SizedBox(
       height: 70,
       child: ListView.builder(
@@ -309,23 +321,23 @@ class PilihKursiView extends GetView<PilihKursiController> {
               decoration: BoxDecoration(
                 gradient: isSelected
                     ? const LinearGradient(
-                        colors: [Color(0xFF656CEE), Color(0xFF4147D5)],
+                        colors: [primaryColor, primaryDark],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       )
                     : null,
-                color: isSelected ? null : Colors.white,
+                color: isSelected ? null : cardBackground,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: isSelected
                       ? Colors.transparent
-                      : const Color(0xFF656CEE).withOpacity(0.3),
+                      : primaryColor.withOpacity(0.3),
                   width: 2,
                 ),
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
-                          color: const Color(0xFF656CEE).withOpacity(0.4),
+                          color: primaryColor.withOpacity(0.4),
                           blurRadius: 16,
                           offset: const Offset(0, 6),
                         ),
@@ -343,7 +355,7 @@ class PilihKursiView extends GetView<PilihKursiController> {
                 children: [
                   Icon(
                     Icons.train_rounded,
-                    color: isSelected ? Colors.white : const Color(0xFF656CEE),
+                    color: isSelected ? cardBackground : primaryColor,
                     size: 24,
                   ),
                   const SizedBox(height: 6),
@@ -352,8 +364,8 @@ class PilihKursiView extends GetView<PilihKursiController> {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: isSelected
-                          ? Colors.white
-                          : const Color(0xFF333E63),
+                          ? cardBackground
+                          : textSecondary,
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
                     ),
@@ -429,6 +441,10 @@ class PilihKursiView extends GetView<PilihKursiController> {
   }
 
   Widget _buildSeatItem(Map<String, dynamic> seat, int index) {
+    const primaryColor = Color(0xFF656CEE);
+    const accentColor = Color(0xFFFF6B35);
+    const cardBackground = Colors.white;
+
     String status = seat["status"];
 
     if (status == "aisle") {
@@ -454,10 +470,10 @@ class PilihKursiView extends GetView<PilihKursiController> {
         decoration: BoxDecoration(
           border: Border.all(color: Colors.black38),
           color: status == "available"
-              ? Colors.white
+              ? cardBackground
               : status == "filled"
-              ? Colors.orangeAccent
-              : Colors.deepPurpleAccent,
+              ? accentColor
+              : primaryColor,
           borderRadius: BorderRadius.circular(8),
         ),
       ),
@@ -465,10 +481,13 @@ class PilihKursiView extends GetView<PilihKursiController> {
   }
 
   Widget _buildSubmitButton() {
+    const primaryColor = Color(0xFF656CEE);
+    const cardBackground = Colors.white;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBackground,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.08),
@@ -518,7 +537,7 @@ class PilihKursiView extends GetView<PilihKursiController> {
             ElevatedButton(
               onPressed: isValid ? () => controller.goToNextPage() : null,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF656CEE),
+                backgroundColor: primaryColor,
                 disabledBackgroundColor: Colors.grey.shade300,
                 foregroundColor: Colors.white,
                 disabledForegroundColor: Colors.grey.shade500,

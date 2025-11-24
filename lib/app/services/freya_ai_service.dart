@@ -401,9 +401,7 @@ Jawab dengan ramah dan helpful! Jadilah travel buddy sekaligus customer service 
           ? message
           : '$message\n$contextData\n\nBerdasarkan data di atas, tolong bantu user dengan informasi yang akurat.';
 
-      final response = await _model!.generateContent([
-        Content.text(fullMessage),
-      ]);
+      final response = await _generateWithRetry(fullMessage);
       final aiResponse =
           response.text ??
           "Maaf, saya tidak dapat memberikan respons saat ini. 😔";
@@ -415,8 +413,61 @@ Jawab dengan ramah dan helpful! Jadilah travel buddy sekaligus customer service 
       return aiResponse;
     } catch (e) {
       print('❌ Error generating response: $e');
-      return 'Maaf, terjadi kesalahan: ${e.toString()} 🚫';
+      
+      if (e.toString().contains('503') || 
+          e.toString().contains('overloaded') ||
+          e.toString().contains('UNAVAILABLE')) {
+        return 'Maaf, server AI sedang sibuk. Silakan coba lagi dalam beberapa saat. ⏳';
+      } else if (e.toString().contains('429') || 
+                 e.toString().contains('RESOURCE_EXHAUSTED')) {
+        return 'Maaf, batas penggunaan API tercapai. Silakan coba lagi nanti. ⚠️';
+      } else if (e.toString().contains('quota')) {
+        return 'Maaf, kuota API habis. Silakan hubungi administrator. 📊';
+      }
+      
+      return 'Maaf, terjadi kesalahan saat memproses permintaan Anda. Silakan coba lagi. 🚫';
     }
+  }
+
+  Future<GenerateContentResponse> _generateWithRetry(
+    String message, {
+    int maxRetries = 3,
+    Duration initialDelay = const Duration(seconds: 2),
+  }) async {
+    int attempts = 0;
+    Duration delay = initialDelay;
+
+    while (attempts < maxRetries) {
+      try {
+        attempts++;
+        print('🔄 Attempt $attempts of $maxRetries...');
+        
+        final response = await _model!.generateContent([
+          Content.text(message),
+        ]);
+        
+        return response;
+      } catch (e) {
+        final errorStr = e.toString();
+        final isRetryable = errorStr.contains('503') || 
+                           errorStr.contains('overloaded') ||
+                           errorStr.contains('UNAVAILABLE') ||
+                           errorStr.contains('429') ||
+                           errorStr.contains('RESOURCE_EXHAUSTED');
+
+        if (!isRetryable || attempts >= maxRetries) {
+          rethrow;
+        }
+
+        print('⚠️ Attempt $attempts failed: ${e.toString().split('\n').first}');
+        print('⏳ Waiting ${delay.inSeconds} seconds before retry...');
+        
+        await Future.delayed(delay);
+        delay = Duration(seconds: delay.inSeconds * 2);
+      }
+    }
+
+    throw Exception('Max retries reached');
   }
 
   void dispose() {

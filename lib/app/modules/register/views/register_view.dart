@@ -34,21 +34,11 @@ class _RegisterViewState extends State<RegisterView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(children: [_buildBackground(), _buildBody(context)]),
-    );
-  }
+    const backgroundColor = Color(0xFFF5F7FA);
 
-  Widget _buildBackground() {
-    return Container(
-      width: Get.width,
-      height: Get.height,
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage('assets/images/bg.png'),
-          fit: BoxFit.cover,
-        ),
-      ),
+    return Scaffold(
+      backgroundColor: backgroundColor,
+      body: _buildBody(context),
     );
   }
 
@@ -75,6 +65,8 @@ class _RegisterViewState extends State<RegisterView> {
   }
 
   Widget _buildHeader() {
+    const textSecondary = Color(0xFF333E63);
+
     return Column(
       children: [
         Image.asset('assets/images/logo.png', width: 120),
@@ -84,7 +76,7 @@ class _RegisterViewState extends State<RegisterView> {
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF333E63),
+            color: textSecondary,
           ),
         ),
         const SizedBox(height: 8),
@@ -97,6 +89,11 @@ class _RegisterViewState extends State<RegisterView> {
   }
 
   Widget _buildForm() {
+    const primaryColor = Color(0xFF656CEE);
+    const fillColorName = Color(0xFFEFFAF4);
+    const fillColorEmail = Color(0xFFEFF3FF);
+    const fillColorPassword = Color(0xFFFFF1F1);
+
     return Column(
       children: [
         TextField(
@@ -104,8 +101,8 @@ class _RegisterViewState extends State<RegisterView> {
           decoration: _buildInputDecoration(
             "Nama Lengkap",
             Icons.person_outline,
-            fillColor: const Color(0xFFEFFAF4),
-            focusColor: const Color(0xFF656CEE),
+            fillColor: fillColorName,
+            focusColor: primaryColor,
           ),
           keyboardType: TextInputType.name,
         ),
@@ -115,8 +112,8 @@ class _RegisterViewState extends State<RegisterView> {
           decoration: _buildInputDecoration(
             "Email",
             Icons.email_outlined,
-            fillColor: const Color(0xFFEFF3FF),
-            focusColor: const Color(0xFF656CEE),
+            fillColor: fillColorEmail,
+            focusColor: primaryColor,
           ),
           keyboardType: TextInputType.emailAddress,
         ),
@@ -126,8 +123,8 @@ class _RegisterViewState extends State<RegisterView> {
           decoration: _buildInputDecoration(
             "Password",
             Icons.lock_outline,
-            fillColor: const Color(0xFFFFF1F1),
-            focusColor: const Color(0xFF656CEE),
+            fillColor: fillColorPassword,
+            focusColor: primaryColor,
           ),
           obscureText: true,
         ),
@@ -141,8 +138,10 @@ class _RegisterViewState extends State<RegisterView> {
     Color? fillColor,
     Color? focusColor,
   }) {
+    const primaryColor = Color(0xFF656CEE);
+
     final Color effectiveFill = fillColor ?? Colors.white70;
-    final Color effectiveFocus = focusColor ?? const Color(0xFF656CEE);
+    final Color effectiveFocus = focusColor ?? primaryColor;
 
     return InputDecoration(
       labelText: label,
@@ -161,6 +160,8 @@ class _RegisterViewState extends State<RegisterView> {
   }
 
   Widget _buildRegisterButton() {
+    const primaryColor = Color(0xFF656CEE);
+
     return Obx(
       () => SizedBox(
         width: double.infinity,
@@ -173,7 +174,7 @@ class _RegisterViewState extends State<RegisterView> {
                   _passwordController.text,
                 ),
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF656CEE),
+            backgroundColor: primaryColor,
             padding: const EdgeInsets.symmetric(vertical: 16),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
@@ -202,6 +203,8 @@ class _RegisterViewState extends State<RegisterView> {
   }
 
   Widget _buildLoginButton() {
+    const primaryColor = Color(0xFF656CEE);
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -211,7 +214,7 @@ class _RegisterViewState extends State<RegisterView> {
           child: const Text(
             "Login di sini",
             style: TextStyle(
-              color: Color(0xFF656CEE),
+              color: primaryColor,
               fontWeight: FontWeight.bold,
             ),
           ),

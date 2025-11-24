@@ -9,7 +9,6 @@ class TicketDetailController extends GetxController {
     if (Get.arguments != null && Get.arguments is Map<String, dynamic>) {
       ticket.value = Get.arguments as Map<String, dynamic>;
     } else {
-      print('Error: Invalid ticket data received');
     }
   }
 

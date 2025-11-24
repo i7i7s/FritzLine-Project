@@ -22,7 +22,6 @@ class HomeController extends GetxController {
   final selectedDeparture = {"code": "", "name": "Pilih Stasiun"}.obs;
   final selectedArrival = {"code": "", "name": "Pilih Stasiun"}.obs;
   final selectedDate = DateTime.now().obs;
-  final passengerCount = 1.obs;
   final isRoundTrip = false.obs;
 
   final CarouselSliderController newsCarouselC = CarouselSliderController();
@@ -121,16 +120,6 @@ class HomeController extends GetxController {
     selectedArrival.value = tempDeparture;
   }
 
-  void incrementPassenger() {
-    passengerCount.value++;
-  }
-
-  void decrementPassenger() {
-    if (passengerCount.value > 1) {
-      passengerCount.value--;
-    }
-  }
-
   void toggleRoundTrip(bool value) {
     isRoundTrip.value = value;
   }
@@ -225,7 +214,6 @@ class HomeController extends GetxController {
     bookingService.selectedDeparture.assignAll(selectedDeparture);
     bookingService.selectedArrival.assignAll(selectedArrival);
     bookingService.selectedDate.value = selectedDate.value;
-    bookingService.passengerCount.value = passengerCount.value;
 
     Get.toNamed(Routes.DETAIL_JADWAL);
   }

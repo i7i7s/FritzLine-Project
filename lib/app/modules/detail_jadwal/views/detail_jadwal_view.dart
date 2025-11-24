@@ -6,6 +6,8 @@ import '../controllers/detail_jadwal_controller.dart';
 class DetailJadwalView extends GetView<DetailJadwalController> {
   const DetailJadwalView({super.key});
 
+  static const bgColor = Color(0xFFF5F7FA);
+
   @override
   Widget build(BuildContext context) {
     final currencyFormatter = NumberFormat.currency(
@@ -15,7 +17,7 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
     );
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
+      backgroundColor: bgColor,
       body: Stack(
         children: [_buildBody(currencyFormatter), _buildFilterButton()],
       ),
@@ -33,9 +35,15 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
   }
 
   Widget _buildCustomAppBar() {
+    const appBarBgColor = Colors.white;
+    const iconBgColor = Color.fromARGB(255, 255, 255, 255);
+    const iconColor = Color(0xFF656CEE);
+    const subtitleColor = Color(0xFF49454F);
+    const titleColor = Color(0xFF1B1B1F);
+
     return Container(
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: appBarBgColor,
         boxShadow: [
           BoxShadow(
             color: Color(0x0F000000),
@@ -52,13 +60,13 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
             children: [
               Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFF656CEE).withOpacity(0.1),
+                  color: iconBgColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: IconButton(
                   icon: const Icon(
                     Icons.arrow_back_rounded,
-                    color: Color(0xFF656CEE),
+                    color: iconColor,
                   ),
                   onPressed: () => Get.back(),
                 ),
@@ -70,7 +78,7 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
                   children: [
                     const Text(
                       "Pilih Jadwal Kereta",
-                      style: TextStyle(fontSize: 13, color: Color(0xFF49454F)),
+                      style: TextStyle(fontSize: 13, color: subtitleColor),
                     ),
                     const SizedBox(height: 4),
                     Obx(
@@ -79,7 +87,7 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF1B1B1F),
+                          color: titleColor,
                         ),
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
@@ -96,8 +104,13 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
   }
 
   Widget _buildDateSelector() {
+    const containerBgColor = Colors.white;
+    const iconBgColor = Color(0xFF656CEE);
+    const iconColor = Color(0xFF656CEE);
+    const dateTextColor = Color(0xFF1B1B1F);
+
     return Container(
-      color: Colors.white,
+      color: containerBgColor,
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Column(
         children: [
@@ -108,13 +121,13 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF656CEE).withOpacity(0.1),
+                    color: iconBgColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
                     Icons.calendar_today_rounded,
                     size: 18,
-                    color: Color(0xFF656CEE),
+                    color: iconColor,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -124,7 +137,7 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF1B1B1F),
+                      color: dateTextColor,
                     ),
                   ),
                 ),
@@ -161,6 +174,14 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
   }
 
   Widget _buildDateCard(DateTime date, bool isSelected) {
+    const selectedGradientColor1 = Color(0xFF656CEE);
+    const selectedGradientColor2 = Color(0xFF4147D5);
+    const unselectedBgColor = Color(0xFFF5F7FA);
+    const borderColor = Color(0xFF656CEE);
+    const selectedTextColor = Colors.white;
+    const unselectedTextColor = Color(0xFF49454F);
+    const unselectedNumberColor = Color(0xFF1B1B1F);
+
     final dayName = DateFormat('EEE', 'id_ID').format(date);
     final dayNumber = DateFormat('d').format(date);
     final monthName = DateFormat('MMM', 'id_ID').format(date);
@@ -173,23 +194,23 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
         decoration: BoxDecoration(
           gradient: isSelected
               ? const LinearGradient(
-                  colors: [Color(0xFF656CEE), Color(0xFF4147D5)],
+                  colors: [selectedGradientColor1, selectedGradientColor2],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 )
               : null,
-          color: isSelected ? null : const Color(0xFFF5F7FA),
+          color: isSelected ? null : unselectedBgColor,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected
                 ? Colors.transparent
-                : const Color(0xFF656CEE).withOpacity(0.2),
+                : borderColor.withOpacity(0.2),
             width: 1.5,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: const Color(0xFF656CEE).withOpacity(0.3),
+                    color: borderColor.withOpacity(0.3),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -205,8 +226,8 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: isSelected
-                    ? Colors.white.withOpacity(0.9)
-                    : const Color(0xFF49454F).withOpacity(0.7),
+                    ? selectedTextColor.withOpacity(0.9)
+                    : unselectedTextColor.withOpacity(0.7),
                 letterSpacing: 0.5,
               ),
             ),
@@ -216,7 +237,7 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w800,
-                color: isSelected ? Colors.white : const Color(0xFF1B1B1F),
+                color: isSelected ? selectedTextColor : unselectedNumberColor,
               ),
             ),
             const SizedBox(height: 4),
@@ -226,8 +247,8 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
                 color: isSelected
-                    ? Colors.white.withOpacity(0.9)
-                    : const Color(0xFF49454F).withOpacity(0.7),
+                    ? selectedTextColor.withOpacity(0.9)
+                    : unselectedTextColor.withOpacity(0.7),
                 letterSpacing: 0.5,
               ),
             ),
@@ -238,6 +259,9 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
   }
 
   Widget _buildTrainList(NumberFormat currencyFormatter) {
+    const emptyIconColor = Colors.grey;
+    const emptyTextColor = Colors.grey;
+
     return Expanded(
       child: Obx(() {
         if (controller.isLoading.value) {
@@ -245,19 +269,19 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
         }
 
         if (controller.trainList.isEmpty) {
-          return const Center(
+          return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.train_outlined, size: 80, color: Colors.grey),
-                SizedBox(height: 16),
-                Text(
+                Icon(Icons.train_outlined, size: 80, color: emptyIconColor),
+                const SizedBox(height: 16),
+                const Text(
                   "Tidak Ada Jadwal",
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 Text(
                   "Coba cari rute atau tanggal lain, atau ubah filter Anda.",
-                  style: TextStyle(color: Colors.grey),
+                  style: TextStyle(color: emptyTextColor),
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -286,6 +310,17 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
     Map<String, dynamic> train,
     NumberFormat currencyFormatter,
   ) {
+    const cardBgColor = Colors.white;
+    const trainIconGradient1 = Color(0xFF656CEE);
+    const trainIconGradient2 = Color(0xFF4147D5);
+    const trainIconColor = Colors.white;
+    const trainNameColor = Color(0xFF1B1B1F);
+    const durationTextColor = Colors.grey;
+    const priceTextColor = Colors.grey;
+    const priceAmountColor = Color(0xFF656CEE);
+    const buttonBorderColor = Color(0xFF656CEE);
+    const buttonTextColor = Color(0xFF656CEE);
+
     String kelas = train["kelas"] ?? "Ekonomi";
     Color tagColor = Colors.pink;
     if (kelas.toLowerCase().contains("eksekutif")) {
@@ -306,7 +341,6 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
       sisaTiket = int.tryParse(train["sisaTiket"]) ?? 0;
     }
 
-    // Check if train has departed or too close to departure time
     bool isDeparted = false;
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -337,13 +371,9 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
                 departureTime.isBefore(cutoffTime) ||
                 departureTime.isAtSameMomentAs(cutoffTime);
 
-            print(
-              '🎨 [VIEW] ${train['namaKereta']}: Jam=$jadwalBerangkat, Cutoff=${cutoffTime.hour}:${cutoffTime.minute.toString().padLeft(2, '0')}, isDeparted=$isDeparted',
-            );
           }
         }
       } catch (e) {
-        print('❌ [VIEW] Error checking departure time: $e');
       }
     }
 
@@ -369,7 +399,7 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: cardBgColor,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
@@ -403,7 +433,7 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
-                            colors: [Color(0xFF656CEE), Color(0xFF4147D5)],
+                            colors: [trainIconGradient1, trainIconGradient2],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -411,7 +441,7 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
                         ),
                         child: const Icon(
                           Icons.train_rounded,
-                          color: Colors.white,
+                          color: trainIconColor,
                           size: 20,
                         ),
                       ),
@@ -422,7 +452,7 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
                           style: const TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.w700,
-                            color: Color(0xFF1B1B1F),
+                            color: trainNameColor,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -444,7 +474,7 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
                               train["durasi"],
                               style: const TextStyle(
                                 fontSize: 12,
-                                color: Colors.grey,
+                                color: durationTextColor,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -469,7 +499,7 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
                         children: [
                           const Text(
                             "Prices Starting From:",
-                            style: TextStyle(color: Colors.grey, fontSize: 12),
+                            style: TextStyle(color: priceTextColor, fontSize: 12),
                           ),
                           const SizedBox(height: 2),
                           Text(
@@ -477,7 +507,7 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF656CEE),
+                              color: priceAmountColor,
                             ),
                           ),
                         ],
@@ -485,8 +515,8 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
                       OutlinedButton(
                         onPressed: isDisabled ? null : () {},
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: const Color(0xFF656CEE),
-                          side: const BorderSide(color: Color(0xFF656CEE)),
+                          foregroundColor: buttonTextColor,
+                          side: const BorderSide(color: buttonBorderColor),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -541,6 +571,10 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
   }
 
   Widget _buildFilterButton() {
+    final buttonBgColor = Colors.orange.shade700;
+    const buttonIconColor = Colors.white;
+    const buttonTextColor = Colors.white;
+
     return Positioned(
       bottom: 30,
       left: 0,
@@ -548,13 +582,13 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
       child: Center(
         child: ElevatedButton.icon(
           onPressed: () => controller.showFilterBottomSheet(),
-          icon: const Icon(Icons.filter_list, color: Colors.white),
+          icon: const Icon(Icons.filter_list, color: buttonIconColor),
           label: const Text(
             "FILTER",
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            style: TextStyle(color: buttonTextColor, fontWeight: FontWeight.bold),
           ),
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.orange.shade700,
+            backgroundColor: buttonBgColor,
             padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(30),
@@ -570,6 +604,9 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
     String code, {
     CrossAxisAlignment align = CrossAxisAlignment.start,
   }) {
+    const timeTextColor = Color(0xFF333E63);
+    const codeTextColor = Colors.grey;
+
     return Column(
       crossAxisAlignment: align,
       children: [
@@ -578,11 +615,11 @@ class DetailJadwalView extends GetView<DetailJadwalController> {
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF333E63),
+            color: timeTextColor,
           ),
         ),
         const SizedBox(height: 4),
-        Text(code, style: const TextStyle(fontSize: 14, color: Colors.grey)),
+        Text(code, style: const TextStyle(fontSize: 14, color: codeTextColor)),
       ],
     );
   }
@@ -598,6 +635,8 @@ class DottedLine extends StatelessWidget {
     this.color = Colors.grey,
     this.dashWidth = 4.0,
   });
+
+  static const defaultLineColor = Colors.grey;
 
   @override
   Widget build(BuildContext context) {

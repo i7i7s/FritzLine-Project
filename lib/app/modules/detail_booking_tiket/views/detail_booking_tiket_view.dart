@@ -8,12 +8,13 @@ class DetailBookingTiketView extends GetView<DetailBookingTiketController> {
 
   @override
   Widget build(BuildContext context) {
+    const backgroundColor = Color(0xFFF5F7FA);
     final settingsService = Get.find<SettingsService>();
 
     return Scaffold(
+      backgroundColor: backgroundColor,
       body: Stack(
         children: [
-          _buildBackground(),
           Column(
             children: [
               _buildCustomAppBar(),
@@ -44,26 +45,16 @@ class DetailBookingTiketView extends GetView<DetailBookingTiketController> {
     );
   }
 
-  Widget _buildBackground() {
-    return Container(
-      width: Get.width,
-      height: Get.height,
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage('assets/images/bg.png'),
-          fit: BoxFit.cover,
-        ),
-      ),
-    );
-  }
-
   Widget _buildCustomAppBar() {
+    const primaryColor = Color(0xFF656CEE);
+    const primaryDark = Color(0xFF4147D5);
+
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF656CEE), Color(0xFF4147D5)],
+          colors: [primaryColor, primaryDark],
         ),
       ),
       child: SafeArea(
@@ -112,12 +103,17 @@ class DetailBookingTiketView extends GetView<DetailBookingTiketController> {
   }
 
   Widget _buildTrainCard() {
+    const primaryColor = Color(0xFF656CEE);
+    const primaryDark = Color(0xFF4147D5);
+    const textSecondary = Color(0xFF333E63);
+    const cardBackground = Colors.white;
+
     return Obx(() {
       if (controller.trainData.isEmpty) return const SizedBox();
       final train = controller.trainData;
       return Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: cardBackground,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
@@ -140,7 +136,7 @@ class DetailBookingTiketView extends GetView<DetailBookingTiketController> {
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [Color(0xFF656CEE), Color(0xFF4147D5)],
+                          colors: [primaryColor, primaryDark],
                         ),
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -160,7 +156,7 @@ class DetailBookingTiketView extends GetView<DetailBookingTiketController> {
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF333E63),
+                              color: textSecondary,
                               letterSpacing: 0.3,
                             ),
                           ),
@@ -170,7 +166,7 @@ class DetailBookingTiketView extends GetView<DetailBookingTiketController> {
                             style: const TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF656CEE),
+                              color: primaryColor,
                             ),
                           ),
                         ],
@@ -201,7 +197,7 @@ class DetailBookingTiketView extends GetView<DetailBookingTiketController> {
                     const SizedBox(width: 10),
                     const Expanded(
                       child: DottedLine(
-                        color: Color(0xFF656CEE),
+                        color: primaryColor,
                         dashWidth: 5.0,
                         height: 2,
                       ),
@@ -237,7 +233,7 @@ class DetailBookingTiketView extends GetView<DetailBookingTiketController> {
                                 style: const TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
-                                  color: Color(0xFF333E63),
+                                  color: textSecondary,
                                 ),
                               ),
                               const SizedBox(width: 8),
@@ -247,7 +243,7 @@ class DetailBookingTiketView extends GetView<DetailBookingTiketController> {
                                 child: const Icon(
                                   Icons.access_time_rounded,
                                   size: 18,
-                                  color: Color(0xFF656CEE),
+                                  color: primaryColor,
                                 ),
                               ),
                             ],
@@ -266,9 +262,16 @@ class DetailBookingTiketView extends GetView<DetailBookingTiketController> {
   }
 
   Widget _buildPassengerCard() {
+    const primaryColor = Color(0xFF656CEE);
+    const primaryDark = Color(0xFF4147D5);
+    const accentColor = Color(0xFFFF6B35);
+    const accentLight = Color(0xFFFF8C5A);
+    const textSecondary = Color(0xFF333E63);
+    const cardBackground = Colors.white;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBackground,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -291,7 +294,7 @@ class DetailBookingTiketView extends GetView<DetailBookingTiketController> {
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFF656CEE), Color(0xFF4147D5)],
+                        colors: [primaryColor, primaryDark],
                       ),
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -307,7 +310,7 @@ class DetailBookingTiketView extends GetView<DetailBookingTiketController> {
                     style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF333E63),
+                      color: textSecondary,
                       letterSpacing: 0.3,
                     ),
                   ),
@@ -353,7 +356,7 @@ class DetailBookingTiketView extends GetView<DetailBookingTiketController> {
                             height: 32,
                             decoration: BoxDecoration(
                               gradient: const LinearGradient(
-                                colors: [Color(0xFFFF6B35), Color(0xFFFF8C5A)],
+                                colors: [accentColor, accentLight],
                               ),
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -378,7 +381,7 @@ class DetailBookingTiketView extends GetView<DetailBookingTiketController> {
                                   style: const TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.bold,
-                                    color: Color(0xFF333E63),
+                                    color: textSecondary,
                                   ),
                                 ),
                                 const SizedBox(height: 4),
@@ -406,9 +409,16 @@ class DetailBookingTiketView extends GetView<DetailBookingTiketController> {
   }
 
   Widget _buildSeatCard() {
+    const primaryColor = Color(0xFF656CEE);
+    const primaryDark = Color(0xFF4147D5);
+    const accentColor = Color(0xFFFF6B35);
+    const accentLight = Color(0xFFFF8C5A);
+    const textSecondary = Color(0xFF333E63);
+    const cardBackground = Colors.white;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBackground,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -431,7 +441,7 @@ class DetailBookingTiketView extends GetView<DetailBookingTiketController> {
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFFFF6B35), Color(0xFFFF8C5A)],
+                        colors: [accentColor, accentLight],
                       ),
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -447,7 +457,7 @@ class DetailBookingTiketView extends GetView<DetailBookingTiketController> {
                     style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF333E63),
+                      color: textSecondary,
                       letterSpacing: 0.3,
                     ),
                   ),
@@ -479,12 +489,12 @@ class DetailBookingTiketView extends GetView<DetailBookingTiketController> {
                       ),
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [Color(0xFF656CEE), Color(0xFF4147D5)],
+                          colors: [primaryColor, primaryDark],
                         ),
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF656CEE).withOpacity(0.3),
+                            color: primaryColor.withOpacity(0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -524,6 +534,11 @@ class DetailBookingTiketView extends GetView<DetailBookingTiketController> {
     BuildContext context,
     SettingsService settingsService,
   ) {
+    const primaryColor = Color(0xFF656CEE);
+    const accentColor = Color(0xFFFF6B35);
+    const accentLight = Color(0xFFFF8C5A);
+    const cardBackground = Colors.white;
+
     return Positioned(
       bottom: 0,
       left: 0,
@@ -536,7 +551,7 @@ class DetailBookingTiketView extends GetView<DetailBookingTiketController> {
           MediaQuery.of(context).padding.bottom + 20,
         ),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: cardBackground,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           boxShadow: [
             BoxShadow(
@@ -576,7 +591,7 @@ class DetailBookingTiketView extends GetView<DetailBookingTiketController> {
                             style: const TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF656CEE),
+                              color: primaryColor,
                               letterSpacing: 0.5,
                             ),
                           ),
@@ -594,7 +609,7 @@ class DetailBookingTiketView extends GetView<DetailBookingTiketController> {
                           child: const Icon(
                             Icons.calculate_outlined,
                             size: 20,
-                            color: Color(0xFF656CEE),
+                            color: primaryColor,
                           ),
                         ),
                       ),
@@ -607,12 +622,12 @@ class DetailBookingTiketView extends GetView<DetailBookingTiketController> {
             Container(
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [Color(0xFFFF6B35), Color(0xFFFF8C5A)],
+                  colors: [accentColor, accentLight],
                 ),
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFFFF6B35).withOpacity(0.4),
+                    color: accentColor.withOpacity(0.4),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -697,6 +712,8 @@ Widget _buildTimeColumn(
   String time, {
   CrossAxisAlignment align = CrossAxisAlignment.start,
 }) {
+  const textSecondary = Color(0xFF333E63);
+
   return Column(
     crossAxisAlignment: align,
     children: [
@@ -705,7 +722,7 @@ Widget _buildTimeColumn(
         style: const TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.bold,
-          color: Color(0xFF333E63),
+          color: textSecondary,
           letterSpacing: 0.5,
         ),
       ),
@@ -723,30 +740,33 @@ Widget _buildTimeColumn(
 }
 
 Widget _buildTag(String text) {
+  const accentColor = Color(0xFFFF6B35);
+  const accentLight = Color(0xFFFF8C5A);
+
   return Container(
     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
     decoration: BoxDecoration(
       gradient: LinearGradient(
         colors: [
-          const Color(0xFFFF6B35).withOpacity(0.15),
-          const Color(0xFFFF8C5A).withOpacity(0.15),
+          accentColor.withOpacity(0.15),
+          accentLight.withOpacity(0.15),
         ],
       ),
       borderRadius: BorderRadius.circular(10),
       border: Border.all(
-        color: const Color(0xFFFF6B35).withOpacity(0.3),
+        color: accentColor.withOpacity(0.3),
         width: 1.5,
       ),
     ),
     child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Icon(Icons.class_rounded, size: 16, color: Color(0xFFFF6B35)),
+        const Icon(Icons.class_rounded, size: 16, color: accentColor),
         const SizedBox(width: 6),
         Text(
           text,
           style: const TextStyle(
-            color: Color(0xFFFF6B35),
+            color: accentColor,
             fontWeight: FontWeight.bold,
             fontSize: 13,
             letterSpacing: 0.3,

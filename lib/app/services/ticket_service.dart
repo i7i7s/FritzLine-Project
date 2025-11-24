@@ -41,18 +41,13 @@ class TicketService extends GetxService {
   void _loadTicketsFromHive() {
     final currentUserId = _getCurrentUserId();
 
-    print('🎫 [TicketService] Loading tickets for user: $currentUserId');
 
     if (currentUserId == null) {
-      print('⚠️ [TicketService] No user logged in, clearing tickets');
       allMyTickets.value = [];
       return;
     }
 
     final ticketsFromHive = _ticketBox.values.toList();
-    print(
-      '📦 [TicketService] Total tickets in Hive: ${ticketsFromHive.length}',
-    );
 
     final filteredTickets = ticketsFromHive
         .map((ticket) {
@@ -63,9 +58,6 @@ class TicketService extends GetxService {
         })
         .where((ticket) {
           if (!ticket.containsKey('userId') || ticket['userId'] == null) {
-            print(
-              '⚠️ [TicketService] Found ticket without userId: ${ticket['bookingCode']}',
-            );
             return false;
           }
 
@@ -73,13 +65,7 @@ class TicketService extends GetxService {
           final matches = ticketUserId == currentUserId;
 
           if (!matches) {
-            print(
-              '🚫 [TicketService] Skipping ticket for different user: $ticketUserId',
-            );
           } else {
-            print(
-              '✅ [TicketService] Including ticket: ${ticket['bookingCode']} for user: $ticketUserId',
-            );
           }
 
           return matches;
@@ -87,27 +73,20 @@ class TicketService extends GetxService {
         .toList();
 
     allMyTickets.value = filteredTickets;
-    print(
-      '✅ [TicketService] Loaded ${filteredTickets.length} tickets for current user',
-    );
   }
 
   Future<void> saveNewTicket(Map<String, dynamic> newTicket) async {
     final currentUserId = _getCurrentUserId();
     if (currentUserId == null) {
-      print('⚠️ [TicketService] Cannot save ticket - no user logged in');
       return;
     }
 
     newTicket['userId'] = currentUserId;
 
-    print('💾 [TicketService] Saving ticket for user: $currentUserId');
-    print('📋 [TicketService] Booking code: ${newTicket['bookingCode']}');
 
     await _ticketBox.add(newTicket);
     allMyTickets.add(newTicket);
 
-    print('✅ [TicketService] Ticket saved successfully');
   }
 
   Future<void> deleteTicket(int index) async {
@@ -167,7 +146,6 @@ class TicketService extends GetxService {
     _loadTicketsFromHive();
 
     if (keysToDelete.isNotEmpty) {
-      print('🧹 Cleaned up ${keysToDelete.length} old tickets without userId');
     }
   }
 }

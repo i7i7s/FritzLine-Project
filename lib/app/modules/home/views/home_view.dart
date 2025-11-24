@@ -168,7 +168,7 @@ class HomeView extends GetView<HomeController> {
             const SizedBox(height: 20),
             Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
             const SizedBox(height: 20),
-            _buildPassengerRow(),
+            _buildPassengerRow(context),
           ],
         ),
       ),
@@ -273,61 +273,97 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  Widget _buildPassengerRow() {
+  Widget _buildPassengerRow(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "PENUMPANG".toUpperCase(),
-              style: TextStyle(
-                color: const Color(0xFF49454F).withOpacity(0.7),
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.8,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFFF5F7FA),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: const Color(0xFF656CEE).withOpacity(0.15),
-                  width: 1.5,
-                ),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-              child: Row(
-                children: [
-                  _buildPassengerButton(
-                    Icons.remove_rounded,
-                    controller.decrementPassenger,
+        Expanded(
+          child: GestureDetector(
+            onTap: () => _showPassengerSelector(context),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "PENUMPANG".toUpperCase(),
+                  style: TextStyle(
+                    color: const Color(0xFF49454F).withOpacity(0.7),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.8,
                   ),
-                  Obx(
-                    () => Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Text(
-                        "${controller.passengerCount.value}",
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF1B1B1F),
-                        ),
-                      ),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF5F7FA),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: const Color(0xFF656CEE).withOpacity(0.15),
+                      width: 1.5,
                     ),
                   ),
-                  _buildPassengerButton(
-                    Icons.add_rounded,
-                    controller.incrementPassenger,
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.people_rounded,
+                        color: Color(0xFF656CEE),
+                        size: 24,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Obx(
+                          () {
+                            final booking = controller.bookingService;
+                            final total = booking.totalAllPassengers;
+                            final parts = <String>[];
+                            
+                            if (booking.adultCount.value > 0) {
+                              parts.add('${booking.adultCount.value} Dewasa');
+                            }
+                            if (booking.childWithSeatCount.value > 0) {
+                              parts.add('${booking.childWithSeatCount.value} Anak');
+                            }
+                            if (booking.infantCount.value > 0) {
+                              parts.add('${booking.infantCount.value} Bayi');
+                            }
+                            
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '$total Penumpang',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFF1B1B1F),
+                                  ),
+                                ),
+                                if (parts.isNotEmpty)
+                                  Text(
+                                    parts.join(', '),
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: const Color(0xFF49454F).withOpacity(0.7),
+                                    ),
+                                  ),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
+                      const Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        color: Color(0xFF656CEE),
+                        size: 16,
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -462,28 +498,227 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  Widget _buildPassengerButton(IconData icon, VoidCallback onPressed) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          padding: const EdgeInsets.all(10),
+  void _showPassengerSelector(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+        ),
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+          top: 24,
+          left: 24,
+          right: 24,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Pilih Penumpang',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF1B1B1F),
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.close_rounded),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            
+            // Adult counter
+            _buildPassengerCounter(
+              title: 'Dewasa',
+              subtitle: 'Perlu kursi & bayar',
+              icon: Icons.person_rounded,
+              count: controller.bookingService.adultCount.value,
+              onIncrement: () => controller.bookingService.incrementAdult(),
+              onDecrement: () => controller.bookingService.decrementAdult(),
+              minCount: 1, // At least 1 adult required
+            ),
+            const Divider(height: 32),
+            
+            // Child counter
+            _buildPassengerCounter(
+              title: 'Anak (≥3 tahun)',
+              subtitle: 'Perlu kursi & bayar',
+              icon: Icons.child_care_rounded,
+              count: controller.bookingService.childWithSeatCount.value,
+              onIncrement: () => controller.bookingService.incrementChild(),
+              onDecrement: () => controller.bookingService.decrementChild(),
+              minCount: 0,
+            ),
+            const Divider(height: 32),
+            
+            // Infant counter
+            _buildPassengerCounter(
+              title: 'Bayi (<3 tahun)',
+              subtitle: 'Gratis, tanpa kursi',
+              icon: Icons.baby_changing_station_rounded,
+              count: controller.bookingService.infantCount.value,
+              onIncrement: () => controller.bookingService.incrementInfant(),
+              onDecrement: () => controller.bookingService.decrementInfant(),
+              minCount: 0,
+            ),
+            const SizedBox(height: 24),
+            
+            // Done button
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF656CEE),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  elevation: 0,
+                ),
+                child: const Text(
+                  'Selesai',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPassengerCounter({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required int count,
+    required VoidCallback onIncrement,
+    required VoidCallback onDecrement,
+    required int minCount,
+  }) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: const Color(0xFF656CEE).withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF656CEE).withOpacity(0.1),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
+          ),
+          child: Icon(
+            icon,
+            color: const Color(0xFF656CEE),
+            size: 24,
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF1B1B1F),
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: const Color(0xFF49454F).withOpacity(0.7),
+                ),
               ),
             ],
           ),
-          child: Icon(icon, size: 20, color: const Color(0xFF656CEE)),
         ),
-      ),
+        Row(
+          children: [
+            Material(
+              color: count > minCount 
+                  ? const Color(0xFF656CEE).withOpacity(0.1)
+                  : Colors.grey.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+              child: InkWell(
+                onTap: count > minCount ? onDecrement : null,
+                borderRadius: BorderRadius.circular(10),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  child: Icon(
+                    Icons.remove_rounded,
+                    size: 20,
+                    color: count > minCount 
+                        ? const Color(0xFF656CEE)
+                        : Colors.grey,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Obx(() {
+              // Get fresh count value
+              int currentCount;
+              if (title == 'Dewasa') {
+                currentCount = controller.bookingService.adultCount.value;
+              } else if (title.contains('Anak')) {
+                currentCount = controller.bookingService.childWithSeatCount.value;
+              } else {
+                currentCount = controller.bookingService.infantCount.value;
+              }
+              
+              return SizedBox(
+                width: 30,
+                child: Text(
+                  '$currentCount',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF1B1B1F),
+                  ),
+                ),
+              );
+            }),
+            const SizedBox(width: 12),
+            Material(
+              color: const Color(0xFF656CEE).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+              child: InkWell(
+                onTap: onIncrement,
+                borderRadius: BorderRadius.circular(10),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  child: const Icon(
+                    Icons.add_rounded,
+                    size: 20,
+                    color: Color(0xFF656CEE),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -839,170 +1074,175 @@ class _StationSearchDialogState extends State<StationSearchDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: Get.width * 0.85,
-      height: Get.height * 0.6,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-      ),
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF656CEE).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.search_rounded,
-                  color: Color(0xFF656CEE),
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  widget.isDeparture
-                      ? "Pilih Stasiun Keberangkatan"
-                      : "Pilih Stasiun Tujuan",
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF1B1B1F),
+    return Material(
+      color: Colors.transparent,
+      child: Container(
+        width: Get.width * 0.85,
+        height: Get.height * 0.7,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+        ),
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF656CEE).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.search_rounded,
+                    color: Color(0xFF656CEE),
+                    size: 24,
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _searchC,
-            autofocus: true,
-            decoration: InputDecoration(
-              hintText: "Cari stasiun (cth: GMR atau Gambir)",
-              hintStyle: TextStyle(
-                color: const Color(0xFF49454F).withOpacity(0.5),
-              ),
-              prefixIcon: const Icon(
-                Icons.search_rounded,
-                color: Color(0xFF656CEE),
-              ),
-              filled: true,
-              fillColor: const Color(0xFFF5F7FA),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide.none,
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: const BorderSide(
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    widget.isDeparture
+                        ? "Pilih Stasiun Keberangkatan"
+                        : "Pilih Stasiun Tujuan",
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF1B1B1F),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _searchC,
+              autofocus: true,
+              decoration: InputDecoration(
+                hintText: "Cari stasiun (cth: GMR atau Gambir)",
+                hintStyle: TextStyle(
+                  color: const Color(0xFF49454F).withOpacity(0.5),
+                ),
+                prefixIcon: const Icon(
+                  Icons.search_rounded,
                   color: Color(0xFF656CEE),
-                  width: 2,
+                ),
+                filled: true,
+                fillColor: const Color(0xFFF5F7FA),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF656CEE),
+                    width: 2,
+                  ),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 16,
                 ),
               ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 16,
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: Obx(
+                () => _filteredStations.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.search_off_rounded,
+                              size: 64,
+                              color: const Color(0xFF49454F).withOpacity(0.3),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              "Stasiun tidak ditemukan",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: const Color(0xFF49454F).withOpacity(0.6),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : ListView.builder(
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: _filteredStations.length,
+                        itemBuilder: (context, index) {
+                          final station = _filteredStations[index];
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF5F7FA),
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: ListTile(
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              leading: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      Color(0xFF656CEE),
+                                      Color(0xFF4147D5),
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: const Icon(
+                                  Icons.train_rounded,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
+                              title: Text(
+                                station['nama'] ?? '',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 15,
+                                  color: Color(0xFF1B1B1F),
+                                ),
+                              ),
+                              subtitle: Text(
+                                "(${station['id']})",
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: const Color(
+                                    0xFF49454F,
+                                  ).withOpacity(0.7),
+                                ),
+                              ),
+                              trailing: const Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                size: 16,
+                                color: Color(0xFF656CEE),
+                              ),
+                              onTap: () {
+                                widget.controller.selectStation(
+                                  station,
+                                  widget.isDeparture,
+                                );
+                              },
+                            ),
+                          );
+                        },
+                      ),
               ),
             ),
-          ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: Obx(
-              () => _filteredStations.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.search_off_rounded,
-                            size: 64,
-                            color: const Color(0xFF49454F).withOpacity(0.3),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            "Stasiun tidak ditemukan",
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: const Color(0xFF49454F).withOpacity(0.6),
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : ListView.builder(
-                      physics: const BouncingScrollPhysics(),
-                      itemCount: _filteredStations.length,
-                      itemBuilder: (context, index) {
-                        final station = _filteredStations[index];
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 8),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF5F7FA),
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: ListTile(
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                            leading: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    Color(0xFF656CEE),
-                                    Color(0xFF4147D5),
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: const Icon(
-                                Icons.train_rounded,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                            ),
-                            title: Text(
-                              station['nama'] ?? '',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 15,
-                                color: Color(0xFF1B1B1F),
-                              ),
-                            ),
-                            subtitle: Text(
-                              "(${station['id']})",
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: const Color(0xFF49454F).withOpacity(0.7),
-                              ),
-                            ),
-                            trailing: const Icon(
-                              Icons.arrow_forward_ios_rounded,
-                              size: 16,
-                              color: Color(0xFF656CEE),
-                            ),
-                            onTap: () {
-                              widget.controller.selectStation(
-                                station,
-                                widget.isDeparture,
-                              );
-                            },
-                          ),
-                        );
-                      },
-                    ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

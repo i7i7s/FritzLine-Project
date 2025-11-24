@@ -114,7 +114,6 @@ class DetailJadwalController extends GetxController {
           }
         }
       } catch (e) {
-        print('Error validating departure time: $e');
       }
     }
 
@@ -183,15 +182,11 @@ class DetailJadwalController extends GetxController {
 
                 final cutoffTime = now.add(const Duration(minutes: 30));
 
-                print(
-                  '🚂 [FILTER] ${train['namaKereta']}: Jam=${jadwalBerangkat}, Cutoff=${cutoffTime.hour}:${cutoffTime.minute.toString().padLeft(2, '0')}, Pass=${departureTime.isAfter(cutoffTime)}',
-                );
 
                 return departureTime.isAfter(cutoffTime);
               }
             }
           } catch (e) {
-            print('❌ Error parsing time for train: $e');
             return false;
           }
         }
@@ -218,7 +213,6 @@ class DetailJadwalController extends GetxController {
 
           return timeA.compareTo(timeB);
         } catch (e) {
-          print('Error sorting trains: $e');
           return 0;
         }
       });
