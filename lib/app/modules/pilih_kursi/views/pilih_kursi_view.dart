@@ -742,7 +742,9 @@ class PilihKursiView extends GetView<PilihKursiController> {
             ),
           ],
         );
-      }),
-    );
+      },
+      )
+    ); 
   }
+
 }
