@@ -16,11 +16,12 @@ class HiveService extends GetxService {
     String kodeTujuan, {
     DateTime? tanggalKeberangkatan,
   }) async {
-    // Default ke hari ini jika tidak disediakan
     final date = tanggalKeberangkatan ?? DateTime.now();
     final dateString = DateFormat('yyyy-MM-dd').format(date);
-    
-    final uri = Uri.parse('$_apiBaseUrl/search?from=$kodeAsal&to=$kodeTujuan&date=$dateString');
+
+    final uri = Uri.parse(
+      '$_apiBaseUrl/search?from=$kodeAsal&to=$kodeTujuan&date=$dateString',
+    );
 
     try {
       final response = await http.get(uri).timeout(const Duration(seconds: 15));
@@ -63,7 +64,7 @@ class HiveService extends GetxService {
     required DateTime tanggalKeberangkatan,
   }) async {
     final dateString = DateFormat('yyyy-MM-dd').format(tanggalKeberangkatan);
-    
+
     final uri = Uri.parse('$_apiBaseUrl/seats/$idKereta?date=$dateString');
 
     try {
@@ -94,17 +95,17 @@ class HiveService extends GetxService {
 
     try {
       final dateString = DateFormat('yyyy-MM-dd').format(tanggalKeberangkatan);
-      
+
       final Map<String, dynamic> requestBody = {
         'id_kereta': idKereta,
         'seat_ids': seatIds,
         'tanggal_keberangkatan': dateString,
       };
-      
+
       if (seatDetails != null && seatDetails.isNotEmpty) {
         requestBody['seat_details'] = seatDetails;
       }
-      
+
       final response = await http
           .post(
             uri,
@@ -157,7 +158,7 @@ class HiveService extends GetxService {
 
     try {
       final dateString = DateFormat('yyyy-MM-dd').format(tanggalKeberangkatan);
-      
+
       final response = await http
           .post(
             uri,
@@ -175,7 +176,6 @@ class HiveService extends GetxService {
         throw Exception('Release gagal (${response.statusCode})');
       }
     } catch (e) {
-      print("Error releasing seats: $e");
       return false;
     }
   }
@@ -191,13 +191,6 @@ class HiveService extends GetxService {
     final uri = Uri.parse('$_apiBaseUrl/bookings/confirm');
 
     final dateString = DateFormat('yyyy-MM-dd').format(tanggalKeberangkatan);
-
-    print('🚀 [API] Confirm Booking Request:');
-    print('   Train ID: $idKereta');
-    print('   Date: $dateString');
-    print('   Seat IDs: $seatIds');
-    print('   Passengers: ${passengerData.length}');
-    print('   Total: $totalPrice');
 
     try {
       final requestBody = {
@@ -217,15 +210,10 @@ class HiveService extends GetxService {
           )
           .timeout(const Duration(seconds: 20));
 
-      print('📥 [API] Confirm Response: ${response.statusCode}');
-      print('📥 [API] Response Body: ${response.body}');
-
       if (response.statusCode == 200) {
         final result = json.decode(response.body);
-        print('✅ [API] Booking Confirmed! Code: ${result['kode_booking']}');
         return result['kode_booking'];
       } else {
-        print('❌ [API] Confirm Failed: ${response.statusCode}');
         throw Exception('Konfirmasi booking gagal (${response.statusCode})');
       }
     } catch (e) {
@@ -269,9 +257,5 @@ class HiveService extends GetxService {
   }
 
   @deprecated
-  Future<void> kurangiStokTiket(String trainId, int jumlahBeli) async {
-    print(
-      "DEPRECATED: Method ini sudah tidak digunakan. Gunakan bookSeats() dan confirmBooking().",
-    );
-  }
+  Future<void> kurangiStokTiket(String trainId, int jumlahBeli) async {}
 }

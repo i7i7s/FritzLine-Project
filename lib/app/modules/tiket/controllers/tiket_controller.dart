@@ -10,7 +10,6 @@ class TiketController extends GetxController {
     super.onInit();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ticketService.reloadTickets();
-      print('🎫 [TiketController] Reloaded tickets on page open');
     });
   }
 

@@ -1,4 +1,3 @@
-/// Model sederhana untuk pesan chat
 class ChatMessage {
   final String text;
   final bool isUser;
